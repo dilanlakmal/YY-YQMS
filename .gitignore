@@ -1,3 +1,7 @@
+# Environment variables
+.env
+.env.*
+
 # Logs
 logs
 *.log
@@ -22,3 +26,26 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ==================================
+#      BACKEND SPECIFIC IGNORES
+# ==================================
+# Ignore the user-uploaded content directory inside the backend folder.
+# all image upload folders (cutting, scc, etc.)
+/backend/public/storage/
+
+# Fincheck image upload folders in frontend
+/backend/storage/PivotY/Fincheck
+
+# --- USER UPLOADED CONTENT ---
+# Ignore all content within the public storage directory.
+# handles all image upload folders in frontend
+public/storage/
+
+# ==================================
+#      AI Service API
+# ==================================
+# Ignore API Keys.
+# Ignore the .env file inside the ai_service folder and the virtual environment.
+/ai_service/.env
+/ai_service/venv

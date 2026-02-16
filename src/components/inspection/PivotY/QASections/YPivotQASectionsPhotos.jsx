@@ -1,32 +1,78 @@
 import axios from "axios";
-import { Check, Edit2, Plus, Save, Trash2, X, XCircle } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Edit2,
+  ImageIcon,
+  Plus,
+  Save,
+  Trash2,
+  X,
+  XCircle,
+} from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Swal from "sweetalert2";
 import { API_BASE_URL } from "../../../../../config";
+
+// Modal Component with Portal
+const Modal = ({ isOpen, children }) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+      {children}
+    </div>,
+    document.body,
+  );
+};
 
 const YPivotQASectionsPhotos = () => {
   const [sections, setSections] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [editingSectionId, setEditingSectionId] = useState(null);
-  const [editingSectionName, setEditingSectionName] = useState("");
-  const [editingItemId, setEditingItemId] = useState(null);
-  const [editingItemData, setEditingItemData] = useState({
-    itemName: "",
-    maxCount: 10
+  const [expandedSections, setExpandedSections] = useState({});
+
+  // Edit section modal state
+  const [editingSectionModal, setEditingSectionModal] = useState({
+    isOpen: false,
+    sectionId: null,
+    sectionName: "",
+    sectionNameChinese: "",
   });
 
-  // Add new section states
-  const [isAddingNew, setIsAddingNew] = useState(false);
-  const [newSectionName, setNewSectionName] = useState("");
-  const [newItemList, setNewItemList] = useState([
-    { no: 1, itemName: "", maxCount: 10 }
-  ]);
-
-  // Add new item to existing section states
-  const [addingItemToSectionId, setAddingItemToSectionId] = useState(null);
-  const [newItemForSection, setNewItemForSection] = useState({
+  // Edit item modal state
+  const [editingItemModal, setEditingItemModal] = useState({
+    isOpen: false,
+    sectionId: null,
+    itemNo: null,
     itemName: "",
-    maxCount: 10
+    itemNameChinese: "",
+    maxCount: 10,
+  });
+
+  // Add new section state
+  const [isAddingNew, setIsAddingNew] = useState(false);
+  const [newSectionData, setNewSectionData] = useState({
+    sectionName: "",
+    sectionNameChinese: "",
+    itemList: [{ no: 1, itemName: "", itemNameChinese: "", maxCount: 10 }],
+  });
+
+  // Add new item to existing section state
+  const [addingItemModal, setAddingItemModal] = useState({
+    isOpen: false,
+    sectionId: null,
+    itemName: "",
+    itemNameChinese: "",
+    maxCount: 10,
   });
 
   // Fetch all sections on mount
@@ -38,10 +84,16 @@ const YPivotQASectionsPhotos = () => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `${API_BASE_URL}/api/qa-sections-photos`
+        `${API_BASE_URL}/api/qa-sections-photos`,
       );
       if (response.data.success) {
         setSections(response.data.data);
+        // Expand all sections by default
+        const expanded = {};
+        response.data.data.forEach((s) => {
+          expanded[s._id] = true;
+        });
+        setExpandedSections(expanded);
       }
     } catch (error) {
       console.error("Error fetching sections:", error);
@@ -51,15 +103,50 @@ const YPivotQASectionsPhotos = () => {
     }
   };
 
-  // === SECTION NAME EDITING ===
-  const handleEditSectionName = (section) => {
-    setEditingSectionId(section._id);
-    setEditingSectionName(section.sectionName);
+  const toggleSectionExpand = (sectionId) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [sectionId]: !prev[sectionId],
+    }));
   };
 
-  const handleSaveSectionName = async (sectionId) => {
-    if (!editingSectionName.trim()) {
-      Swal.fire("Validation Error", "Section name cannot be empty", "warning");
+  // === SECTION NAME EDITING ===
+  const openEditSectionModal = (section) => {
+    setEditingSectionModal({
+      isOpen: true,
+      sectionId: section._id,
+      sectionName: section.sectionName,
+      sectionNameChinese: section.sectionNameChinese || "",
+    });
+  };
+
+  const closeEditSectionModal = () => {
+    setEditingSectionModal({
+      isOpen: false,
+      sectionId: null,
+      sectionName: "",
+      sectionNameChinese: "",
+    });
+  };
+
+  const handleSaveSectionName = async () => {
+    const { sectionId, sectionName, sectionNameChinese } = editingSectionModal;
+
+    if (!sectionName.trim()) {
+      Swal.fire(
+        "Validation Error",
+        "Section name (English) cannot be empty",
+        "warning",
+      );
+      return;
+    }
+
+    if (!sectionNameChinese.trim()) {
+      Swal.fire(
+        "Validation Error",
+        "Section name (Chinese) cannot be empty",
+        "warning",
+      );
       return;
     }
 
@@ -68,9 +155,10 @@ const YPivotQASectionsPhotos = () => {
       const response = await axios.put(
         `${API_BASE_URL}/api/qa-sections-photos/${sectionId}`,
         {
-          sectionName: editingSectionName,
-          itemList: section.itemList
-        }
+          sectionName,
+          sectionNameChinese,
+          itemList: section.itemList,
+        },
       );
 
       if (response.data.success) {
@@ -79,43 +167,67 @@ const YPivotQASectionsPhotos = () => {
           title: "Updated!",
           text: "Section name updated successfully",
           timer: 1500,
-          showConfirmButton: false
+          showConfirmButton: false,
         });
         fetchSections();
-        setEditingSectionId(null);
-        setEditingSectionName("");
+        closeEditSectionModal();
       }
     } catch (error) {
       console.error("Error updating section name:", error);
       Swal.fire(
         "Error",
         error.response?.data?.message || "Failed to update section name",
-        "error"
+        "error",
       );
     }
   };
 
-  const handleCancelSectionNameEdit = () => {
-    setEditingSectionId(null);
-    setEditingSectionName("");
-  };
-
   // === ITEM EDITING ===
-  const handleEditItem = (sectionId, item) => {
-    setEditingItemId(`${sectionId}-${item.no}`);
-    setEditingItemData({
+  const openEditItemModal = (sectionId, item) => {
+    setEditingItemModal({
+      isOpen: true,
+      sectionId,
+      itemNo: item.no,
       itemName: item.itemName,
-      maxCount: item.maxCount
+      itemNameChinese: item.itemNameChinese || "",
+      maxCount: item.maxCount,
     });
   };
 
-  const handleSaveItem = async (sectionId, itemNo) => {
-    if (!editingItemData.itemName.trim()) {
-      Swal.fire("Validation Error", "Item name cannot be empty", "warning");
+  const closeEditItemModal = () => {
+    setEditingItemModal({
+      isOpen: false,
+      sectionId: null,
+      itemNo: null,
+      itemName: "",
+      itemNameChinese: "",
+      maxCount: 10,
+    });
+  };
+
+  const handleSaveItem = async () => {
+    const { sectionId, itemNo, itemName, itemNameChinese, maxCount } =
+      editingItemModal;
+
+    if (!itemName.trim()) {
+      Swal.fire(
+        "Validation Error",
+        "Item name (English) cannot be empty",
+        "warning",
+      );
       return;
     }
 
-    if (editingItemData.maxCount < 1) {
+    if (!itemNameChinese.trim()) {
+      Swal.fire(
+        "Validation Error",
+        "Item name (Chinese) cannot be empty",
+        "warning",
+      );
+      return;
+    }
+
+    if (maxCount < 1) {
       Swal.fire("Validation Error", "Max count must be at least 1", "warning");
       return;
     }
@@ -126,18 +238,20 @@ const YPivotQASectionsPhotos = () => {
         item.no === itemNo
           ? {
               ...item,
-              itemName: editingItemData.itemName,
-              maxCount: parseInt(editingItemData.maxCount)
+              itemName,
+              itemNameChinese,
+              maxCount: parseInt(maxCount),
             }
-          : item
+          : item,
       );
 
       const response = await axios.put(
         `${API_BASE_URL}/api/qa-sections-photos/${sectionId}`,
         {
           sectionName: section.sectionName,
-          itemList: updatedItemList
-        }
+          sectionNameChinese: section.sectionNameChinese,
+          itemList: updatedItemList,
+        },
       );
 
       if (response.data.success) {
@@ -146,21 +260,15 @@ const YPivotQASectionsPhotos = () => {
           title: "Updated!",
           text: "Item updated successfully",
           timer: 1500,
-          showConfirmButton: false
+          showConfirmButton: false,
         });
         fetchSections();
-        setEditingItemId(null);
-        setEditingItemData({ itemName: "", maxCount: 10 });
+        closeEditItemModal();
       }
     } catch (error) {
       console.error("Error updating item:", error);
       Swal.fire("Error", "Failed to update item", "error");
     }
-  };
-
-  const handleCancelItemEdit = () => {
-    setEditingItemId(null);
-    setEditingItemData({ itemName: "", maxCount: 10 });
   };
 
   // === DELETE ITEM ===
@@ -172,13 +280,13 @@ const YPivotQASectionsPhotos = () => {
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!"
+      confirmButtonText: "Yes, delete it!",
     });
 
     if (result.isConfirmed) {
       try {
         const response = await axios.delete(
-          `${API_BASE_URL}/api/qa-sections-photos/${sectionId}/items/${itemNo}`
+          `${API_BASE_URL}/api/qa-sections-photos/${sectionId}/items/${itemNo}`,
         );
 
         if (response.data.success) {
@@ -187,7 +295,7 @@ const YPivotQASectionsPhotos = () => {
             title: "Deleted!",
             text: "Item deleted successfully",
             timer: 1500,
-            showConfirmButton: false
+            showConfirmButton: false,
           });
           fetchSections();
         }
@@ -207,13 +315,13 @@ const YPivotQASectionsPhotos = () => {
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!"
+      confirmButtonText: "Yes, delete it!",
     });
 
     if (result.isConfirmed) {
       try {
         const response = await axios.delete(
-          `${API_BASE_URL}/api/qa-sections-photos/${sectionId}`
+          `${API_BASE_URL}/api/qa-sections-photos/${sectionId}`,
         );
 
         if (response.data.success) {
@@ -222,7 +330,7 @@ const YPivotQASectionsPhotos = () => {
             title: "Deleted!",
             text: "Section deleted successfully",
             timer: 1500,
-            showConfirmButton: false
+            showConfirmButton: false,
           });
           fetchSections();
         }
@@ -236,54 +344,82 @@ const YPivotQASectionsPhotos = () => {
   // === ADD NEW SECTION ===
   const handleShowAddNew = () => {
     setIsAddingNew(true);
-    setNewSectionName("");
-    setNewItemList([{ no: 1, itemName: "", maxCount: 10 }]);
+    setNewSectionData({
+      sectionName: "",
+      sectionNameChinese: "",
+      itemList: [{ no: 1, itemName: "", itemNameChinese: "", maxCount: 10 }],
+    });
   };
 
   const handleCancelAddNew = () => {
     setIsAddingNew(false);
-    setNewSectionName("");
-    setNewItemList([]);
+    setNewSectionData({
+      sectionName: "",
+      sectionNameChinese: "",
+      itemList: [],
+    });
   };
 
   const handleAddNewItem = () => {
     const newNo =
-      newItemList.length > 0
-        ? Math.max(...newItemList.map((i) => i.no)) + 1
+      newSectionData.itemList.length > 0
+        ? Math.max(...newSectionData.itemList.map((i) => i.no)) + 1
         : 1;
-    setNewItemList([...newItemList, { no: newNo, itemName: "", maxCount: 10 }]);
+    setNewSectionData({
+      ...newSectionData,
+      itemList: [
+        ...newSectionData.itemList,
+        { no: newNo, itemName: "", itemNameChinese: "", maxCount: 10 },
+      ],
+    });
   };
 
   const handleRemoveNewItem = (no) => {
-    const filtered = newItemList.filter((item) => item.no !== no);
-    // Re-number items
+    const filtered = newSectionData.itemList.filter((item) => item.no !== no);
     const renumbered = filtered.map((item, index) => ({
       ...item,
-      no: index + 1
+      no: index + 1,
     }));
-    setNewItemList(renumbered);
+    setNewSectionData({ ...newSectionData, itemList: renumbered });
   };
 
   const handleNewItemChange = (no, field, value) => {
-    setNewItemList(
-      newItemList.map((item) =>
-        item.no === no ? { ...item, [field]: value } : item
-      )
-    );
+    setNewSectionData({
+      ...newSectionData,
+      itemList: newSectionData.itemList.map((item) =>
+        item.no === no ? { ...item, [field]: value } : item,
+      ),
+    });
   };
 
   const handleSaveNewSection = async () => {
-    if (!newSectionName.trim()) {
-      Swal.fire("Validation Error", "Section name cannot be empty", "warning");
+    if (!newSectionData.sectionName.trim()) {
+      Swal.fire(
+        "Validation Error",
+        "Section name (English) cannot be empty",
+        "warning",
+      );
       return;
     }
 
-    const validItems = newItemList.filter((item) => item.itemName.trim());
+    if (!newSectionData.sectionNameChinese.trim()) {
+      Swal.fire(
+        "Validation Error",
+        "Section name (Chinese) cannot be empty",
+        "warning",
+      );
+      return;
+    }
+
+    const validItems = newSectionData.itemList.filter(
+      (item) => item.itemName.trim() && item.itemNameChinese.trim(),
+    );
+
     if (validItems.length === 0) {
       Swal.fire(
         "Validation Error",
-        "At least one item with a name is required",
-        "warning"
+        "At least one item with both English and Chinese names is required",
+        "warning",
       );
       return;
     }
@@ -292,9 +428,10 @@ const YPivotQASectionsPhotos = () => {
       const response = await axios.post(
         `${API_BASE_URL}/api/qa-sections-photos`,
         {
-          sectionName: newSectionName,
-          itemList: validItems
-        }
+          sectionName: newSectionData.sectionName,
+          sectionNameChinese: newSectionData.sectionNameChinese,
+          itemList: validItems,
+        },
       );
 
       if (response.data.success) {
@@ -303,7 +440,7 @@ const YPivotQASectionsPhotos = () => {
           title: "Created!",
           text: "New section created successfully",
           timer: 1500,
-          showConfirmButton: false
+          showConfirmButton: false,
         });
         fetchSections();
         handleCancelAddNew();
@@ -313,29 +450,54 @@ const YPivotQASectionsPhotos = () => {
       Swal.fire(
         "Error",
         error.response?.data?.message || "Failed to create section",
-        "error"
+        "error",
       );
     }
   };
 
   // === ADD ITEM TO EXISTING SECTION ===
-  const handleShowAddItemToSection = (sectionId) => {
-    setAddingItemToSectionId(sectionId);
-    setNewItemForSection({ itemName: "", maxCount: 10 });
+  const openAddItemModal = (sectionId) => {
+    setAddingItemModal({
+      isOpen: true,
+      sectionId,
+      itemName: "",
+      itemNameChinese: "",
+      maxCount: 10,
+    });
   };
 
-  const handleCancelAddItemToSection = () => {
-    setAddingItemToSectionId(null);
-    setNewItemForSection({ itemName: "", maxCount: 10 });
+  const closeAddItemModal = () => {
+    setAddingItemModal({
+      isOpen: false,
+      sectionId: null,
+      itemName: "",
+      itemNameChinese: "",
+      maxCount: 10,
+    });
   };
 
-  const handleSaveItemToSection = async (sectionId) => {
-    if (!newItemForSection.itemName.trim()) {
-      Swal.fire("Validation Error", "Item name cannot be empty", "warning");
+  const handleSaveNewItemToSection = async () => {
+    const { sectionId, itemName, itemNameChinese, maxCount } = addingItemModal;
+
+    if (!itemName.trim()) {
+      Swal.fire(
+        "Validation Error",
+        "Item name (English) cannot be empty",
+        "warning",
+      );
       return;
     }
 
-    if (newItemForSection.maxCount < 1) {
+    if (!itemNameChinese.trim()) {
+      Swal.fire(
+        "Validation Error",
+        "Item name (Chinese) cannot be empty",
+        "warning",
+      );
+      return;
+    }
+
+    if (maxCount < 1) {
       Swal.fire("Validation Error", "Max count must be at least 1", "warning");
       return;
     }
@@ -343,7 +505,7 @@ const YPivotQASectionsPhotos = () => {
     try {
       const response = await axios.post(
         `${API_BASE_URL}/api/qa-sections-photos/${sectionId}/items`,
-        newItemForSection
+        { itemName, itemNameChinese, maxCount },
       );
 
       if (response.data.success) {
@@ -352,10 +514,10 @@ const YPivotQASectionsPhotos = () => {
           title: "Added!",
           text: "Item added successfully",
           timer: 1500,
-          showConfirmButton: false
+          showConfirmButton: false,
         });
         fetchSections();
-        handleCancelAddItemToSection();
+        closeAddItemModal();
       }
     } catch (error) {
       console.error("Error adding item:", error);
@@ -372,13 +534,22 @@ const YPivotQASectionsPhotos = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Add New Section Button */}
-      <div className="flex justify-end">
+    <div className="space-y-6 p-2 sm:p-4">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+            <ImageIcon className="w-6 h-6 text-indigo-500" />
+            Photo Sections Manager
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Manage photo sections and their item lists with bilingual support
+          </p>
+        </div>
         <button
           onClick={handleShowAddNew}
           disabled={isAddingNew}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-all"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-all"
         >
           <Plus size={18} />
           Add New Section
@@ -387,91 +558,139 @@ const YPivotQASectionsPhotos = () => {
 
       {/* Add New Section Form */}
       {isAddingNew && (
-        <div className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 p-6 rounded-lg shadow-lg border-2 border-indigo-200 dark:border-indigo-700">
-          <h3 className="text-lg font-bold text-indigo-700 dark:text-indigo-300 mb-4">
+        <div className="bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 dark:from-indigo-900/30 dark:via-blue-900/20 dark:to-purple-900/20 p-4 sm:p-6 rounded-xl shadow-lg border-2 border-indigo-200 dark:border-indigo-700">
+          <h3 className="text-lg font-bold text-indigo-700 dark:text-indigo-300 mb-4 flex items-center gap-2">
+            <Plus className="w-5 h-5" />
             Add New Photo Section
           </h3>
 
-          {/* Section Name */}
-          <div className="mb-4">
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              Section Name
-            </label>
-            <input
-              type="text"
-              value={newSectionName}
-              onChange={(e) => setNewSectionName(e.target.value)}
-              placeholder="Enter section name..."
-              className="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            />
+          {/* Section Name Inputs */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Section Name (English) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={newSectionData.sectionName}
+                onChange={(e) =>
+                  setNewSectionData({
+                    ...newSectionData,
+                    sectionName: e.target.value,
+                  })
+                }
+                placeholder="Enter section name in English..."
+                className="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Section Name (Chinese) 中文名稱{" "}
+                <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={newSectionData.sectionNameChinese}
+                onChange={(e) =>
+                  setNewSectionData({
+                    ...newSectionData,
+                    sectionNameChinese: e.target.value,
+                  })
+                }
+                placeholder="輸入中文分區名稱..."
+                className="w-full p-3 border-2 border-orange-300 dark:border-orange-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+              />
+            </div>
           </div>
 
           {/* Item List */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
               Item List
             </label>
             <div className="space-y-3">
-              {newItemList.map((item) => (
+              {newSectionData.itemList.map((item) => (
                 <div
                   key={item.no}
-                  className="flex gap-3 items-center bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700"
+                  className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm"
                 >
-                  <span className="text-sm font-bold text-gray-500 dark:text-gray-400 w-8">
-                    {item.no}.
-                  </span>
-                  <input
-                    type="text"
-                    value={item.itemName}
-                    onChange={(e) =>
-                      handleNewItemChange(item.no, "itemName", e.target.value)
-                    }
-                    placeholder="Item name..."
-                    className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 focus:ring-2 focus:ring-indigo-500"
-                  />
-                  <input
-                    type="number"
-                    value={item.maxCount}
-                    onChange={(e) =>
-                      handleNewItemChange(
-                        item.no,
-                        "maxCount",
-                        parseInt(e.target.value) || 1
-                      )
-                    }
-                    min="1"
-                    className="w-24 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 focus:ring-2 focus:ring-indigo-500"
-                  />
-                  <button
-                    onClick={() => handleRemoveNewItem(item.no)}
-                    className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                    title="Remove item"
-                  >
-                    <XCircle size={18} />
-                  </button>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                      Item #{item.no}
+                    </span>
+                    <button
+                      onClick={() => handleRemoveNewItem(item.no)}
+                      className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                      title="Remove item"
+                    >
+                      <XCircle size={16} />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <input
+                      type="text"
+                      value={item.itemName}
+                      onChange={(e) =>
+                        handleNewItemChange(item.no, "itemName", e.target.value)
+                      }
+                      placeholder="Item name (English)"
+                      className="p-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 focus:ring-2 focus:ring-indigo-500 text-sm"
+                    />
+                    <input
+                      type="text"
+                      value={item.itemNameChinese}
+                      onChange={(e) =>
+                        handleNewItemChange(
+                          item.no,
+                          "itemNameChinese",
+                          e.target.value,
+                        )
+                      }
+                      placeholder="項目名稱 (Chinese)"
+                      className="p-2.5 border border-orange-300 dark:border-orange-600 rounded-lg bg-gray-50 dark:bg-gray-900 focus:ring-2 focus:ring-orange-500 text-sm"
+                    />
+                    <div className="flex items-center gap-2">
+                      <label className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                        Max:
+                      </label>
+                      <input
+                        type="number"
+                        value={item.maxCount}
+                        onChange={(e) =>
+                          handleNewItemChange(
+                            item.no,
+                            "maxCount",
+                            parseInt(e.target.value) || 1,
+                          )
+                        }
+                        min="1"
+                        className="w-full p-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 focus:ring-2 focus:ring-indigo-500 text-sm"
+                      />
+                    </div>
+                  </div>
                 </div>
               ))}
               <button
                 onClick={handleAddNewItem}
-                className="w-full p-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium"
+                className="w-full p-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 font-medium border-2 border-dashed border-gray-300 dark:border-gray-600 transition-colors"
               >
-                + Add Item
+                + Add Another Item
               </button>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-3 mt-6">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
             <button
               onClick={handleCancelAddNew}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white font-semibold rounded-lg hover:bg-gray-600"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-gray-500 text-white font-semibold rounded-lg hover:bg-gray-600 transition-colors"
             >
               <X size={16} />
               Cancel
             </button>
             <button
               onClick={handleSaveNewSection}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors"
             >
               <Check size={16} />
               Save Section
@@ -480,281 +699,382 @@ const YPivotQASectionsPhotos = () => {
         </div>
       )}
 
-      {/* Manage Photos Section Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-        <div className="px-6 py-4 bg-gradient-to-r from-indigo-600 to-blue-600 dark:from-indigo-700 dark:to-blue-700">
-          <h2 className="text-xl font-bold text-white">
-            Manage Photo Sections and Item List
-          </h2>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-100 dark:bg-gray-700">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider w-1/4">
-                  Section Name
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider w-2/5">
-                  Item List
-                </th>
-                <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider w-32">
-                  Max Count
-                </th>
-                <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider w-32">
-                  Item Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {sections.map((section) => (
-                <React.Fragment key={section._id}>
-                  {section.itemList.map((item, index) => (
-                    <tr
-                      key={`${section._id}-${item.no}`}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      {/* Section Name - only show on first row */}
-                      {index === 0 && (
-                        <td
-                          rowSpan={
-                            section.itemList.length +
-                            (addingItemToSectionId === section._id ? 1 : 0)
-                          }
-                          className="px-6 py-4 border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50"
-                        >
-                          {editingSectionId === section._id ? (
-                            <div className="space-y-2">
-                              <input
-                                type="text"
-                                value={editingSectionName}
-                                onChange={(e) =>
-                                  setEditingSectionName(e.target.value)
-                                }
-                                className="w-full p-2 border-2 border-indigo-300 dark:border-indigo-600 rounded-md bg-white dark:bg-gray-700 focus:ring-2 focus:ring-indigo-500"
-                              />
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={() =>
-                                    handleSaveSectionName(section._id)
-                                  }
-                                  className="flex-1 p-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs"
-                                >
-                                  <Save size={14} className="mx-auto" />
-                                </button>
-                                <button
-                                  onClick={handleCancelSectionNameEdit}
-                                  className="flex-1 p-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-xs"
-                                >
-                                  <X size={14} className="mx-auto" />
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="space-y-3">
-                              <p className="font-bold text-gray-900 dark:text-gray-100">
-                                {section.sectionName}
-                              </p>
-                              <div className="flex flex-col gap-2">
-                                <button
-                                  onClick={() => handleEditSectionName(section)}
-                                  className="flex items-center justify-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded"
-                                >
-                                  <Edit2 size={12} />
-                                  Edit Name
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    handleShowAddItemToSection(section._id)
-                                  }
-                                  disabled={
-                                    addingItemToSectionId === section._id
-                                  }
-                                  className="flex items-center justify-center gap-1 text-xs text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded disabled:opacity-50"
-                                >
-                                  <Plus size={12} />
-                                  Add Item
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    handleDeleteSection(
-                                      section._id,
-                                      section.sectionName
-                                    )
-                                  }
-                                  className="flex items-center justify-center gap-1 text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 bg-red-50 dark:bg-red-900/30 px-2 py-1 rounded"
-                                >
-                                  <Trash2 size={12} />
-                                  Delete Section
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </td>
-                      )}
-
-                      {/* Item Name */}
-                      <td className="px-6 py-4">
-                        {editingItemId === `${section._id}-${item.no}` ? (
-                          <input
-                            type="text"
-                            value={editingItemData.itemName}
-                            onChange={(e) =>
-                              setEditingItemData({
-                                ...editingItemData,
-                                itemName: e.target.value
-                              })
-                            }
-                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-sm"
-                          />
-                        ) : (
-                          <span className="text-sm text-gray-900 dark:text-gray-100">
-                            {item.no}. {item.itemName}
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Max Count */}
-                      <td className="px-6 py-4 text-center">
-                        {editingItemId === `${section._id}-${item.no}` ? (
-                          <input
-                            type="number"
-                            value={editingItemData.maxCount}
-                            onChange={(e) =>
-                              setEditingItemData({
-                                ...editingItemData,
-                                maxCount: parseInt(e.target.value) || 1
-                              })
-                            }
-                            min="1"
-                            className="w-20 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-sm text-center"
-                          />
-                        ) : (
-                          <span className="inline-flex items-center justify-center px-3 py-1 text-sm font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-900/30 rounded-full">
-                            {item.maxCount}
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Item Actions */}
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-center gap-2">
-                          {editingItemId === `${section._id}-${item.no}` ? (
-                            <>
-                              <button
-                                onClick={() =>
-                                  handleSaveItem(section._id, item.no)
-                                }
-                                className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-md transition-all"
-                                title="Save changes"
-                              >
-                                <Save size={16} />
-                              </button>
-                              <button
-                                onClick={handleCancelItemEdit}
-                                className="p-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 shadow-md transition-all"
-                                title="Cancel"
-                              >
-                                <X size={16} />
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <button
-                                onClick={() =>
-                                  handleEditItem(section._id, item)
-                                }
-                                className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md transition-all"
-                                title="Edit item"
-                              >
-                                <Edit2 size={16} />
-                              </button>
-                              <button
-                                onClick={() =>
-                                  handleDeleteItem(
-                                    section._id,
-                                    item.no,
-                                    item.itemName
-                                  )
-                                }
-                                className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md transition-all"
-                                title="Delete item"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-
-                  {/* Add Item Row - shows when adding item to this section */}
-                  {addingItemToSectionId === section._id && (
-                    <tr className="bg-green-50 dark:bg-green-900/20">
-                      <td className="px-6 py-4">
-                        <input
-                          type="text"
-                          value={newItemForSection.itemName}
-                          onChange={(e) =>
-                            setNewItemForSection({
-                              ...newItemForSection,
-                              itemName: e.target.value
-                            })
-                          }
-                          placeholder="New item name..."
-                          className="w-full p-2 border-2 border-green-300 dark:border-green-600 rounded-md bg-white dark:bg-gray-700 text-sm focus:ring-2 focus:ring-green-500"
-                        />
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <input
-                          type="number"
-                          value={newItemForSection.maxCount}
-                          onChange={(e) =>
-                            setNewItemForSection({
-                              ...newItemForSection,
-                              maxCount: parseInt(e.target.value) || 1
-                            })
-                          }
-                          min="1"
-                          className="w-20 p-2 border-2 border-green-300 dark:border-green-600 rounded-md bg-white dark:bg-gray-700 text-sm text-center focus:ring-2 focus:ring-green-500"
-                        />
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => handleSaveItemToSection(section._id)}
-                            className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-md transition-all"
-                            title="Save new item"
-                          >
-                            <Save size={16} />
-                          </button>
-                          <button
-                            onClick={handleCancelAddItemToSection}
-                            className="p-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 shadow-md transition-all"
-                            title="Cancel"
-                          >
-                            <X size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+      {/* Sections List */}
+      <div className="space-y-4">
+        {sections.map((section) => (
+          <div
+            key={section._id}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden"
+          >
+            {/* Section Header */}
+            <div
+              className="p-4 bg-gradient-to-r from-indigo-500 to-purple-500 dark:from-indigo-600 dark:to-purple-600 cursor-pointer"
+              onClick={() => toggleSectionExpand(section._id)}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  {expandedSections[section._id] ? (
+                    <ChevronUp className="w-5 h-5 text-white" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-white" />
                   )}
-                </React.Fragment>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">
+                      {section.sectionName}
+                    </h3>
+                    <p className="text-sm text-white/80">
+                      {section.sectionNameChinese || "No Chinese name"}
+                    </p>
+                  </div>
+                  <span className="px-2.5 py-1 bg-white/20 text-white text-xs font-semibold rounded-full">
+                    {section.itemList.length} items
+                  </span>
+                </div>
+                <div
+                  className="flex items-center gap-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    onClick={() => openEditSectionModal(section)}
+                    className="p-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors"
+                    title="Edit section name"
+                  >
+                    <Edit2 size={16} />
+                  </button>
+                  <button
+                    onClick={() => openAddItemModal(section._id)}
+                    className="p-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors"
+                    title="Add item"
+                  >
+                    <Plus size={16} />
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleDeleteSection(section._id, section.sectionName)
+                    }
+                    className="p-2 bg-red-500/80 hover:bg-red-600 text-white rounded-lg transition-colors"
+                    title="Delete section"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Section Items */}
+            {expandedSections[section._id] && (
+              <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                {section.itemList.map((item) => (
+                  <div
+                    key={`${section._id}-${item.no}`}
+                    className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-start gap-3">
+                          <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full text-sm font-bold">
+                            {item.no}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-gray-800 dark:text-gray-200 truncate">
+                              {item.itemName}
+                            </p>
+                            <p className="text-sm text-orange-600 dark:text-orange-400 truncate">
+                              {item.itemNameChinese || "No Chinese name"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 pl-11 sm:pl-0">
+                        <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-semibold rounded-full">
+                          Max: {item.maxCount}
+                        </span>
+                        <button
+                          onClick={() => openEditItemModal(section._id, item)}
+                          className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow transition-colors"
+                          title="Edit item"
+                        >
+                          <Edit2 size={14} />
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleDeleteItem(
+                              section._id,
+                              item.no,
+                              item.itemName,
+                            )
+                          }
+                          className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow transition-colors"
+                          title="Delete item"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {section.itemList.length === 0 && (
+                  <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+                    No items in this section. Click the + button to add one.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
 
         {/* Empty State */}
         {sections.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-gray-400">
-              No sections available. Click "Add New Section" to create one.
+          <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            <ImageIcon className="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+            <p className="text-gray-500 dark:text-gray-400 text-lg">
+              No sections available.
+            </p>
+            <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">
+              Click "Add New Section" to create one.
             </p>
           </div>
         )}
       </div>
+
+      {/* Edit Section Modal */}
+      <Modal isOpen={editingSectionModal.isOpen}>
+        <div className="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-indigo-500 to-purple-500">
+            <h3 className="font-bold text-white text-lg flex items-center gap-2">
+              <Edit2 className="w-5 h-5" />
+              Edit Section Name
+            </h3>
+          </div>
+          <div className="p-6 space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Section Name (English)
+              </label>
+              <input
+                type="text"
+                value={editingSectionModal.sectionName}
+                onChange={(e) =>
+                  setEditingSectionModal({
+                    ...editingSectionModal,
+                    sectionName: e.target.value,
+                  })
+                }
+                className="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Section Name (Chinese) 中文名稱
+              </label>
+              <input
+                type="text"
+                value={editingSectionModal.sectionNameChinese}
+                onChange={(e) =>
+                  setEditingSectionModal({
+                    ...editingSectionModal,
+                    sectionNameChinese: e.target.value,
+                  })
+                }
+                className="w-full p-3 border-2 border-orange-300 dark:border-orange-600 rounded-lg bg-white dark:bg-gray-900 focus:ring-2 focus:ring-orange-500"
+              />
+            </div>
+          </div>
+          <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex justify-end gap-3">
+            <button
+              onClick={closeEditSectionModal}
+              className="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSaveSectionName}
+              className="px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow transition-colors flex items-center gap-2"
+            >
+              <Save size={16} />
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Edit Item Modal */}
+      <Modal isOpen={editingItemModal.isOpen}>
+        <div className="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-500 to-indigo-500">
+            <h3 className="font-bold text-white text-lg flex items-center gap-2">
+              <Edit2 className="w-5 h-5" />
+              Edit Item
+            </h3>
+          </div>
+          <div className="p-6 space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Item Name (English)
+              </label>
+              <input
+                type="text"
+                value={editingItemModal.itemName}
+                onChange={(e) =>
+                  setEditingItemModal({
+                    ...editingItemModal,
+                    itemName: e.target.value,
+                  })
+                }
+                className="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Item Name (Chinese) 項目名稱
+              </label>
+              <input
+                type="text"
+                value={editingItemModal.itemNameChinese}
+                onChange={(e) =>
+                  setEditingItemModal({
+                    ...editingItemModal,
+                    itemNameChinese: e.target.value,
+                  })
+                }
+                className="w-full p-3 border-2 border-orange-300 dark:border-orange-600 rounded-lg bg-white dark:bg-gray-900 focus:ring-2 focus:ring-orange-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Max Count
+              </label>
+              <input
+                type="number"
+                value={editingItemModal.maxCount}
+                onChange={(e) =>
+                  setEditingItemModal({
+                    ...editingItemModal,
+                    maxCount: parseInt(e.target.value) || 1,
+                  })
+                }
+                min="1"
+                className="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+          </div>
+          <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex justify-end gap-3">
+            <button
+              onClick={closeEditItemModal}
+              className="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSaveItem}
+              className="px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow transition-colors flex items-center gap-2"
+            >
+              <Save size={16} />
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Add Item Modal */}
+      <Modal isOpen={addingItemModal.isOpen}>
+        <div className="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-green-500 to-emerald-500">
+            <h3 className="font-bold text-white text-lg flex items-center gap-2">
+              <Plus className="w-5 h-5" />
+              Add New Item
+            </h3>
+          </div>
+          <div className="p-6 space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Item Name (English)
+              </label>
+              <input
+                type="text"
+                value={addingItemModal.itemName}
+                onChange={(e) =>
+                  setAddingItemModal({
+                    ...addingItemModal,
+                    itemName: e.target.value,
+                  })
+                }
+                placeholder="Enter item name in English..."
+                className="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 focus:ring-2 focus:ring-green-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Item Name (Chinese) 項目名稱
+              </label>
+              <input
+                type="text"
+                value={addingItemModal.itemNameChinese}
+                onChange={(e) =>
+                  setAddingItemModal({
+                    ...addingItemModal,
+                    itemNameChinese: e.target.value,
+                  })
+                }
+                placeholder="輸入中文項目名稱..."
+                className="w-full p-3 border-2 border-orange-300 dark:border-orange-600 rounded-lg bg-white dark:bg-gray-900 focus:ring-2 focus:ring-orange-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Max Count
+              </label>
+              <input
+                type="number"
+                value={addingItemModal.maxCount}
+                onChange={(e) =>
+                  setAddingItemModal({
+                    ...addingItemModal,
+                    maxCount: parseInt(e.target.value) || 1,
+                  })
+                }
+                min="1"
+                className="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 focus:ring-2 focus:ring-green-500"
+              />
+            </div>
+          </div>
+          <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex justify-end gap-3">
+            <button
+              onClick={closeAddItemModal}
+              className="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSaveNewItemToSection}
+              className="px-5 py-2 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-lg shadow transition-colors flex items-center gap-2"
+            >
+              <Plus size={16} />
+              Add Item
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* CSS Styles */}
+      <style>
+        {`
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: scale(0.95);
+            }
+            to {
+              opacity: 1;
+              transform: scale(1);
+            }
+          }
+          .animate-fadeIn {
+            animation: fadeIn 0.2s ease-out;
+          }
+        `}
+      </style>
     </div>
   );
 };

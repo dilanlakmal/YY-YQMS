@@ -6,18 +6,34 @@ import { QASectionsPhotos } from "../../MongoDB/dbConnectionController.js";
 
 /**
  * POST /api/qa-sections-photos
- * Controller: Creates a new photo section
+ * Controller: Creates a new photo section (with Chinese support)
  */
 export const CreatePhotoSection = async (req, res) => {
   try {
-    const { sectionName, itemList } = req.body;
+    const { sectionName, sectionNameChinese, itemList } = req.body;
 
     // Validate required fields
-    if (!sectionName || !itemList || !Array.isArray(itemList)) {
+    if (
+      !sectionName ||
+      !sectionNameChinese ||
+      !itemList ||
+      !Array.isArray(itemList)
+    ) {
       return res.status(400).json({
         success: false,
-        message: "sectionName and itemList array are required"
+        message:
+          "sectionName, sectionNameChinese and itemList array are required",
       });
+    }
+
+    // Validate each item has both itemName and itemNameChinese
+    for (const item of itemList) {
+      if (!item.itemName || !item.itemNameChinese) {
+        return res.status(400).json({
+          success: false,
+          message: "Each item must have both itemName and itemNameChinese",
+        });
+      }
     }
 
     // Check for duplicate section name
@@ -25,13 +41,14 @@ export const CreatePhotoSection = async (req, res) => {
     if (existingSection) {
       return res.status(409).json({
         success: false,
-        message: `Section "${sectionName}" already exists`
+        message: `Section "${sectionName}" already exists`,
       });
     }
 
     const newSection = new QASectionsPhotos({
       sectionName,
-      itemList
+      sectionNameChinese,
+      itemList,
     });
 
     await newSection.save();
@@ -39,7 +56,7 @@ export const CreatePhotoSection = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "Photo section created successfully",
-      data: newSection
+      data: newSection,
     });
   } catch (error) {
     console.error("Error creating photo section:", error);
@@ -47,14 +64,14 @@ export const CreatePhotoSection = async (req, res) => {
     if (error.code === 11000) {
       return res.status(409).json({
         success: false,
-        message: "Duplicate section name"
+        message: "Duplicate section name",
       });
     }
 
     return res.status(500).json({
       success: false,
       message: "Failed to create photo section",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -70,14 +87,14 @@ export const GetPhotoSections = async (req, res) => {
     return res.status(200).json({
       success: true,
       count: sections.length,
-      data: sections
+      data: sections,
     });
   } catch (error) {
     console.error("Error fetching photo sections:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to fetch photo sections",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -93,77 +110,93 @@ export const GetSpecificPhotoSection = async (req, res) => {
     if (!section) {
       return res.status(404).json({
         success: false,
-        message: "Photo section not found"
+        message: "Photo section not found",
       });
     }
 
     return res.status(200).json({
       success: true,
-      data: section
+      data: section,
     });
   } catch (error) {
     console.error("Error fetching photo section:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to fetch photo section",
-      error: error.message
+      error: error.message,
     });
   }
 };
 
 /**
  * PUT /api/qa-sections-photos/:id
- * Controller: Updates a specific photo section
+ * Controller: Updates a specific photo section (with Chinese support)
  */
 export const UpdatePhotoSection = async (req, res) => {
   try {
-    const { sectionName, itemList } = req.body;
+    const { sectionName, sectionNameChinese, itemList } = req.body;
 
     // Validate required fields
-    if (!sectionName || !itemList || !Array.isArray(itemList)) {
+    if (
+      !sectionName ||
+      !sectionNameChinese ||
+      !itemList ||
+      !Array.isArray(itemList)
+    ) {
       return res.status(400).json({
         success: false,
-        message: "sectionName and itemList array are required"
+        message:
+          "sectionName, sectionNameChinese and itemList array are required",
       });
+    }
+
+    // Validate each item has both itemName and itemNameChinese
+    for (const item of itemList) {
+      if (!item.itemName || !item.itemNameChinese) {
+        return res.status(400).json({
+          success: false,
+          message: "Each item must have both itemName and itemNameChinese",
+        });
+      }
     }
 
     // Check if updating to a name that already exists (excluding current document)
     const existingSection = await QASectionsPhotos.findOne({
       sectionName,
-      _id: { $ne: req.params.id }
+      _id: { $ne: req.params.id },
     });
 
     if (existingSection) {
       return res.status(409).json({
         success: false,
-        message: `Section "${sectionName}" already exists`
+        message: `Section "${sectionName}" already exists`,
       });
     }
 
     const updatedSection = await QASectionsPhotos.findByIdAndUpdate(
       req.params.id,
-      { sectionName, itemList },
-      { new: true, runValidators: true }
+      { sectionName, sectionNameChinese, itemList },
+      { new: true, runValidators: true },
     );
 
     if (!updatedSection) {
       return res.status(404).json({
         success: false,
-        message: "Photo section not found"
+        message: "Photo section not found",
       });
     }
 
     return res.status(200).json({
       success: true,
       message: "Photo section updated successfully",
-      data: updatedSection
+      data: updatedSection,
     });
   } catch (error) {
     console.error("Error updating photo section:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to update photo section",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -175,44 +208,44 @@ export const UpdatePhotoSection = async (req, res) => {
 export const DeletePhotoSection = async (req, res) => {
   try {
     const deletedSection = await QASectionsPhotos.findByIdAndDelete(
-      req.params.id
+      req.params.id,
     );
 
     if (!deletedSection) {
       return res.status(404).json({
         success: false,
-        message: "Photo section not found"
+        message: "Photo section not found",
       });
     }
 
     return res.status(200).json({
       success: true,
       message: "Photo section deleted successfully",
-      data: deletedSection
+      data: deletedSection,
     });
   } catch (error) {
     console.error("Error deleting photo section:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to delete photo section",
-      error: error.message
+      error: error.message,
     });
   }
 };
 
 /**
  * POST /api/qa-sections-photos/:id/items
- * Controller: Adds a new item to an existing photo section
+ * Controller: Adds a new item to an existing photo section (with Chinese support)
  */
 export const AddPhotoSectionItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const { itemName, maxCount } = req.body;
+    const { itemName, itemNameChinese, maxCount } = req.body;
 
-    if (!itemName || maxCount === undefined) {
+    if (!itemName || !itemNameChinese || maxCount === undefined) {
       return res.status(400).json({
         success: false,
-        message: "itemName and maxCount are required"
+        message: "itemName, itemNameChinese and maxCount are required",
       });
     }
 
@@ -221,7 +254,7 @@ export const AddPhotoSectionItem = async (req, res) => {
     if (!section) {
       return res.status(404).json({
         success: false,
-        message: "Photo section not found"
+        message: "Photo section not found",
       });
     }
 
@@ -234,7 +267,8 @@ export const AddPhotoSectionItem = async (req, res) => {
     const newItem = {
       no: maxItemNo + 1,
       itemName,
-      maxCount: parseInt(maxCount)
+      itemNameChinese,
+      maxCount: parseInt(maxCount),
     };
 
     section.itemList.push(newItem);
@@ -243,14 +277,14 @@ export const AddPhotoSectionItem = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "Item added successfully",
-      data: section
+      data: section,
     });
   } catch (error) {
     console.error("Error adding item:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to add item",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -268,18 +302,17 @@ export const DeletePhotoSectionItem = async (req, res) => {
     if (!section) {
       return res.status(404).json({
         success: false,
-        message: "Photo section not found"
+        message: "Photo section not found",
       });
     }
 
     // Remove the item with the specified no
     section.itemList = section.itemList.filter(
-      (item) => item.no !== parseInt(itemNo)
+      (item) => item.no !== parseInt(itemNo),
     );
 
     // Re-number the remaining items
     section.itemList = section.itemList.map((item, index) => {
-      // Create a new object to avoid modifying the original subdocument in-place before saving
       let newItem = item.toObject ? item.toObject() : { ...item };
       newItem.no = index + 1;
       return newItem;
@@ -290,14 +323,14 @@ export const DeletePhotoSectionItem = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Item deleted successfully",
-      data: section
+      data: section,
     });
   } catch (error) {
     console.error("Error deleting item:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to delete item",
-      error: error.message
+      error: error.message,
     });
   }
 };

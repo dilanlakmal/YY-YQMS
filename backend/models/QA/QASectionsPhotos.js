@@ -5,21 +5,23 @@ const itemListSchema = new mongoose.Schema(
   {
     no: { type: Number, required: true },
     itemName: { type: String, required: true },
-    maxCount: { type: Number, required: true, default: 10, min: 1 }
+    itemNameChinese: { type: String, required: true },
+    maxCount: { type: Number, required: true, default: 10, min: 1 },
   },
-  { _id: false }
+  { _id: false },
 );
 
 // Main schema
 const qaSectionsPhotosSchema = new mongoose.Schema(
   {
     sectionName: { type: String, required: true, unique: true },
-    itemList: [itemListSchema]
+    sectionNameChinese: { type: String, required: true },
+    itemList: [itemListSchema],
   },
   {
     collection: "qa_sections_photos",
-    timestamps: true
-  }
+    timestamps: true,
+  },
 );
 
 export default (connection) =>

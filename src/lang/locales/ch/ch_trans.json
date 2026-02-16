@@ -34,5 +34,33 @@
     "clearRemarkConfirm": "确定要清除此备注吗？",
     "remarkPlaceholder": "在此输入备注 (最多250字)...",
     "captured": "已捕获"
+  },
+  "fincheckPhotos": {
+    "searchPlaceholder": "搜索照片分区...",
+    "noResultsTitle": "未找到结果",
+    "noResultsDesc": "请尝试调整搜索条件",
+    "items": "个项目",
+    "remark": "备注",
+    "addRemark": "添加备注",
+    "clearRemark": "清除此备注？",
+    "remarkModalTitle": "备注",
+    "remarkPlaceholder": "在此输入备注（最多250字）...",
+    "cancel": "取消",
+    "save": "保存",
+    "removeImageConfirm": "删除此图片？",
+    "maxImagesReached": "此项目已达到最大图片数量！",
+    "takePhotos": "拍照",
+    "uploadImages": "上传并编辑图片",
+    "batchUpload": "批量上传",
+    "slotsAvailable": "个空位可用",
+    "slots": "个空位",
+    "canAddUpTo": "您最多可以添加",
+    "images": "张图片",
+    "photo": "照片",
+    "compressing": "压缩中...",
+    "queued": "排队中",
+    "uploading": "上传中...",
+    "saved": "已保存",
+    "error": "错误"
   }
 }

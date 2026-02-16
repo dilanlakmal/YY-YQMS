@@ -35,5 +35,33 @@
     "clearRemarkConfirm": "Are you sure you want to clear this remark?",
     "remarkPlaceholder": "Type your remark here (max 250 chars)...",
     "captured": "Captured"
+  },
+  "fincheckPhotos": {
+    "searchPlaceholder": "Search photo sections...",
+    "noResultsTitle": "No Results Found",
+    "noResultsDesc": "Try adjusting your search terms",
+    "items": "items",
+    "remark": "Remark",
+    "addRemark": "Add Remark",
+    "clearRemark": "Clear this remark?",
+    "remarkModalTitle": "Remark",
+    "remarkPlaceholder": "Type remark here (max 250 chars)...",
+    "cancel": "Cancel",
+    "save": "Save",
+    "removeImageConfirm": "Remove this image?",
+    "maxImagesReached": "Maximum images reached for this item!",
+    "takePhotos": "Take photos",
+    "uploadImages": "Upload & Edit images",
+    "batchUpload": "Batch upload",
+    "slotsAvailable": "slots available",
+    "slots": "slots",
+    "canAddUpTo": "You can add up to",
+    "images": "images",
+    "photo": "Photo",
+    "compressing": "Compressing...",
+    "queued": "Queued",
+    "uploading": "Uploading...",
+    "saved": "Saved",
+    "error": "Error"
   }
 }

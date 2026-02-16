@@ -653,6 +653,12 @@ const YPivotQASectionsProductLocationManagement = () => {
             title={config.productTypeName}
           >
             {config.productTypeName}
+            {/* ✅ MODIFIED: Display Chinese Name if available */}
+            {config.productTypeId?.ChineseProductName && (
+              <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
+                ({config.productTypeId.ChineseProductName})
+              </span>
+            )}
           </h4>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Created: {new Date(config.createdAt).toLocaleDateString()}

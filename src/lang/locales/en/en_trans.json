@@ -18,6 +18,42 @@
     "p88_Legacy": "P88 Legacy",
     "bulkupdate": "Bulk Update"
   },
+  "fincheckSettingMain": {
+    "pageTitle": "Fin Check | Settings",
+    "pageTitleFull": "Fin Check System | Settings",
+    "pageSubtitle": "Configure System Settings",
+    "pro": "PRO",
+    "activeSection": "Active Section",
+    "underDevelopment": "This section is under development.",
+    "operator": "Operator",
+    "id": "ID",
+    "tabs": {
+      "header": "Header",
+      "headerDesc": "Manage header information",
+      "photos": "Photos",
+      "photosDesc": "Photo management",
+      "packing": "Packing",
+      "packingDesc": "Packing details",
+      "production": "Production",
+      "productionDesc": "Production management",
+      "subcon": "Sub-Con Factory",
+      "subconDesc": "Manage Sub-Con Factories & QCs"
+    },
+    "subTabs": {
+      "buyer": "Buyer",
+      "lines": "Lines",
+      "tables": "Tables",
+      "shipping": "Shipping",
+      "category": "Category",
+      "productType": "Product Type",
+      "location": "Location",
+      "styleLoc": "Style Loc",
+      "defect": "Defect",
+      "buyerStatus": "Buyer Status",
+      "aqlTerm": "AQL Term",
+      "aqlConfig": "AQL Config"
+    }
+  },
   "fincheckHeader": {
     "checklist": "Checklist",
     "addRemark": "Add Remark",
@@ -152,6 +188,47 @@
       "deleteFail": "Failed to delete configuration",
       "downloadFailTitle": "Download Failed",
       "downloadFailText": "Could not download the image."
+    },
+    "styleManagement": {
+      "title": "Style Location Management",
+      "subtitle": "Customize inspection points per Order/Style",
+      "searchLabel": "Search Order No / Style",
+      "searchPlaceholder": "Type Order No...",
+      "tableSearchPlaceholder": "Search by Order No...",
+      "noMatchingStyles": "No matching styles found.",
+      "noStyleConfigs": "No style-specific configurations found.",
+      "loadingConfig": "Loading Configuration...",
+      "clearAll": "Clear All",
+      "placeholders": {
+        "english": "English Name",
+        "chinese": "Chinese Name"
+      },
+      "banners": {
+        "commonTemplateTitle": "Using Common Template",
+        "commonTemplateDesc": "You are creating a new record based on the template. Saving will create a specific record for Order: {{order}}.",
+        "editingStyleTitle": "Editing Style Configuration",
+        "editingStyleDesc": "You are updating the custom configuration for Order: {{order}}."
+      },
+      "pagination": {
+        "showing": "Showing",
+        "to": "to",
+        "of": "of",
+        "results": "results",
+        "previous": "Previous",
+        "next": "Next"
+      },
+      "historyTitle": "Previously Added Style Locations",
+      "table": {
+        "styleOrder": "Style / Order",
+        "productType": "Product Type",
+        "frontLocs": "Front Locs",
+        "backLocs": "Back Locs",
+        "lastUpdated": "Last Updated",
+        "actions": "Actions"
+      },
+      "clickToAdd": "Click Image to Add Point",
+      "updateStyleConfig": "Update Style Configuration",
+      "saveStyleConfig": "Save Style Configuration"
     }
   }
 }

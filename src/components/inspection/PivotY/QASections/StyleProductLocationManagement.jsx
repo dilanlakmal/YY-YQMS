@@ -15,9 +15,12 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next"; // ✅ Import translation hook
 import { API_BASE_URL } from "../../../../../config";
 
 const StyleProductLocationManagement = () => {
+  const { t } = useTranslation(); // ✅ Initialize hook
+
   // --- STATE ---
   // Order Search
   const [orderSearchTerm, setOrderSearchTerm] = useState("");
@@ -52,6 +55,12 @@ const StyleProductLocationManagement = () => {
   const [draggingLocation, setDraggingLocation] = useState(null);
   const [hoveredLocation, setHoveredLocation] = useState(null);
   const [saving, setSaving] = useState(false);
+
+  // ✅ New States for Inline Editing
+  const [editingLocationId, setEditingLocationId] = useState(null);
+  const [editingLocationName, setEditingLocationName] = useState("");
+  const [editingLocationNameChinese, setEditingLocationNameChinese] =
+    useState("");
 
   // Table Pagination & Search State
   const [tableSearchTerm, setTableSearchTerm] = useState(""); // Input value
@@ -132,22 +141,6 @@ const StyleProductLocationManagement = () => {
     }
   };
 
-  //   const fetchStyleList = async () => {
-  //     setLoadingList(true);
-  //     try {
-  //       const response = await axios.get(
-  //         `${API_BASE_URL}/api/qa-sections-product-location/styles`,
-  //       );
-  //       if (response.data.success) {
-  //         setStyleList(response.data.data);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching style list:", error);
-  //     } finally {
-  //       setLoadingList(false);
-  //     }
-  //   };
-
   // --- ORDER SEARCH ---
   const handleOrderSearch = async (e) => {
     const term = e.target.value;
@@ -218,8 +211,8 @@ const StyleProductLocationManagement = () => {
       if (error.response?.status === 404) {
         Swal.fire({
           icon: "info",
-          title: "No Configuration",
-          text: 'No "Common" template or specific style configuration found for this product type.',
+          title: t("fincheckProductLocation.noConfigTitle"),
+          text: t("fincheckProductLocation.noConfigDesc"),
         });
       }
     } finally {
@@ -237,28 +230,22 @@ const StyleProductLocationManagement = () => {
     setExistingFrontPath("");
     setExistingBackPath("");
     setIsInherited(false);
+    setEditingLocationId(null); // Clear editing state
   };
 
   // --- TABLE EDIT HANDLER ---
   const handleEditFromTable = (item) => {
-    // 1. Construct a mock "Order" object since we might not have full DtOrder data
-    //    But we know the 'style' field IS the order number.
     const mockOrder = {
       _id: item._id, // Just to have an ID
       order_number: item.style,
       style_name: "Existing Record", // Placeholder text
     };
 
-    // 2. Set State
     setSelectedOrder(mockOrder);
     setOrderSearchTerm(`${item.style}`); // Set input text
     setSelectedProductType(item.productTypeId?._id);
 
-    // 3. Scroll to top
     topRef.current?.scrollIntoView({ behavior: "smooth" });
-
-    // 4. The useEffect([selectedOrder, selectedProductType]) will trigger
-    //    and fetch the latest data for editing.
   };
 
   // --- IMAGE HANDLING ---
@@ -270,8 +257,8 @@ const StyleProductLocationManagement = () => {
     if (!file.type.startsWith("image/")) {
       Swal.fire({
         icon: "error",
-        title: "Invalid File",
-        text: "Please upload an image file",
+        title: t("fincheckProductLocation.alerts.invalidFile"),
+        text: t("fincheckProductLocation.alerts.uploadImageError"),
       });
       return;
     }
@@ -290,9 +277,9 @@ const StyleProductLocationManagement = () => {
     e.target.value = null;
   };
 
-  // --- LOCATION MARKER LOGIC ---
+  // --- LOCATION MARKER LOGIC (MODIFIED FOR DUAL INPUT) ---
 
-  const handleImageClick = (e, view) => {
+  const handleImageClick = async (e, view) => {
     const isMarking = view === "front" ? isMarkingFront : isMarkingBack;
     if (!isMarking) return;
 
@@ -300,34 +287,77 @@ const StyleProductLocationManagement = () => {
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
 
-    Swal.fire({
-      title: "Enter Location Name",
-      input: "text",
-      inputPlaceholder: "e.g., Defect Spot",
+    // ✅ SweetAlert with 2 inputs
+    const { value: formValues } = await Swal.fire({
+      title: t("fincheckProductLocation.alerts.addLocationTitle"),
+      html:
+        `<input id="swal-input1" class="swal2-input" placeholder="${t("fincheckProductLocation.alerts.englishPlaceholder")}">` +
+        `<input id="swal-input2" class="swal2-input" placeholder="${t("fincheckProductLocation.alerts.chinesePlaceholder")}">`,
+      focusConfirm: false,
       showCancelButton: true,
-      confirmButtonText: "Add",
-      inputValidator: (value) => !value && "Please enter a name",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const locations = view === "front" ? frontLocations : backLocations;
-        const maxNo = locations.reduce(
-          (max, loc) => Math.max(max, loc.LocationNo),
-          0,
-        );
-
-        const newLocation = {
-          LocationNo: maxNo + 1,
-          LocationName: result.value,
-          x,
-          y,
-          tempId: Date.now(),
-        };
-
-        if (view === "front")
-          setFrontLocations([...frontLocations, newLocation]);
-        else setBackLocations([...backLocations, newLocation]);
-      }
+      confirmButtonText: t("fincheckProductLocation.alerts.addLocationTitle"),
+      cancelButtonText: t("fincheckProductLocation.cancel"),
+      preConfirm: () => {
+        const englishName = document.getElementById("swal-input1").value;
+        const chineseName = document.getElementById("swal-input2").value;
+        if (!englishName) {
+          Swal.showValidationMessage(
+            t("fincheckProductLocation.alerts.englishRequired"),
+          );
+        }
+        return { englishName, chineseName };
+      },
     });
+
+    if (formValues) {
+      const locations = view === "front" ? frontLocations : backLocations;
+      const maxNo = locations.reduce(
+        (max, loc) => Math.max(max, loc.LocationNo),
+        0,
+      );
+
+      const newLocation = {
+        LocationNo: maxNo + 1,
+        LocationName: formValues.englishName,
+        LocationNameChinese: formValues.chineseName || "", // ✅ Save Chinese Name
+        x,
+        y,
+        tempId: Date.now(),
+      };
+
+      if (view === "front") setFrontLocations([...frontLocations, newLocation]);
+      else setBackLocations([...backLocations, newLocation]);
+    }
+  };
+
+  // --- EDITING LOGIC (NEW) ---
+  const handleEditLocationName = (location) => {
+    setEditingLocationId(location._id || location.tempId);
+    setEditingLocationName(location.LocationName);
+    setEditingLocationNameChinese(location.LocationNameChinese || "");
+  };
+
+  const handleSaveLocationName = (location, view) => {
+    const idToUpdate = location._id || location.tempId;
+    const updateFn = (locations) =>
+      locations.map((loc) =>
+        (loc._id || loc.tempId) === idToUpdate
+          ? {
+              ...loc,
+              LocationName: editingLocationName,
+              LocationNameChinese: editingLocationNameChinese,
+            }
+          : loc,
+      );
+
+    if (view === "front") {
+      setFrontLocations(updateFn);
+    } else {
+      setBackLocations(updateFn);
+    }
+    setEditingLocationId(null);
+    setEditingLocationName("");
+    setEditingLocationNameChinese("");
   };
 
   // Remove Location
@@ -408,7 +438,7 @@ const StyleProductLocationManagement = () => {
       if (response.data.success) {
         Swal.fire({
           icon: "success",
-          title: "Saved!",
+          title: t("fincheckProductLocation.alerts.saveSuccess"),
           text: `Style configuration for Order ${selectedOrder.order_number} saved successfully.`,
         });
         fetchStyleList(); // Refresh table
@@ -418,52 +448,58 @@ const StyleProductLocationManagement = () => {
       console.error("Save error:", error);
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Failed to save configuration.",
+        title: t("fincheckProductLocation.alerts.error"),
+        text: t("fincheckProductLocation.alerts.saveFail"),
       });
     } finally {
       setSaving(false);
     }
   };
 
-  // --- Handle cancel when editing Points ---
   const handleCancel = () => {
-    // 1. Reset Form Data
     resetConfigView();
-    // 2. Clear Selections (This hides the form window)
     setSelectedOrder(null);
     setSelectedProductType("");
     setOrderSearchTerm("");
-    // 3. Scroll to top to see search bar again clearly
     topRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   // --- RENDER HELPERS ---
 
   const renderMarkers = (locations, color, view) => {
-    return locations.map((loc) => (
-      <div
-        key={loc._id || loc.tempId}
-        className="absolute transform -translate-x-1/2 -translate-y-1/2 group cursor-grab active:cursor-grabbing"
-        style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
-        onMouseEnter={() => setHoveredLocation(loc)}
-        onMouseLeave={() => setHoveredLocation(null)}
-        onMouseDown={(e) => handleDragStart(e, loc, view)}
-      >
+    return locations.map((loc) => {
+      const isEditingThisLocation =
+        editingLocationId === (loc._id || loc.tempId);
+
+      return (
         <div
-          className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm border-2 border-white shadow-lg ${
-            color === "red" ? "bg-red-500" : "bg-blue-500"
-          } text-white`}
+          key={loc._id || loc.tempId}
+          className="absolute transform -translate-x-1/2 -translate-y-1/2 group cursor-grab active:cursor-grabbing"
+          style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
+          onMouseEnter={() => setHoveredLocation(loc)}
+          onMouseLeave={() => setHoveredLocation(null)}
+          onMouseDown={(e) => handleDragStart(e, loc, view)}
         >
-          {loc.LocationNo}
-        </div>
-        {hoveredLocation === loc && (
-          <div className="absolute bottom-full mb-2 bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
-            {loc.LocationName}
+          <div
+            className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm border-2 border-white shadow-lg ${
+              color === "red" ? "bg-red-500" : "bg-blue-500"
+            } text-white ${isEditingThisLocation ? "ring-4 ring-offset-2 ring-yellow-400 animate-pulse" : ""}`}
+          >
+            {loc.LocationNo}
           </div>
-        )}
-      </div>
-    ));
+          {hoveredLocation === loc && (
+            <div className="absolute bottom-full mb-2 bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10 text-center">
+              <div className="font-bold">{loc.LocationName}</div>
+              {loc.LocationNameChinese && (
+                <div className="text-gray-300 text-[10px]">
+                  {loc.LocationNameChinese}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    });
   };
 
   return (
@@ -477,10 +513,10 @@ const StyleProductLocationManagement = () => {
             </div>
             <div>
               <h2 className="text-xl font-bold text-white">
-                Style Location Management
+                {t("fincheckProductLocation.styleManagement.title")}
               </h2>
               <p className="text-emerald-100 text-xs">
-                Customize inspection points per Order/Style
+                {t("fincheckProductLocation.styleManagement.subtitle")}
               </p>
             </div>
           </div>
@@ -493,14 +529,17 @@ const StyleProductLocationManagement = () => {
           {/* 1. Order Search */}
           <div className="relative">
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              Search Order No / Style <span className="text-red-500">*</span>
+              {t("fincheckProductLocation.styleManagement.searchLabel")}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <input
                 type="text"
                 value={orderSearchTerm}
                 onChange={handleOrderSearch}
-                placeholder="Type Order No..."
+                placeholder={t(
+                  "fincheckProductLocation.styleManagement.searchPlaceholder",
+                )}
                 className="w-full pl-10 pr-4 py-2.5 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500"
               />
               <Search className="absolute left-3 top-3 text-gray-400 w-4 h-4" />
@@ -533,7 +572,8 @@ const StyleProductLocationManagement = () => {
           {/* 2. Product Type Select */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              Select Product Type <span className="text-red-500">*</span>
+              {t("fincheckProductLocation.selectProductType")}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <select
               value={selectedProductType}
@@ -541,7 +581,9 @@ const StyleProductLocationManagement = () => {
               className="w-full px-4 py-2.5 border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500"
               disabled={!selectedOrder}
             >
-              <option value="">-- Select --</option>
+              <option value="">
+                {t("fincheckProductLocation.selectPlaceholder")}
+              </option>
               {productTypes.map((pt) => (
                 <option key={pt._id} value={pt._id}>
                   {pt.EnglishProductName}
@@ -555,7 +597,7 @@ const StyleProductLocationManagement = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
             <h3 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
               <Clock size={18} className="text-emerald-600" />
-              Previously Added Style Locations
+              {t("fincheckProductLocation.styleManagement.historyTitle")}
             </h3>
 
             {/* TABLE SEARCH BAR */}
@@ -571,7 +613,9 @@ const StyleProductLocationManagement = () => {
                 onBlur={() =>
                   setTimeout(() => setShowTableDropdown(false), 200)
                 }
-                placeholder="Search by Order No..."
+                placeholder={t(
+                  "fincheckProductLocation.styleManagement.tableSearchPlaceholder",
+                )}
                 className="w-full pl-9 pr-8 py-2 text-sm border rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500"
               />
               <Search className="absolute left-3 top-2.5 text-gray-400 w-4 h-4" />
@@ -620,12 +664,34 @@ const StyleProductLocationManagement = () => {
             <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
               <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                  <th className="px-6 py-3">Style / Order</th>
-                  <th className="px-6 py-3">Product Type</th>
-                  <th className="px-6 py-3 text-center">Front Locs</th>
-                  <th className="px-6 py-3 text-center">Back Locs</th>
-                  <th className="px-6 py-3">Last Updated</th>
-                  <th className="px-6 py-3 text-right">Actions</th>
+                  <th className="px-6 py-3">
+                    {t(
+                      "fincheckProductLocation.styleManagement.table.styleOrder",
+                    )}
+                  </th>
+                  <th className="px-6 py-3">
+                    {t(
+                      "fincheckProductLocation.styleManagement.table.productType",
+                    )}
+                  </th>
+                  <th className="px-6 py-3 text-center">
+                    {t(
+                      "fincheckProductLocation.styleManagement.table.frontLocs",
+                    )}
+                  </th>
+                  <th className="px-6 py-3 text-center">
+                    {t(
+                      "fincheckProductLocation.styleManagement.table.backLocs",
+                    )}
+                  </th>
+                  <th className="px-6 py-3">
+                    {t(
+                      "fincheckProductLocation.styleManagement.table.lastUpdated",
+                    )}
+                  </th>
+                  <th className="px-6 py-3 text-right">
+                    {t("fincheckProductLocation.styleManagement.table.actions")}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -642,8 +708,12 @@ const StyleProductLocationManagement = () => {
                       className="px-6 py-8 text-center text-gray-500"
                     >
                       {tableSearchTerm
-                        ? "No matching styles found."
-                        : "No style-specific configurations found."}
+                        ? t(
+                            "fincheckProductLocation.styleManagement.noMatchingStyles",
+                          )
+                        : t(
+                            "fincheckProductLocation.styleManagement.noStyleConfigs",
+                          )}
                     </td>
                   </tr>
                 ) : (
@@ -686,7 +756,7 @@ const StyleProductLocationManagement = () => {
                           onClick={() => handleEditFromTable(item)}
                           className="font-medium text-blue-600 dark:text-blue-500 hover:underline flex items-center gap-1 ml-auto"
                         >
-                          <Edit size={14} /> Edit
+                          <Edit size={14} /> {t("fincheckProductLocation.edit")}
                         </button>
                       </td>
                     </tr>
@@ -702,16 +772,21 @@ const StyleProductLocationManagement = () => {
               <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm text-gray-700 dark:text-gray-300">
-                    Showing{" "}
+                    {t(
+                      "fincheckProductLocation.styleManagement.pagination.showing",
+                    )}{" "}
                     <span className="font-medium">
                       {(currentPage - 1) * 10 + 1}
                     </span>{" "}
-                    to{" "}
+                    {t("fincheckProductLocation.styleManagement.pagination.to")}{" "}
                     <span className="font-medium">
                       {Math.min(currentPage * 10, totalRecords)}
                     </span>{" "}
-                    of <span className="font-medium">{totalRecords}</span>{" "}
-                    results
+                    {t("fincheckProductLocation.styleManagement.pagination.of")}{" "}
+                    <span className="font-medium">{totalRecords}</span>{" "}
+                    {t(
+                      "fincheckProductLocation.styleManagement.pagination.results",
+                    )}
                   </p>
                 </div>
                 <div>
@@ -726,7 +801,9 @@ const StyleProductLocationManagement = () => {
                       disabled={currentPage === 1}
                       className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
                     >
-                      Previous
+                      {t(
+                        "fincheckProductLocation.styleManagement.pagination.previous",
+                      )}
                     </button>
 
                     {/* Simple Page Numbers */}
@@ -751,7 +828,9 @@ const StyleProductLocationManagement = () => {
                       disabled={currentPage === totalPages}
                       className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
                     >
-                      Next
+                      {t(
+                        "fincheckProductLocation.styleManagement.pagination.next",
+                      )}
                     </button>
                   </nav>
                 </div>
@@ -764,7 +843,7 @@ const StyleProductLocationManagement = () => {
         {loadingConfig && (
           <div className="py-12 flex flex-col items-center justify-center text-gray-500 border-t border-gray-200 dark:border-gray-700 mt-6 pt-6">
             <Loader2 className="w-8 h-8 animate-spin mb-2 text-emerald-500" />
-            <p>Loading Configuration...</p>
+            <p>{t("fincheckProductLocation.styleManagement.loadingConfig")}</p>
           </div>
         )}
         {/* Configuration Interface */}
@@ -776,12 +855,15 @@ const StyleProductLocationManagement = () => {
                 <AlertCircle className="text-yellow-600 w-5 h-5" />
                 <div>
                   <p className="text-sm font-bold text-yellow-800 dark:text-yellow-200">
-                    Using Common Template
+                    {t(
+                      "fincheckProductLocation.styleManagement.banners.commonTemplateTitle",
+                    )}
                   </p>
                   <p className="text-xs text-yellow-700 dark:text-yellow-300">
-                    You are creating a new record based on the template. Saving
-                    will create a specific record for Order:{" "}
-                    {selectedOrder?.order_number}.
+                    {t(
+                      "fincheckProductLocation.styleManagement.banners.commonTemplateDesc",
+                      { order: selectedOrder?.order_number },
+                    )}
                   </p>
                 </div>
               </div>
@@ -790,11 +872,15 @@ const StyleProductLocationManagement = () => {
                 <Check className="text-emerald-600 w-5 h-5" />
                 <div>
                   <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">
-                    Editing Style Configuration
+                    {t(
+                      "fincheckProductLocation.styleManagement.banners.editingStyleTitle",
+                    )}
                   </p>
                   <p className="text-xs text-emerald-700 dark:text-emerald-300">
-                    You are updating the custom configuration for Order:{" "}
-                    {selectedOrder?.order_number}.
+                    {t(
+                      "fincheckProductLocation.styleManagement.banners.editingStyleDesc",
+                      { order: selectedOrder?.order_number },
+                    )}
                   </p>
                 </div>
               </div>
@@ -806,10 +892,11 @@ const StyleProductLocationManagement = () => {
                 <div className="flex justify-between items-center">
                   <h4 className="font-bold flex items-center gap-2">
                     <div className="w-3 h-3 bg-red-500 rounded-full"></div>{" "}
-                    Front View
+                    {t("fincheckProductLocation.frontView")}
                   </h4>
                   <span className="text-xs text-gray-500">
-                    {frontLocations.length} Locations
+                    {frontLocations.length}{" "}
+                    {t("fincheckProductLocation.locations")}
                   </span>
                 </div>
 
@@ -845,46 +932,117 @@ const StyleProductLocationManagement = () => {
                     className={`flex-1 py-2 rounded-lg text-sm font-medium ${isMarkingFront ? "bg-emerald-600 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-700"}`}
                   >
                     {isMarkingFront
-                      ? "Click Image to Add Point"
-                      : "Mark Locations"}
+                      ? t("fincheckProductLocation.styleManagement.clickToAdd")
+                      : t("fincheckProductLocation.markLocations")}
                   </button>
                   <button
                     onClick={() => frontFileInputRef.current.click()}
                     className="px-3 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg"
-                    title="Change Image"
+                    title={t("fincheckProductLocation.changeImage")}
                   >
                     <RefreshCw size={18} />
                   </button>
                   <button
                     onClick={() => setFrontLocations([])}
                     className="px-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg"
-                    title="Clear All"
+                    title={t(
+                      "fincheckProductLocation.styleManagement.clearAll",
+                    )}
                   >
                     <Trash2 size={18} />
                   </button>
                 </div>
 
-                {/* Location List */}
-                <div className="max-h-40 overflow-y-auto border rounded-lg p-2 bg-gray-50 dark:bg-gray-900/50">
-                  {frontLocations.map((loc) => (
-                    <div
-                      key={loc.LocationNo}
-                      className="flex justify-between items-center p-1.5 text-xs border-b last:border-0"
-                    >
-                      <div className="flex gap-2 items-center">
-                        <span className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center">
-                          {loc.LocationNo}
-                        </span>
-                        <span>{loc.LocationName}</span>
-                      </div>
-                      <button
-                        onClick={() => removeLocation(loc, "front")}
-                        className="text-red-500 hover:text-red-700"
+                {/* ✅ MODIFIED: Location List with Inline Editing */}
+                <div className="max-h-60 overflow-y-auto border rounded-lg p-2 bg-gray-50 dark:bg-gray-900/50">
+                  {frontLocations.map((loc) => {
+                    const isEditing =
+                      editingLocationId === (loc._id || loc.tempId);
+                    return (
+                      <div
+                        key={loc.LocationNo}
+                        className="flex justify-between items-center p-2 text-xs border-b last:border-0"
                       >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ))}
+                        <div className="flex gap-2 items-center flex-grow">
+                          <span className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center flex-shrink-0">
+                            {loc.LocationNo}
+                          </span>
+                          {isEditing ? (
+                            <div className="flex flex-col gap-1 w-full">
+                              <input
+                                type="text"
+                                value={editingLocationName}
+                                onChange={(e) =>
+                                  setEditingLocationName(e.target.value)
+                                }
+                                placeholder={t(
+                                  "fincheckProductLocation.styleManagement.placeholders.english",
+                                )}
+                                className="border rounded p-1 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                              />
+                              <input
+                                type="text"
+                                value={editingLocationNameChinese}
+                                onChange={(e) =>
+                                  setEditingLocationNameChinese(e.target.value)
+                                }
+                                placeholder={t(
+                                  "fincheckProductLocation.styleManagement.placeholders.chinese",
+                                )}
+                                className="border rounded p-1 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex flex-col">
+                              <span className="font-medium">
+                                {loc.LocationName}
+                              </span>
+                              {loc.LocationNameChinese && (
+                                <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                                  {loc.LocationNameChinese}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex gap-1 ml-2">
+                          {isEditing ? (
+                            <>
+                              <button
+                                onClick={() =>
+                                  handleSaveLocationName(loc, "front")
+                                }
+                                className="text-green-500 hover:text-green-700"
+                              >
+                                <Check size={14} />
+                              </button>
+                              <button
+                                onClick={() => setEditingLocationId(null)}
+                                className="text-gray-500 hover:text-gray-700"
+                              >
+                                <X size={14} />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => handleEditLocationName(loc)}
+                                className="text-blue-500 hover:text-blue-700"
+                              >
+                                <Edit size={14} />
+                              </button>
+                              <button
+                                onClick={() => removeLocation(loc, "front")}
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <X size={14} />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -893,10 +1051,11 @@ const StyleProductLocationManagement = () => {
                 <div className="flex justify-between items-center">
                   <h4 className="font-bold flex items-center gap-2">
                     <div className="w-3 h-3 bg-blue-500 rounded-full"></div>{" "}
-                    Back View
+                    {t("fincheckProductLocation.backView")}
                   </h4>
                   <span className="text-xs text-gray-500">
-                    {backLocations.length} Locations
+                    {backLocations.length}{" "}
+                    {t("fincheckProductLocation.locations")}
                   </span>
                 </div>
 
@@ -930,13 +1089,13 @@ const StyleProductLocationManagement = () => {
                     className={`flex-1 py-2 rounded-lg text-sm font-medium ${isMarkingBack ? "bg-emerald-600 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-700"}`}
                   >
                     {isMarkingBack
-                      ? "Click Image to Add Point"
-                      : "Mark Locations"}
+                      ? t("fincheckProductLocation.styleManagement.clickToAdd")
+                      : t("fincheckProductLocation.markLocations")}
                   </button>
                   <button
                     onClick={() => backFileInputRef.current.click()}
                     className="px-3 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg"
-                    title="Change Image"
+                    title={t("fincheckProductLocation.changeImage")}
                   >
                     <RefreshCw size={18} />
                   </button>
@@ -949,26 +1108,92 @@ const StyleProductLocationManagement = () => {
                   </button>
                 </div>
 
-                <div className="max-h-40 overflow-y-auto border rounded-lg p-2 bg-gray-50 dark:bg-gray-900/50">
-                  {backLocations.map((loc) => (
-                    <div
-                      key={loc.LocationNo}
-                      className="flex justify-between items-center p-1.5 text-xs border-b last:border-0"
-                    >
-                      <div className="flex gap-2 items-center">
-                        <span className="w-5 h-5 bg-blue-500 text-white rounded-full flex items-center justify-center">
-                          {loc.LocationNo}
-                        </span>
-                        <span>{loc.LocationName}</span>
-                      </div>
-                      <button
-                        onClick={() => removeLocation(loc, "back")}
-                        className="text-red-500 hover:text-red-700"
+                {/* ✅ MODIFIED: Location List with Inline Editing (Back) */}
+                <div className="max-h-60 overflow-y-auto border rounded-lg p-2 bg-gray-50 dark:bg-gray-900/50">
+                  {backLocations.map((loc) => {
+                    const isEditing =
+                      editingLocationId === (loc._id || loc.tempId);
+                    return (
+                      <div
+                        key={loc.LocationNo}
+                        className="flex justify-between items-center p-2 text-xs border-b last:border-0"
                       >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ))}
+                        <div className="flex gap-2 items-center flex-grow">
+                          <span className="w-5 h-5 bg-blue-500 text-white rounded-full flex items-center justify-center flex-shrink-0">
+                            {loc.LocationNo}
+                          </span>
+                          {isEditing ? (
+                            <div className="flex flex-col gap-1 w-full">
+                              <input
+                                type="text"
+                                value={editingLocationName}
+                                onChange={(e) =>
+                                  setEditingLocationName(e.target.value)
+                                }
+                                placeholder="English Name"
+                                className="border rounded p-1 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                              />
+                              <input
+                                type="text"
+                                value={editingLocationNameChinese}
+                                onChange={(e) =>
+                                  setEditingLocationNameChinese(e.target.value)
+                                }
+                                placeholder="Chinese Name"
+                                className="border rounded p-1 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex flex-col">
+                              <span className="font-medium">
+                                {loc.LocationName}
+                              </span>
+                              {loc.LocationNameChinese && (
+                                <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                                  {loc.LocationNameChinese}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex gap-1 ml-2">
+                          {isEditing ? (
+                            <>
+                              <button
+                                onClick={() =>
+                                  handleSaveLocationName(loc, "back")
+                                }
+                                className="text-green-500 hover:text-green-700"
+                              >
+                                <Check size={14} />
+                              </button>
+                              <button
+                                onClick={() => setEditingLocationId(null)}
+                                className="text-gray-500 hover:text-gray-700"
+                              >
+                                <X size={14} />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => handleEditLocationName(loc)}
+                                className="text-blue-500 hover:text-blue-700"
+                              >
+                                <Edit size={14} />
+                              </button>
+                              <button
+                                onClick={() => removeLocation(loc, "back")}
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <X size={14} />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -982,7 +1207,7 @@ const StyleProductLocationManagement = () => {
                 className="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-bold shadow-md flex items-center gap-2 transition-colors"
               >
                 <X size={18} />
-                Cancel
+                {t("fincheckProductLocation.cancel")}
               </button>
 
               {/* SAVE / UPDATE BUTTON */}
@@ -999,14 +1224,13 @@ const StyleProductLocationManagement = () => {
                 ) : (
                   <Save size={18} />
                 )}
-                {/* 
-                           Logic: If 'isInherited' is TRUE, it means we are using the Common Template 
-                           (Creating a new Style record). 
-                           If 'isInherited' is FALSE, we are editing an existing Style record.
-                        */}
                 {!isInherited
-                  ? "Update Style Configuration"
-                  : "Save Style Configuration"}
+                  ? t(
+                      "fincheckProductLocation.styleManagement.updateStyleConfig",
+                    )
+                  : t(
+                      "fincheckProductLocation.styleManagement.saveStyleConfig",
+                    )}
               </button>
             </div>
           </div>

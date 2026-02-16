@@ -659,3 +659,118 @@ export const GetAllStyleLocations = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+
+/* ============================================================
+   BULK LANGUAGE UPDATE LOGIC
+   ============================================================ */
+
+/**
+ * GET /api/qa-sections-product-location/distinct-names
+ * Aggregates all locations from Front and Back views across all documents
+ * Returns unique English names and their current Chinese translation (if any)
+ */
+export const GetDistinctLocationNames = async (req, res) => {
+  try {
+    const distinctLocations = await QASectionsProductLocation.aggregate([
+      // 1. Combine front and back locations into a single array
+      {
+        $project: {
+          allLocations: {
+            $concatArrays: [
+              // ✅ FIX: Use $ifNull to ensure we always have an array, preventing 500 crash on nulls
+              { $ifNull: ["$frontView.locations", []] },
+              { $ifNull: ["$backView.locations", []] },
+            ],
+          },
+        },
+      },
+      // 2. Unwind the array to process individual location objects
+      { $unwind: "$allLocations" },
+      // 3. Group by LocationName (English) to find uniques
+      {
+        $group: {
+          _id: "$allLocations.LocationName",
+          // Grab the first non-empty Chinese name found for this English name.
+          // If field is missing (new schema), $max returns null, which is handled below.
+          chineseName: { $max: "$allLocations.LocationNameChinese" },
+        },
+      },
+      // 4. Sort alphabetically
+      { $sort: { _id: 1 } },
+    ]);
+
+    // Format for frontend
+    const formattedData = distinctLocations.map((item) => ({
+      locationName: item._id || "Unknown", // Handle cases where name might be missing
+      locationNameChinese: item.chineseName || "", // Default to empty string if missing
+    }));
+
+    return res.status(200).json({
+      success: true,
+      data: formattedData,
+    });
+  } catch (error) {
+    console.error("Error fetching distinct locations:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * POST /api/qa-sections-product-location/bulk-update-names
+ */
+export const BulkUpdateLocationNames = async (req, res) => {
+  try {
+    const { updates } = req.body;
+
+    if (!updates || !Array.isArray(updates) || updates.length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No updates provided" });
+    }
+
+    let modifiedCount = 0;
+
+    const updatePromises = updates.map(async (item) => {
+      if (!item.name || !item.chinese) return;
+
+      // Update Front View: Find items with English name, set Chinese name
+      const frontUpdate = await QASectionsProductLocation.updateMany(
+        { "frontView.locations.LocationName": item.name },
+        {
+          $set: {
+            "frontView.locations.$[elem].LocationNameChinese": item.chinese,
+          },
+        },
+        {
+          arrayFilters: [{ "elem.LocationName": item.name }],
+        },
+      );
+
+      // Update Back View
+      const backUpdate = await QASectionsProductLocation.updateMany(
+        { "backView.locations.LocationName": item.name },
+        {
+          $set: {
+            "backView.locations.$[elem].LocationNameChinese": item.chinese,
+          },
+        },
+        {
+          arrayFilters: [{ "elem.LocationName": item.name }],
+        },
+      );
+
+      modifiedCount += frontUpdate.modifiedCount + backUpdate.modifiedCount;
+    });
+
+    await Promise.all(updatePromises);
+
+    return res.status(200).json({
+      success: true,
+      message: `Successfully updated translations.`,
+      modifiedCount,
+    });
+  } catch (error) {
+    console.error("Error bulk updating locations:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};

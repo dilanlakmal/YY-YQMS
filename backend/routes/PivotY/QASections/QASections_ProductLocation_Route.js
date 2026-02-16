@@ -12,6 +12,8 @@ import {
   GetStyleLocationConfig,
   SaveStyleLocationConfig,
   GetAllStyleLocations,
+  GetDistinctLocationNames,
+  BulkUpdateLocationNames,
 } from "../../../controller/PivotY/QASections/QASections_ProductLocation_Controller.js";
 
 const router = express.Router();
@@ -31,6 +33,19 @@ router.get("/api/orders/search", SearchOrders);
 
 // Get All Style Configs (For the Table) <--- NEW ROUTE
 router.get("/api/qa-sections-product-location/styles", GetAllStyleLocations);
+
+/* ============================================================
+   BULK UPDATE LANGUAGE ROUTES (NEW)
+   ============================================================ */
+
+router.get(
+  "/api/qa-sections-product-location/distinct-names",
+  GetDistinctLocationNames,
+);
+router.post(
+  "/api/qa-sections-product-location/bulk-update-names",
+  BulkUpdateLocationNames,
+);
 
 // Get Style Specific Config (with fallback)
 router.get(

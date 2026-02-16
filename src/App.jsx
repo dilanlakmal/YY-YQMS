@@ -37,6 +37,8 @@ import YPivotQAInspection from "./pages/YPivotQAInspection.jsx";
 import YPivotQAReport from "./pages/YPivotQAReport";
 import YPivotQAReportFullView from "./components/inspection/PivotY/QAReports/YPivotQAReportFullView";
 
+import YPivotBulkUpdateLanguage from "./pages/YPivotBulkUpdateLanguage.jsx";
+
 function AppContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return !!localStorage.getItem("accessToken");
@@ -257,6 +259,10 @@ function AppContent() {
               <Route
                 path="/fincheck-reports/view/:reportId"
                 element={<YPivotQAReportFullView />}
+              />
+              <Route
+                path="/bulkupdate"
+                element={<YPivotBulkUpdateLanguage />}
               />
             </>
           ) : (

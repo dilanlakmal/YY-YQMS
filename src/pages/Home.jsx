@@ -857,6 +857,15 @@ function Home() {
             version: "0",
             locked: false,
           },
+          {
+            path: "/bulkupdate",
+            roles: ["Fincheck Reports"],
+            image: "assets/Home/BulkUpdate.png",
+            title: t("home.bulkupdate"),
+            description: "Language Support",
+            version: "0",
+            locked: false,
+          },
         ],
       },
       {

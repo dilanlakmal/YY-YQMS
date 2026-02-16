@@ -19,9 +19,11 @@ import {
 import axios from "axios";
 import Swal from "sweetalert2";
 import { API_BASE_URL } from "../../../../../config";
+import { useTranslation } from "react-i18next";
 
 const YPivotQASectionsProductLocationManagement = () => {
   // State management
+  const { t } = useTranslation();
   const [productTypes, setProductTypes] = useState([]);
   const [selectedProductType, setSelectedProductType] = useState("");
   const [frontImage, setFrontImage] = useState(null);
@@ -42,6 +44,8 @@ const YPivotQASectionsProductLocationManagement = () => {
   // State for advanced editing
   const [editingLocationId, setEditingLocationId] = useState(null);
   const [editingLocationName, setEditingLocationName] = useState("");
+  const [editingLocationNameChinese, setEditingLocationNameChinese] =
+    useState(""); // ✅ NEW STATE
   const [draggingLocation, setDraggingLocation] = useState(null);
 
   const frontImageRef = useRef(null);
@@ -167,8 +171,8 @@ const YPivotQASectionsProductLocationManagement = () => {
     e.target.value = null;
   };
 
-  // Handle image click to mark location
-  const handleImageClick = (e, view) => {
+  // ✅ MODIFIED: Handle image click to mark location with Dual Inputs
+  const handleImageClick = async (e, view) => {
     const isMarking = view === "front" ? isMarkingFront : isMarkingBack;
     if (!isMarking) return;
 
@@ -179,55 +183,69 @@ const YPivotQASectionsProductLocationManagement = () => {
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
 
-    Swal.fire({
-      title: "Enter Location Name",
-      input: "text",
-      inputPlaceholder: "e.g., Front Pocket, Back Collar",
+    // Using SweetAlert2 with HTML content for multiple inputs
+    const { value: formValues } = await Swal.fire({
+      title: t("fincheckProductLocation.alerts.addLocationTitle"), // Translated
+      html:
+        `<input id="swal-input1" class="swal2-input" placeholder="${t("fincheckProductLocation.alerts.englishPlaceholder")}">` +
+        `<input id="swal-input2" class="swal2-input" placeholder="${t("fincheckProductLocation.alerts.chinesePlaceholder")}">`,
+      focusConfirm: false,
       showCancelButton: true,
-      confirmButtonText: "Add Location",
+      confirmButtonText: t("fincheckProductLocation.alerts.addLocationTitle"),
       confirmButtonColor: "#6366f1",
-      cancelButtonColor: "#6b7280",
-      inputValidator: (value) => {
-        if (!value) {
-          return "Please enter a location name";
+      cancelButtonText: t("fincheckProductLocation.cancel"), // Added cancel button text
+      preConfirm: () => {
+        const englishName = document.getElementById("swal-input1").value;
+        const chineseName = document.getElementById("swal-input2").value;
+        if (!englishName) {
+          Swal.showValidationMessage(
+            t("fincheckProductLocation.alerts.englishRequired"),
+          );
         }
+        return { englishName, chineseName };
       },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const locations = view === "front" ? frontLocations : backLocations;
-        const newLocation = {
-          LocationNo: locations.length + 1,
-          LocationName: result.value,
-          x: x,
-          y: y,
-          tempId: Date.now(),
-        };
-
-        if (view === "front") {
-          setFrontLocations([...frontLocations, newLocation]);
-        } else {
-          setBackLocations([...backLocations, newLocation]);
-        }
-
-        Swal.fire({
-          icon: "success",
-          title: "Location Added",
-          text: `Location "${result.value}" has been marked`,
-          timer: 1500,
-          showConfirmButton: false,
-        });
-      }
     });
+
+    if (formValues) {
+      const locations = view === "front" ? frontLocations : backLocations;
+      const newLocation = {
+        LocationNo: locations.length + 1,
+        LocationName: formValues.englishName,
+        LocationNameChinese: formValues.chineseName || "", // ✅ NEW FIELD
+        x: x,
+        y: y,
+        tempId: Date.now(),
+      };
+
+      if (view === "front") {
+        setFrontLocations([...frontLocations, newLocation]);
+      } else {
+        setBackLocations([...backLocations, newLocation]);
+      }
+
+      Swal.fire({
+        icon: "success",
+        title: t("fincheckProductLocation.alerts.locationAddedTitle"),
+        text: t("fincheckProductLocation.alerts.locationAddedText", {
+          name: formValues.englishName,
+        }),
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
   };
 
   const removeLocation = (location, view) => {
     Swal.fire({
-      title: "Remove Location?",
-      text: `Are you sure you want to remove "${location.LocationName}"?`,
+      title: t("fincheckProductLocation.alerts.removeLocationTitle"),
+      text: t("fincheckProductLocation.alerts.removeLocationConfirm", {
+        name: location.LocationName,
+      }),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#ef4444",
-      confirmButtonText: "Yes, remove it",
+      confirmButtonText: t("fincheckProductLocation.alerts.yesRemove"),
+      cancelButtonText: t("fincheckProductLocation.cancel"),
     }).then((result) => {
       if (result.isConfirmed) {
         const idToRemove = location._id || location.tempId;
@@ -246,17 +264,24 @@ const YPivotQASectionsProductLocationManagement = () => {
     });
   };
 
+  // ✅ MODIFIED: Handle Edit to populate both fields
   const handleEditLocationName = (location) => {
     setEditingLocationId(location._id || location.tempId);
     setEditingLocationName(location.LocationName);
+    setEditingLocationNameChinese(location.LocationNameChinese || ""); // Populate Chinese Name
   };
 
+  // ✅ MODIFIED: Save both fields
   const handleSaveLocationName = (location, view) => {
     const idToUpdate = location._id || location.tempId;
     const updateFn = (locations) =>
       locations.map((loc) =>
         (loc._id || loc.tempId) === idToUpdate
-          ? { ...loc, LocationName: editingLocationName }
+          ? {
+              ...loc,
+              LocationName: editingLocationName,
+              LocationNameChinese: editingLocationNameChinese,
+            }
           : loc,
       );
 
@@ -267,6 +292,7 @@ const YPivotQASectionsProductLocationManagement = () => {
     }
     setEditingLocationId(null);
     setEditingLocationName("");
+    setEditingLocationNameChinese("");
   };
 
   const handleDragStart = (e, location, view) => {
@@ -310,8 +336,8 @@ const YPivotQASectionsProductLocationManagement = () => {
     if (!selectedProductType) {
       Swal.fire({
         icon: "error",
-        title: "Validation Error",
-        text: "Please select a product type",
+        title: t("fincheckProductLocation.alerts.validationError"),
+        text: t("fincheckProductLocation.alerts.selectTypeError"),
       });
       return;
     }
@@ -319,8 +345,8 @@ const YPivotQASectionsProductLocationManagement = () => {
     if (!editingConfigId && (!frontImage || !backImage)) {
       Swal.fire({
         icon: "error",
-        title: "Validation Error",
-        text: "Please upload both front and back view images",
+        title: t("fincheckProductLocation.alerts.validationError"),
+        text: t("fincheckProductLocation.alerts.uploadBothError"),
       });
       return;
     }
@@ -328,11 +354,11 @@ const YPivotQASectionsProductLocationManagement = () => {
     if (frontLocations.length === 0 && backLocations.length === 0) {
       const result = await Swal.fire({
         icon: "warning",
-        title: "No Locations Marked",
-        text: "You haven't marked any locations. Continue anyway?",
+        title: t("fincheckProductLocation.alerts.noLocTitle"),
+        text: t("fincheckProductLocation.alerts.noLocText"),
         showCancelButton: true,
-        confirmButtonText: "Yes, Continue",
-        cancelButtonText: "Go Back",
+        confirmButtonText: t("fincheckProductLocation.alerts.yesContinue"),
+        cancelButtonText: t("fincheckProductLocation.alerts.goBack"),
         confirmButtonColor: "#6366f1",
         cancelButtonColor: "#6b7280",
       });
@@ -446,13 +472,14 @@ const YPivotQASectionsProductLocationManagement = () => {
 
   const deleteConfiguration = async (id) => {
     const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "This will permanently delete the location configuration and images",
+      title: t("fincheckProductLocation.alerts.deleteTitle"),
+      text: t("fincheckProductLocation.alerts.deleteText"),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#ef4444",
       cancelButtonColor: "#6b7280",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: t("fincheckProductLocation.alerts.yesDelete"),
+      cancelButtonText: t("fincheckProductLocation.cancel"),
     });
 
     if (result.isConfirmed) {
@@ -464,8 +491,8 @@ const YPivotQASectionsProductLocationManagement = () => {
         if (response.data.success) {
           await Swal.fire({
             icon: "success",
-            title: "Deleted!",
-            text: "Configuration has been deleted.",
+            title: t("fincheckProductLocation.alerts.deletedTitle"),
+            text: t("fincheckProductLocation.alerts.deletedText"),
             timer: 1500,
             showConfirmButton: false,
           });
@@ -505,6 +532,7 @@ const YPivotQASectionsProductLocationManagement = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // ✅ MODIFIED: Render tooltip with both languages
   const renderLocationMarkers = (locations, color = "red", view) => {
     return locations.map((location) => {
       const isEditingThisLocation =
@@ -541,10 +569,15 @@ const YPivotQASectionsProductLocationManagement = () => {
             </div>
             {hoveredLocation?.LocationNo === location.LocationNo && (
               <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded whitespace-nowrap z-10 shadow-lg">
-                <div className="font-semibold">
+                <div className="font-semibold text-amber-300">
                   Location {location.LocationNo}
                 </div>
-                <div>{location.LocationName}</div>
+                <div className="font-bold">{location.LocationName}</div>
+                {location.LocationNameChinese && (
+                  <div className="text-gray-300 text-[10px]">
+                    {location.LocationNameChinese}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -604,11 +637,11 @@ const YPivotQASectionsProductLocationManagement = () => {
                 <MapPin size={18} className="text-white" />
               </div>
               <span className="text-white font-semibold text-sm">
-                Configuration
+                {t("fincheckProductLocation.configuration")}
               </span>
             </div>
             <span className="bg-white/20 text-white px-3 py-1 rounded-full text-xs font-bold">
-              {totalLocations} Locations
+              {totalLocations} {t("fincheckProductLocation.locations")}
             </span>
           </div>
         </div>
@@ -634,7 +667,8 @@ const YPivotQASectionsProductLocationManagement = () => {
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                 <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                  Front View ({config.frontView.locations.length})
+                  {t("fincheckProductLocation.frontView")} (
+                  {config.frontView.locations.length})
                 </span>
               </div>
               <button
@@ -677,7 +711,8 @@ const YPivotQASectionsProductLocationManagement = () => {
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                 <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                  Back View ({config.backView.locations.length})
+                  {t("fincheckProductLocation.backView")} (
+                  {config.backView.locations.length})
                 </span>
               </div>
               <button
@@ -715,14 +750,14 @@ const YPivotQASectionsProductLocationManagement = () => {
           </div>
         </div>
 
-        {/* Expandable Location List */}
+        {/* ✅ MODIFIED: Expandable List showing English + Chinese */}
         {isExpanded && (
           <div className="px-5 pb-4 space-y-3">
             {/* Front Locations */}
             {config.frontView.locations.length > 0 && (
               <div className="bg-red-50 dark:bg-red-900/10 rounded-lg p-3 border border-red-200 dark:border-red-800">
                 <h5 className="font-semibold text-xs text-red-700 dark:text-red-300 mb-2">
-                  Front Locations:
+                  {t("fincheckProductLocation.frontLocationsTitle")}
                 </h5>
                 <div className="space-y-1.5">
                   {config.frontView.locations.map((loc) => (
@@ -733,7 +768,15 @@ const YPivotQASectionsProductLocationManagement = () => {
                       <span className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">
                         {loc.LocationNo}
                       </span>
-                      <span className="flex-1">{loc.LocationName}</span>
+                      {/* ✅ MODIFIED: Inline Chinese Name in brackets */}
+                      <div className="flex-1 font-medium">
+                        {loc.LocationName}
+                        {loc.LocationNameChinese && (
+                          <span className="text-gray-500 dark:text-gray-400 font-normal ml-1">
+                            ({loc.LocationNameChinese})
+                          </span>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -744,7 +787,7 @@ const YPivotQASectionsProductLocationManagement = () => {
             {config.backView.locations.length > 0 && (
               <div className="bg-blue-50 dark:bg-blue-900/10 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
                 <h5 className="font-semibold text-xs text-blue-700 dark:text-blue-300 mb-2">
-                  Back Locations:
+                  {t("fincheckProductLocation.backLocationsTitle")}
                 </h5>
                 <div className="space-y-1.5">
                   {config.backView.locations.map((loc) => (
@@ -755,7 +798,15 @@ const YPivotQASectionsProductLocationManagement = () => {
                       <span className="w-5 h-5 bg-blue-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">
                         {loc.LocationNo}
                       </span>
-                      <span className="flex-1">{loc.LocationName}</span>
+                      {/* ✅ MODIFIED: Inline Chinese Name in brackets */}
+                      <div className="flex-1 font-medium">
+                        {loc.LocationName}
+                        {loc.LocationNameChinese && (
+                          <span className="text-gray-500 dark:text-gray-400 font-normal ml-1">
+                            ({loc.LocationNameChinese})
+                          </span>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -773,12 +824,12 @@ const YPivotQASectionsProductLocationManagement = () => {
             {isExpanded ? (
               <>
                 <ChevronUp size={16} />
-                Hide Details
+                {t("fincheckProductLocation.hideDetails")}
               </>
             ) : (
               <>
                 <ChevronDown size={16} />
-                Show Details
+                {t("fincheckProductLocation.showDetails")}
               </>
             )}
           </button>
@@ -789,7 +840,7 @@ const YPivotQASectionsProductLocationManagement = () => {
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-500 dark:bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-600 dark:hover:bg-blue-700 shadow-md transition-all"
             >
               <Edit size={16} />
-              Edit
+              {t("fincheckProductLocation.edit")}
             </button>
             <button
               onClick={() => deleteConfiguration(config._id)}
@@ -815,13 +866,13 @@ const YPivotQASectionsProductLocationManagement = () => {
               </div>
               <div>
                 <h2 className="text-xl font-bold text-white">
-                  Product Location Management
+                  {t("fincheckProductLocation.title")}
                 </h2>
                 <p className="text-indigo-100 text-xs mt-0.5">
                   <span className="font-semibold text-white">
                     {savedConfigurations.length}
                   </span>{" "}
-                  Total Configurations
+                  {t("fincheckProductLocation.totalConfig")}
                 </p>
               </div>
             </div>
@@ -835,7 +886,7 @@ const YPivotQASectionsProductLocationManagement = () => {
                 className="flex items-center gap-2 px-5 py-2.5 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
               >
                 <Plus size={18} />
-                Create New
+                {t("fincheckProductLocation.createNew")}
               </button>
             )}
           </div>
@@ -850,12 +901,12 @@ const YPivotQASectionsProductLocationManagement = () => {
               {editingConfigId ? (
                 <>
                   <Edit size={20} className="text-indigo-600" />
-                  Edit Configuration
+                  {t("fincheckProductLocation.editTitle")}
                 </>
               ) : (
                 <>
                   <Plus size={20} className="text-indigo-600" />
-                  Create New Configuration
+                  {t("fincheckProductLocation.createTitle")}
                 </>
               )}
             </h3>
@@ -873,7 +924,8 @@ const YPivotQASectionsProductLocationManagement = () => {
           {/* Product Type Selection */}
           <div className="mb-6">
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              Select Product Type <span className="text-red-500">*</span>
+              {t("fincheckProductLocation.selectProductType")}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <select
               value={selectedProductType}
@@ -885,7 +937,9 @@ const YPivotQASectionsProductLocationManagement = () => {
                   : ""
               }`}
             >
-              <option value="">-- Select a Product Type --</option>
+              <option value="">
+                {t("fincheckProductLocation.selectPlaceholder")}
+              </option>
               {productTypes.map((type) => {
                 const configuredTypeIds = savedConfigurations.map(
                   (c) => c.productTypeId._id,
@@ -898,15 +952,16 @@ const YPivotQASectionsProductLocationManagement = () => {
                 return (
                   <option key={type._id} value={type._id} disabled={isDisabled}>
                     {type.EnglishProductName}
-                    {type.KhmerProductName && ` (${type.KhmerProductName})`}
-                    {isDisabled && " (Already Configured)"}
+                    {type.ChineseProductName && ` (${type.ChineseProductName})`}
+                    {isDisabled &&
+                      ` ${t("fincheckProductLocation.alreadyConfigured")}`}
                   </option>
                 );
               })}
             </select>
             {editingConfigId && (
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
-                Product Type cannot be changed when editing a configuration.
+                {t("fincheckProductLocation.typeChangeWarning")}
               </p>
             )}
           </div>
@@ -920,11 +975,13 @@ const YPivotQASectionsProductLocationManagement = () => {
                   <div className="flex items-center justify-between">
                     <h4 className="font-semibold text-gray-800 dark:text-white flex items-center gap-2">
                       <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                      Front View
+                      {t("fincheckProductLocation.frontView")}
                     </h4>
                     <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                      {frontLocations.length} location
-                      {frontLocations.length !== 1 ? "s" : ""}
+                      {frontLocations.length}{" "}
+                      {frontLocations.length !== 1
+                        ? t("fincheckProductLocation.locations")
+                        : t("fincheckProductLocation.location")}
                     </span>
                   </div>
 
@@ -933,10 +990,12 @@ const YPivotQASectionsProductLocationManagement = () => {
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
                         <Upload className="w-10 h-10 text-gray-400 mb-2" />
                         <p className="mb-1 text-sm text-gray-600 dark:text-gray-400">
-                          <span className="font-semibold">Click to upload</span>
+                          <span className="font-semibold">
+                            {t("fincheckProductLocation.clickUpload")}
+                          </span>
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-500">
-                          PNG, JPG, GIF up to 10MB
+                          {t("fincheckProductLocation.uploadHint")}
                         </p>
                       </div>
                       <input
@@ -948,8 +1007,6 @@ const YPivotQASectionsProductLocationManagement = () => {
                     </label>
                   ) : (
                     <div className="space-y-3">
-                      {/* FIXED: Edit Window - Front View */}
-                      {/* Use Flex Center + Relative Inline-Block wrapper */}
                       <div
                         className="h-96 border-2 border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900 flex items-center justify-center"
                         onMouseMove={(e) => handleDragMove(e, "front")}
@@ -976,7 +1033,6 @@ const YPivotQASectionsProductLocationManagement = () => {
                         </div>
                       </div>
 
-                      {/* Hidden Input for Front View Change */}
                       <input
                         type="file"
                         ref={frontFileInputRef}
@@ -986,7 +1042,6 @@ const YPivotQASectionsProductLocationManagement = () => {
                       />
 
                       <div className="flex gap-2">
-                        {/* Mark Button */}
                         <button
                           onClick={() => setIsMarkingFront(!isMarkingFront)}
                           className={`flex-1 py-2 px-3 rounded-lg font-medium text-sm transition-all ${
@@ -996,18 +1051,18 @@ const YPivotQASectionsProductLocationManagement = () => {
                           }`}
                         >
                           <MapPin className="w-4 h-4 inline mr-1.5" />
-                          {isMarkingFront ? "Marking ON" : "Mark Locations"}
+                          {isMarkingFront
+                            ? t("fincheckProductLocation.markingOn")
+                            : t("fincheckProductLocation.markLocations")}
                         </button>
-                        {/* Change Image Button (NEW) */}
                         <button
                           onClick={() => frontFileInputRef.current.click()}
                           className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                          title="Change image (keep locations)"
+                          title={t("fincheckProductLocation.changeImage")}
                         >
                           <RefreshCw className="w-4 h-4" />
                         </button>
 
-                        {/* Delete Button */}
                         <button
                           onClick={() => {
                             setFrontImage(null);
@@ -1016,18 +1071,19 @@ const YPivotQASectionsProductLocationManagement = () => {
                             setIsMarkingFront(false);
                           }}
                           className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                          title="Remove image"
+                          title={t("fincheckProductLocation.removeImage")}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
 
+                      {/* ✅ MODIFIED: Inline Editor for Both Names */}
                       {frontLocations.length > 0 && (
                         <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
                           <h5 className="font-semibold text-xs text-gray-700 dark:text-gray-300 mb-2">
-                            Marked Locations:
+                            {t("fincheckProductLocation.markedLocations")}
                           </h5>
-                          <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                          <div className="space-y-1.5 max-h-48 overflow-y-auto">
                             {frontLocations.map((loc) => {
                               const isEditing =
                                 editingLocationId === (loc._id || loc.tempId);
@@ -1041,29 +1097,54 @@ const YPivotQASectionsProductLocationManagement = () => {
                                       {loc.LocationNo}
                                     </span>
                                     {isEditing ? (
-                                      <input
-                                        type="text"
-                                        value={editingLocationName}
-                                        onChange={(e) =>
-                                          setEditingLocationName(e.target.value)
-                                        }
-                                        className="text-xs p-1 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
-                                        autoFocus
-                                      />
+                                      <div className="flex flex-col gap-1 w-full">
+                                        <input
+                                          type="text"
+                                          placeholder="English Name"
+                                          value={editingLocationName}
+                                          onChange={(e) =>
+                                            setEditingLocationName(
+                                              e.target.value,
+                                            )
+                                          }
+                                          className="text-xs p-1 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                                          autoFocus
+                                        />
+                                        <input
+                                          type="text"
+                                          placeholder="Chinese Name"
+                                          value={editingLocationNameChinese}
+                                          onChange={(e) =>
+                                            setEditingLocationNameChinese(
+                                              e.target.value,
+                                            )
+                                          }
+                                          className="text-xs p-1 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                                        />
+                                      </div>
                                     ) : (
-                                      <span className="text-xs text-gray-700 dark:text-gray-300">
-                                        {loc.LocationName}
-                                      </span>
+                                      <div className="flex flex-col">
+                                        <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">
+                                          {loc.LocationName}
+                                        </span>
+                                        {loc.LocationNameChinese && (
+                                          <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                                            {loc.LocationNameChinese}
+                                          </span>
+                                        )}
+                                      </div>
                                     )}
                                   </div>
-                                  <div className="flex items-center gap-1.5">
+                                  <div className="flex items-center gap-1.5 ml-2">
                                     {isEditing ? (
                                       <>
                                         <button
                                           onClick={() =>
                                             handleSaveLocationName(loc, "front")
                                           }
-                                          title="Save Name"
+                                          title={t(
+                                            "fincheckProductLocation.saveName",
+                                          )}
                                         >
                                           <Check className="w-3.5 h-3.5 text-green-500" />
                                         </button>
@@ -1071,7 +1152,9 @@ const YPivotQASectionsProductLocationManagement = () => {
                                           onClick={() =>
                                             setEditingLocationId(null)
                                           }
-                                          title="Cancel"
+                                          title={t(
+                                            "fincheckProductLocation.cancel",
+                                          )}
                                         >
                                           <X className="w-3.5 h-3.5 text-gray-500" />
                                         </button>
@@ -1082,7 +1165,9 @@ const YPivotQASectionsProductLocationManagement = () => {
                                           onClick={() =>
                                             handleEditLocationName(loc)
                                           }
-                                          title="Edit name"
+                                          title={t(
+                                            "fincheckProductLocation.editName",
+                                          )}
                                         >
                                           <Edit className="w-3.5 h-3.5 text-blue-500" />
                                         </button>
@@ -1090,7 +1175,9 @@ const YPivotQASectionsProductLocationManagement = () => {
                                           onClick={() =>
                                             removeLocation(loc, "front")
                                           }
-                                          title="Remove location"
+                                          title={t(
+                                            "fincheckProductLocation.removeLoc",
+                                          )}
                                         >
                                           <X className="w-3.5 h-3.5 text-red-500" />
                                         </button>
@@ -1112,11 +1199,13 @@ const YPivotQASectionsProductLocationManagement = () => {
                   <div className="flex items-center justify-between">
                     <h4 className="font-semibold text-gray-800 dark:text-white flex items-center gap-2">
                       <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                      Back View
+                      {t("fincheckProductLocation.backView")}
                     </h4>
                     <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
                       {backLocations.length} location
-                      {backLocations.length !== 1 ? "s" : ""}
+                      {backLocations.length !== 1
+                        ? t("fincheckProductLocation.locations")
+                        : t("fincheckProductLocation.location")}
                     </span>
                   </div>
 
@@ -1125,10 +1214,12 @@ const YPivotQASectionsProductLocationManagement = () => {
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
                         <Upload className="w-10 h-10 text-gray-400 mb-2" />
                         <p className="mb-1 text-sm text-gray-600 dark:text-gray-400">
-                          <span className="font-semibold">Click to upload</span>
+                          <span className="font-semibold">
+                            {t("fincheckProductLocation.clickUpload")}
+                          </span>
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-500">
-                          PNG, JPG, GIF up to 10MB
+                          {t("fincheckProductLocation.uploadHint")}
                         </p>
                       </div>
                       <input
@@ -1140,8 +1231,6 @@ const YPivotQASectionsProductLocationManagement = () => {
                     </label>
                   ) : (
                     <div className="space-y-3">
-                      {/* FIXED: Edit Window - Back View */}
-                      {/* Use Flex Center + Relative Inline-Block wrapper */}
                       <div
                         className="h-96 border-2 border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900 flex items-center justify-center"
                         onMouseMove={(e) => handleDragMove(e, "back")}
@@ -1164,7 +1253,6 @@ const YPivotQASectionsProductLocationManagement = () => {
                         </div>
                       </div>
 
-                      {/* Hidden Input for Back View Change */}
                       <input
                         type="file"
                         ref={backFileInputRef}
@@ -1174,7 +1262,6 @@ const YPivotQASectionsProductLocationManagement = () => {
                       />
 
                       <div className="flex gap-2">
-                        {/* Mark Button */}
                         <button
                           onClick={() => setIsMarkingBack(!isMarkingBack)}
                           className={`flex-1 py-2 px-3 rounded-lg font-medium text-sm transition-all ${
@@ -1184,19 +1271,19 @@ const YPivotQASectionsProductLocationManagement = () => {
                           }`}
                         >
                           <MapPin className="w-4 h-4 inline mr-1.5" />
-                          {isMarkingBack ? "Marking ON" : "Mark Locations"}
+                          {isMarkingBack
+                            ? t("fincheckProductLocation.markingOn")
+                            : t("fincheckProductLocation.markLocations")}
                         </button>
 
-                        {/* Change Image Button (NEW) */}
                         <button
                           onClick={() => backFileInputRef.current.click()}
                           className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                          title="Change image (keep locations)"
+                          title={t("fincheckProductLocation.changeImage")}
                         >
                           <RefreshCw className="w-4 h-4" />
                         </button>
 
-                        {/* Delete Button */}
                         <button
                           onClick={() => {
                             setBackImage(null);
@@ -1205,18 +1292,19 @@ const YPivotQASectionsProductLocationManagement = () => {
                             setIsMarkingBack(false);
                           }}
                           className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                          title="Remove image"
+                          title={t("fincheckProductLocation.removeImage")}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
 
+                      {/* ✅ MODIFIED: Inline Editor for Both Names (Back) */}
                       {backLocations.length > 0 && (
                         <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
                           <h5 className="font-semibold text-xs text-gray-700 dark:text-gray-300 mb-2">
-                            Marked Locations:
+                            {t("fincheckProductLocation.markedLocations")}
                           </h5>
-                          <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                          <div className="space-y-1.5 max-h-48 overflow-y-auto">
                             {backLocations.map((loc) => {
                               const isEditing =
                                 editingLocationId === (loc._id || loc.tempId);
@@ -1230,29 +1318,54 @@ const YPivotQASectionsProductLocationManagement = () => {
                                       {loc.LocationNo}
                                     </span>
                                     {isEditing ? (
-                                      <input
-                                        type="text"
-                                        value={editingLocationName}
-                                        onChange={(e) =>
-                                          setEditingLocationName(e.target.value)
-                                        }
-                                        className="text-xs p-1 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
-                                        autoFocus
-                                      />
+                                      <div className="flex flex-col gap-1 w-full">
+                                        <input
+                                          type="text"
+                                          placeholder="English Name"
+                                          value={editingLocationName}
+                                          onChange={(e) =>
+                                            setEditingLocationName(
+                                              e.target.value,
+                                            )
+                                          }
+                                          className="text-xs p-1 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                                          autoFocus
+                                        />
+                                        <input
+                                          type="text"
+                                          placeholder="Chinese Name"
+                                          value={editingLocationNameChinese}
+                                          onChange={(e) =>
+                                            setEditingLocationNameChinese(
+                                              e.target.value,
+                                            )
+                                          }
+                                          className="text-xs p-1 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                                        />
+                                      </div>
                                     ) : (
-                                      <span className="text-xs text-gray-700 dark:text-gray-300">
-                                        {loc.LocationName}
-                                      </span>
+                                      <div className="flex flex-col">
+                                        <span className="text-xs text-gray-700 dark:text-gray-300 font-medium">
+                                          {loc.LocationName}
+                                        </span>
+                                        {loc.LocationNameChinese && (
+                                          <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                                            {loc.LocationNameChinese}
+                                          </span>
+                                        )}
+                                      </div>
                                     )}
                                   </div>
-                                  <div className="flex items-center gap-1.5">
+                                  <div className="flex items-center gap-1.5 ml-2">
                                     {isEditing ? (
                                       <>
                                         <button
                                           onClick={() =>
                                             handleSaveLocationName(loc, "back")
                                           }
-                                          title="Save Name"
+                                          title={t(
+                                            "fincheckProductLocation.saveName",
+                                          )}
                                         >
                                           <Check className="w-3.5 h-3.5 text-green-500" />
                                         </button>
@@ -1260,7 +1373,9 @@ const YPivotQASectionsProductLocationManagement = () => {
                                           onClick={() =>
                                             setEditingLocationId(null)
                                           }
-                                          title="Cancel"
+                                          title={t(
+                                            "fincheckProductLocation.cancel",
+                                          )}
                                         >
                                           <X className="w-3.5 h-3.5 text-gray-500" />
                                         </button>
@@ -1271,7 +1386,9 @@ const YPivotQASectionsProductLocationManagement = () => {
                                           onClick={() =>
                                             handleEditLocationName(loc)
                                           }
-                                          title="Edit name"
+                                          title={t(
+                                            "fincheckProductLocation.editName",
+                                          )}
                                         >
                                           <Edit className="w-3.5 h-3.5 text-blue-500" />
                                         </button>
@@ -1279,7 +1396,9 @@ const YPivotQASectionsProductLocationManagement = () => {
                                           onClick={() =>
                                             removeLocation(loc, "back")
                                           }
-                                          title="Remove location"
+                                          title={t(
+                                            "fincheckProductLocation.removeLoc",
+                                          )}
                                         >
                                           <X className="w-3.5 h-3.5 text-red-500" />
                                         </button>
@@ -1303,21 +1422,15 @@ const YPivotQASectionsProductLocationManagement = () => {
                   <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
                   <div className="text-xs text-blue-800 dark:text-blue-300">
                     <p className="font-semibold mb-1.5">
-                      How to mark locations:
+                      {t("fincheckProductLocation.infoTitle")}
                     </p>
                     <ol className="list-decimal list-inside space-y-1 ml-2 text-[11px]">
-                      <li>Upload both front and back view images</li>
-                      <li>Click "Mark Locations" to enable marking mode</li>
-                      <li>
-                        Click on the image where you want to mark an inspection
-                        point
-                      </li>
-                      <li>
-                        Enter a descriptive name for the location (e.g., "Left
-                        Pocket")
-                      </li>
-                      <li>Drag markers to adjust their position</li>
-                      <li>Click "Save Configuration" when finished</li>
+                      <li>{t("fincheckProductLocation.infoStep1")}</li>
+                      <li>{t("fincheckProductLocation.infoStep2")}</li>
+                      <li>{t("fincheckProductLocation.infoStep3")}</li>
+                      <li>{t("fincheckProductLocation.infoStep4")}</li>
+                      <li>{t("fincheckProductLocation.infoStep5")}</li>
+                      <li>{t("fincheckProductLocation.infoStep6")}</li>
                     </ol>
                   </div>
                 </div>
@@ -1329,7 +1442,7 @@ const YPivotQASectionsProductLocationManagement = () => {
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Product:{" "}
+                        {t("fincheckProductLocation.productLabel")}
                         <span className="font-semibold text-gray-800 dark:text-white">
                           {
                             productTypes.find(
@@ -1339,12 +1452,14 @@ const YPivotQASectionsProductLocationManagement = () => {
                         </span>
                       </p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Total Locations:{" "}
+                        {t("fincheckProductLocation.totalLocLabel")}
                         <span className="font-semibold text-gray-800 dark:text-white">
                           {frontLocations.length + backLocations.length}
                         </span>
                         <span className="text-[11px] ml-2">
-                          (Front: {frontLocations.length}, Back:{" "}
+                          ({t("fincheckProductLocation.front")}:{" "}
+                          {frontLocations.length},{" "}
+                          {t("fincheckProductLocation.back")}:{" "}
                           {backLocations.length})
                         </span>
                       </p>
@@ -1359,7 +1474,7 @@ const YPivotQASectionsProductLocationManagement = () => {
                         disabled={loading}
                       >
                         <X className="w-4 h-4 inline mr-1.5" />
-                        Cancel
+                        {t("fincheckProductLocation.cancel")}
                       </button>
                       <button
                         onClick={handleSave}
@@ -1369,12 +1484,14 @@ const YPivotQASectionsProductLocationManagement = () => {
                         {loading ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin" />
-                            Saving...
+                            {t("fincheckProductLocation.saving")}
                           </>
                         ) : (
                           <>
                             <Save className="w-4 h-4" />
-                            {editingConfigId ? "Update" : "Save"} Configuration
+                            {editingConfigId
+                              ? t("fincheckProductLocation.updateConfig")
+                              : t("fincheckProductLocation.saveConfig")}
                           </>
                         )}
                       </button>
@@ -1391,7 +1508,7 @@ const YPivotQASectionsProductLocationManagement = () => {
       {savedConfigurations.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-            Saved Configurations
+            {t("fincheckProductLocation.savedConfigTitle")}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {savedConfigurations.map((config) => (
@@ -1408,10 +1525,10 @@ const YPivotQASectionsProductLocationManagement = () => {
             <ImageIcon className="w-10 h-10 text-gray-400 dark:text-gray-500" />
           </div>
           <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
-            No configurations saved yet
+            {t("fincheckProductLocation.noConfigTitle")}
           </h3>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Create your first product location configuration
+            {t("fincheckProductLocation.noConfigDesc")}
           </p>
           <button
             onClick={() => {
@@ -1421,7 +1538,7 @@ const YPivotQASectionsProductLocationManagement = () => {
             className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium shadow-md hover:shadow-lg"
           >
             <Plus className="w-4 h-4 inline mr-2" />
-            Create Configuration
+            {t("fincheckProductLocation.createConfigBtn")}
           </button>
         </div>
       )}

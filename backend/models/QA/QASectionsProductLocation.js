@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 const locationMarkerSchema = new mongoose.Schema({
   LocationNo: { type: Number, required: true },
   LocationName: { type: String, required: true },
+  LocationNameChinese: { type: String, default: "" },
   x: { type: Number, required: true }, // X coordinate percentage
   y: { type: Number, required: true }, // Y coordinate percentage
 });

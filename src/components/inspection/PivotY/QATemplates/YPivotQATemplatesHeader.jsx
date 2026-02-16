@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { createPortal } from "react-dom";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 import {
   Camera,
   Upload,
@@ -23,7 +24,7 @@ const MAX_IMAGES_PER_SECTION = 5;
 // ==============================================================================
 // INTERNAL COMPONENT: REMARK MODAL
 // ==============================================================================
-const RemarkModal = ({ isOpen, onClose, onSave, initialText, title }) => {
+const RemarkModal = ({ isOpen, onClose, onSave, initialText, title, t }) => {
   const [text, setText] = useState(initialText || "");
 
   useEffect(() => {
@@ -39,7 +40,7 @@ const RemarkModal = ({ isOpen, onClose, onSave, initialText, title }) => {
         <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800/50">
           <h3 className="font-bold text-gray-800 dark:text-white flex items-center gap-2">
             <MessageSquare className="w-4 h-4 text-indigo-500" />
-            {title || "Add Remark"}
+            {title || t("fincheckHeader.addRemark")}
           </h3>
           <button
             onClick={onClose}
@@ -53,7 +54,7 @@ const RemarkModal = ({ isOpen, onClose, onSave, initialText, title }) => {
         <div className="p-5">
           <textarea
             className="w-full h-40 p-3 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm text-gray-800 dark:text-gray-200 resize-none"
-            placeholder="Type your remark here (max 250 chars)..."
+            placeholder={t("fincheckHeader.remarkPlaceholder")}
             maxLength={250}
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -75,14 +76,14 @@ const RemarkModal = ({ isOpen, onClose, onSave, initialText, title }) => {
             onClick={onClose}
             className="px-4 py-2 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
-            Cancel
+            {t("fincheckHeader.cancel")}
           </button>
           <button
             onClick={() => onSave(text)}
             disabled={!text.trim()}
             className="px-6 py-2 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            <Save className="w-4 h-4" /> Save
+            <Save className="w-4 h-4" /> {t("fincheckHeader.save")}
           </button>
         </div>
       </div>
@@ -95,6 +96,14 @@ const RemarkModal = ({ isOpen, onClose, onSave, initialText, title }) => {
 // MAIN COMPONENT
 // ==============================================================================
 const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
+  // --- i18n Hook ---
+  const { t, i18n } = useTranslation();
+
+  // --- Current Language State (tracks i18n language) ---
+  const [currentLanguage, setCurrentLanguage] = useState(
+    () => localStorage.getItem("preferredLanguage") || i18n.language || "en",
+  );
+
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -118,6 +127,57 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
 
   const [showImageEditor, setShowImageEditor] = useState(false);
   const [currentEditContext, setCurrentEditContext] = useState(null);
+
+  // --- Language Change Listener ---
+  useEffect(() => {
+    // Handler for i18n language change
+    const handleI18nLanguageChange = (lng) => {
+      setCurrentLanguage(lng);
+    };
+
+    // Handler for custom event from LanguageSwitcher
+    const handleCustomLanguageChange = (event) => {
+      const newLang = event.detail?.language;
+      if (newLang) {
+        setCurrentLanguage(newLang);
+      }
+    };
+
+    // Subscribe to i18n language changes
+    i18n.on("languageChanged", handleI18nLanguageChange);
+
+    // Subscribe to custom event
+    window.addEventListener("languageChanged", handleCustomLanguageChange);
+
+    // Cleanup
+    return () => {
+      i18n.off("languageChanged", handleI18nLanguageChange);
+      window.removeEventListener("languageChanged", handleCustomLanguageChange);
+    };
+  }, [i18n]);
+
+  // --- Helper Functions for Language-Based Display ---
+  // Get main title based on current language
+  const getMainTitle = useCallback(
+    (section) => {
+      if (currentLanguage === "ch" && section.MainTitleChinese) {
+        return section.MainTitleChinese;
+      }
+      return section.MainTitle;
+    },
+    [currentLanguage],
+  );
+
+  // Get option name based on current language
+  const getOptionName = useCallback(
+    (option) => {
+      if (currentLanguage === "ch" && option.NameChinese) {
+        return option.NameChinese;
+      }
+      return option.Name;
+    },
+    [currentLanguage],
+  );
 
   // --- Helper to Sync with Parent ---
   const updateParent = (updates) => {
@@ -148,6 +208,7 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
           const initialSelections = {};
           response.data.data.forEach((section) => {
             if (section.Options && section.Options.length > 0) {
+              // Always store English name for consistency
               initialSelections[section._id] = section.Options[0].Name;
             }
           });
@@ -170,7 +231,7 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
     setRemarkModalState({
       isOpen: true,
       sectionId: section._id,
-      sectionTitle: section.MainTitle,
+      sectionTitle: getMainTitle(section),
     });
   };
 
@@ -185,7 +246,7 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
   };
 
   const clearRemark = (sectionId) => {
-    if (window.confirm("Are you sure you want to clear this remark?")) {
+    if (window.confirm(t("fincheckHeader.clearRemarkConfirm"))) {
       const newRemarks = { ...remarks };
       delete newRemarks[sectionId];
       setRemarks(newRemarks);
@@ -235,7 +296,7 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
 
     if (availableSlots <= 0) {
       alert(
-        `Maximum ${MAX_IMAGES_PER_SECTION} images reached for this section!`,
+        `${t("fincheckHeader.maximumReached")} (${MAX_IMAGES_PER_SECTION})`,
       );
       return;
     }
@@ -244,7 +305,7 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
       mode,
       sectionId,
       isEditing: false,
-      maxImages: availableSlots, // Pass available slots as max
+      maxImages: availableSlots,
       existingData: null,
     });
     setShowImageEditor(true);
@@ -290,17 +351,13 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
 
     // Helper to construct image object
     const createImageData = (img) => {
-      // Logic: Use editedSrc if available, otherwise original imgSrc
-      // This prevents 'url' from being null
       const finalUrl = img.editedImgSrc || img.imgSrc;
 
       return {
         id: img.id,
-        // CRITICAL FIX: Ensure url is never null. Wrapper needs this string.
         url: finalUrl,
-        // CRITICAL FIX: Pass the File object so Wrapper doesn't need to fetch blob
         file: img.file,
-        imgSrc: img.imgSrc, // Keep for editor re-entry
+        imgSrc: img.imgSrc,
         history: img.history || [],
       };
     };
@@ -336,7 +393,7 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
   const removeImage = (sectionId, imageIndex, e) => {
     if (e) e.stopPropagation();
 
-    if (!window.confirm("Remove this image?")) return;
+    if (!window.confirm(t("fincheckHeader.removeImage"))) return;
 
     const newImages = { ...capturedImages };
 
@@ -373,13 +430,14 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
   };
 
   // --- Option Handling ---
+  // Always store English name as value for consistency across languages
   const handleOptionSelect = (sectionId, optionName) => {
     const newOptions = { ...selectedOptions, [sectionId]: optionName };
     setSelectedOptions(newOptions);
     updateParent({ selectedOptions: newOptions });
   };
 
-  // Helper for option styling
+  // Helper for option styling - uses English name for matching
   const getOptionStyle = (optionName, isSelected) => {
     const baseStyle =
       "bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700";
@@ -415,7 +473,7 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
       <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg p-3 shadow-lg mb-6">
         <h2 className="text-white font-bold text-sm uppercase tracking-wider flex items-center gap-2">
           <ChevronRight className="w-4 h-4" />
-          Checklist
+          {t("fincheckHeader.checklist")}
         </h2>
       </div>
 
@@ -424,6 +482,7 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
         const availableSlots = getAvailableSlots(section._id);
         const canAddMore = availableSlots > 0;
         const currentRemark = remarks[section._id];
+        const displayTitle = getMainTitle(section);
 
         return (
           <div
@@ -435,12 +494,14 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
               {/* 1. Left: Title */}
               <div className="min-w-[150px]">
                 <h4 className="text-gray-800 dark:text-gray-100 font-bold text-sm">
-                  {section.MainTitle}
+                  {displayTitle}
                 </h4>
                 {sectionImages.length === 0 && (
                   <p className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1 mt-1">
                     <Images className="w-3 h-3" />
-                    Up to {MAX_IMAGES_PER_SECTION} images
+                    {t("fincheckHeader.upToImages", {
+                      count: MAX_IMAGES_PER_SECTION,
+                    })}
                   </p>
                 )}
               </div>
@@ -460,8 +521,8 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
                   }`}
                   title={
                     canAddMore
-                      ? `Take photos (${availableSlots} slots available)`
-                      : "Maximum images reached"
+                      ? `${t("fincheckHeader.takePhotos")} (${t("fincheckHeader.slotsAvailable", { count: availableSlots })})`
+                      : t("fincheckHeader.maximumReached")
                   }
                 >
                   <Camera className="w-4 h-4" />
@@ -480,8 +541,8 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
                   }`}
                   title={
                     canAddMore
-                      ? `Upload images (${availableSlots} slots available)`
-                      : "Maximum images reached"
+                      ? `${t("fincheckHeader.uploadImages")} (${t("fincheckHeader.slotsAvailable", { count: availableSlots })})`
+                      : t("fincheckHeader.maximumReached")
                   }
                 >
                   <Upload className="w-4 h-4" />
@@ -508,16 +569,16 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
                     <button
                       onClick={() => openRemarkModal(section)}
                       className="px-3 h-full text-xs font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors flex items-center gap-2"
-                      title="Edit Remark"
+                      title={t("fincheckHeader.edit")}
                     >
                       <MessageSquare className="w-3.5 h-3.5 fill-current" />
-                      Remark Added
+                      {t("fincheckHeader.remarkAdded")}
                     </button>
                     <div className="w-px h-4 bg-amber-200 dark:bg-amber-800"></div>
                     <button
                       onClick={() => openRemarkModal(section)}
                       className="px-2 h-full text-amber-600 dark:text-amber-500 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
-                      title="Edit"
+                      title={t("fincheckHeader.edit")}
                     >
                       <Edit3 className="w-3.5 h-3.5" />
                     </button>
@@ -525,7 +586,7 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
                     <button
                       onClick={() => clearRemark(section._id)}
                       className="px-2 h-full text-amber-600 dark:text-amber-500 hover:bg-red-100 dark:hover:bg-red-900/40 hover:text-red-600 transition-colors"
-                      title="Clear"
+                      title={t("fincheckHeader.clear")}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -537,7 +598,7 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
                     className="h-[34px] px-3 rounded-lg border border-dashed border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-indigo-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-all flex items-center gap-2 text-xs font-medium"
                   >
                     <MessageSquare className="w-3.5 h-3.5" />
-                    Add Remark
+                    {t("fincheckHeader.addRemark")}
                   </button>
                 )}
               </div>
@@ -545,8 +606,11 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
               {/* 3. Right: Options */}
               <div className="flex flex-wrap items-center gap-2 justify-end flex-1">
                 {section.Options.map((option) => {
+                  // Always compare using English name for consistency
                   const isSelected =
                     selectedOptions[section._id] === option.Name;
+                  const displayOptionName = getOptionName(option);
+
                   return (
                     <button
                       key={option.OptionNo}
@@ -557,8 +621,13 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
                         px-4 py-1.5 rounded-md text-xs font-bold border transition-all duration-200
                         ${getOptionStyle(option.Name, isSelected)}
                       `}
+                      title={
+                        currentLanguage === "ch"
+                          ? option.Name
+                          : option.NameChinese || option.Name
+                      }
                     >
-                      {option.Name}
+                      {displayOptionName}
                     </button>
                   );
                 })}
@@ -577,7 +646,7 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
                     >
                       <img
                         src={data.url}
-                        alt="Captured"
+                        alt={t("fincheckHeader.captured")}
                         className="w-full h-full object-cover rounded-md border border-gray-300 dark:border-gray-600 group-hover:border-indigo-500 transition-colors shadow-sm"
                       />
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center">
@@ -603,7 +672,7 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
                           openImageEditorForNew("camera", section._id)
                         }
                         className="w-full h-1/2 flex items-center justify-center hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors group border-b border-gray-200 dark:border-gray-700"
-                        title={`Take photos (${availableSlots} slots)`}
+                        title={`${t("fincheckHeader.takePhotos")} (${availableSlots} ${t("fincheckHeader.slots")})`}
                       >
                         <Camera className="w-3.5 h-3.5 text-gray-400 group-hover:text-indigo-500 transition-colors" />
                       </button>
@@ -612,7 +681,7 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
                           openImageEditorForNew("upload", section._id)
                         }
                         className="w-full h-1/2 flex items-center justify-center hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors group"
-                        title={`Upload images (${availableSlots} slots)`}
+                        title={`${t("fincheckHeader.uploadImages")} (${availableSlots} ${t("fincheckHeader.slots")})`}
                       >
                         <Upload className="w-3.5 h-3.5 text-gray-400 group-hover:text-emerald-500 transition-colors" />
                       </button>
@@ -623,7 +692,7 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
                   {canAddMore && availableSlots > 1 && (
                     <div className="flex-shrink-0 flex items-center justify-center px-2">
                       <span className="text-[10px] text-gray-400 dark:text-gray-500 whitespace-nowrap">
-                        +{availableSlots} slots
+                        +{availableSlots} {t("fincheckHeader.slots")}
                       </span>
                     </div>
                   )}
@@ -658,6 +727,7 @@ const YPivotQATemplatesHeader = ({ headerData, onUpdateHeaderData }) => {
         onSave={handleSaveRemark}
         initialText={remarks[remarkModalState.sectionId]}
         title={remarkModalState.sectionTitle}
+        t={t}
       />
 
       <style jsx>{`

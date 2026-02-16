@@ -30,6 +30,10 @@ import React, {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../components/authentication/AuthContext";
+
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../components/layout/LangSwitch";
+
 import { PhotoUploadProvider } from "../components/inspection/PivotY/QATemplates/PhotoUploadContext";
 import YPivotQAInspectionOrderData from "../components/inspection/PivotY/QADataCollection/YPivotQAInspectionOrderData";
 import YPivotQAInspectionSummary from "../components/inspection/PivotY/QADataCollection/YPivotQAInspectionSummary";
@@ -485,6 +489,7 @@ const extractOrderSizes = (orderData) => {
 const YPivotQAInspection = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // --- STATE FOR DB LOADING ---
   const [isRestoring, setIsRestoring] = useState(true);
@@ -1162,7 +1167,7 @@ const YPivotQAInspection = () => {
     () => [
       {
         id: "order",
-        label: "Order",
+        label: t("fincheckInspection.tabs.order"),
         icon: <Package size={18} />,
         component: (
           <YPivotQAInspectionOrderData
@@ -1184,14 +1189,14 @@ const YPivotQAInspection = () => {
           />
         ),
         gradient: "from-blue-500 to-cyan-500",
-        description: "Order & Report configuration",
+        description: t("fincheckInspection.descriptions.order"),
         requiresSave: false,
       },
       ...(sharedReportState.selectedTemplate?.ReportType === "Pilot Run-Sewing"
         ? [
             {
               id: "pp_sheet",
-              label: "PP Sheet",
+              label: t("fincheckInspection.tabs.ppSheet"),
               icon: <FileSpreadsheet size={18} />,
               component: (
                 <YPivotQAInspectionPPSheetDataSave
@@ -1206,14 +1211,14 @@ const YPivotQAInspection = () => {
                 />
               ),
               gradient: "from-indigo-600 to-blue-600",
-              description: "Pre-Production Meeting Sheet",
+              description: t("fincheckInspection.descriptions.ppSheet"),
               requiresSave: true,
             },
           ]
         : []),
       {
         id: "header",
-        label: "Header",
+        label: t("fincheckInspection.tabs.header"),
         icon: <FileText size={18} />,
         component: (
           <YPivotQAInspectionHeaderDataSave
@@ -1225,12 +1230,12 @@ const YPivotQAInspection = () => {
           />
         ),
         gradient: "from-purple-500 to-pink-500",
-        description: "Inspection header",
+        description: t("fincheckInspection.descriptions.header"),
         requiresSave: true,
       },
       {
         id: "photos",
-        label: "Photos",
+        label: t("fincheckInspection.tabs.photos"),
         icon: <Camera size={18} />,
         component: (
           <YPivotQAInspectionPhotoDataSave
@@ -1242,12 +1247,12 @@ const YPivotQAInspection = () => {
           />
         ),
         gradient: "from-orange-500 to-red-500",
-        description: "Photo documentation",
+        description: t("fincheckInspection.descriptions.photos"),
         requiresSave: true,
       },
       {
         id: "info",
-        label: "Info",
+        label: t("fincheckInspection.tabs.info"),
         icon: <Info size={18} />,
         component: (
           <YPivotQAInspectionConfigSave
@@ -1262,7 +1267,7 @@ const YPivotQAInspection = () => {
           />
         ),
         gradient: "from-teal-500 to-cyan-500",
-        description: "Detailed Configuration",
+        description: t("fincheckInspection.descriptions.info"),
         requiresSave: true,
       },
       // =================================================================
@@ -1275,8 +1280,8 @@ const YPivotQAInspection = () => {
               id: "measurement",
               label:
                 sharedReportState.selectedTemplate.Measurement === "Before"
-                  ? "Meas. (B)"
-                  : "Meas. (A)",
+                  ? t("fincheckInspection.tabs.measB")
+                  : t("fincheckInspection.tabs.measA"),
               icon: <Ruler size={18} />,
               component: (
                 <YPivotQAInspectionMeasurementDataSave
@@ -1296,7 +1301,7 @@ const YPivotQAInspection = () => {
                 />
               ),
               gradient: "from-green-500 to-emerald-500",
-              description: "Primary Measurement",
+              description: t("fincheckInspection.descriptions.meas"),
               requiresSave: true,
             },
           ]
@@ -1313,8 +1318,8 @@ const YPivotQAInspection = () => {
               label:
                 sharedReportState.selectedTemplate.MeasurementAdditional ===
                 "Before"
-                  ? "Meas. (B)"
-                  : "Meas. (A)",
+                  ? t("fincheckInspection.tabs.measB")
+                  : t("fincheckInspection.tabs.measA"),
               icon: <Ruler size={18} />,
               component: (
                 <YPivotQAInspectionMeasurementDataSave
@@ -1337,14 +1342,14 @@ const YPivotQAInspection = () => {
               ),
               // Use a slightly different gradient to distinguish visually
               gradient: "from-teal-500 to-emerald-600",
-              description: "Additional Measurement",
+              description: t("fincheckInspection.descriptions.meas"),
               requiresSave: true,
             },
           ]
         : []),
       {
         id: "defects",
-        label: "Defects",
+        label: t("fincheckInspection.tabs.defects"),
         icon: <ClipboardCheck size={18} />,
         component: (
           <YPivotQAInspectionDefectDataSave
@@ -1362,12 +1367,12 @@ const YPivotQAInspection = () => {
           />
         ),
         gradient: "from-red-500 to-rose-500",
-        description: "Defect recording",
+        description: t("fincheckInspection.descriptions.defects"),
         requiresSave: true,
       },
       {
         id: "summary",
-        label: "Summary",
+        label: t("fincheckInspection.tabs.summary"),
         icon: <CheckSquare size={18} />,
         component: (
           <YPivotQAInspectionSummary
@@ -1384,21 +1389,21 @@ const YPivotQAInspection = () => {
           />
         ),
         gradient: "from-indigo-500 to-violet-500",
-        description: "Inspection summary",
+        description: t("fincheckInspection.descriptions.summary"),
         requiresSave: true,
       },
       {
         id: "qr_history",
-        label: "History",
+        label: t("fincheckInspection.tabs.history"),
         icon: <QrCode size={18} />,
         component: <YPivotQAInspectionPreviousReport user={user} />,
         gradient: "from-slate-700 to-gray-800",
-        description: "Search & Download Previous Reports",
+        description: t("fincheckInspection.descriptions.history"),
         requiresSave: false,
       },
       {
         id: "notifications",
-        label: "Notifications",
+        label: t("fincheckInspection.tabs.notifications"),
         // Custom Icon with Badge
         icon: (
           <div className="relative">
@@ -1412,7 +1417,7 @@ const YPivotQAInspection = () => {
         ),
         component: <YPivotQAInspectionNotifications user={user} />,
         gradient: "from-pink-500 to-rose-500", // Distinct color
-        description: "Leader Feedback & Decisions",
+        description: t("fincheckInspection.descriptions.notifications"),
         requiresSave: false,
       },
     ],
@@ -1552,12 +1557,12 @@ const YPivotQAInspection = () => {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                       <h1 className="text-sm font-black text-white tracking-tight truncate">
-                        Fin Check
+                        {t("fincheckInspection.title")}
                       </h1>
                       <div className="flex items-center gap-0.5 px-1.5 py-0.5 bg-white/20 backdrop-blur-sm rounded-full flex-shrink-0">
                         <Sparkles size={8} className="text-yellow-300" />
                         <span className="text-[8px] font-bold text-white">
-                          PRO
+                          {t("fincheckInspection.pro")}
                         </span>
                       </div>
                       <button
@@ -1566,7 +1571,7 @@ const YPivotQAInspection = () => {
                       >
                         <Plus size={24} strokeWidth={3} />
                         <span className="text-[12px] font-bold uppercase">
-                          New
+                          {t("fincheckInspection.new")}
                         </span>
                       </button>
                     </div>
@@ -1580,29 +1585,36 @@ const YPivotQAInspection = () => {
                         {activeTabData?.label} • Active
                         {hasUnsavedChanges && (
                           <span className="ml-1 text-amber-300">
-                            • Unsaved changes
+                            • {t("fincheckInspection.unsavedChanges")}
                           </span>
                         )}
                       </p>
                     </div>
                   </div>
                 </div>
-                {/* User Info */}
-                {user && (
-                  <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg px-2 py-1 shadow-lg flex-shrink-0">
-                    <div className="flex items-center justify-center w-7 h-7 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-md shadow">
-                      <User size={14} className="text-white" />
-                    </div>
-                    <div className="hidden sm:block">
-                      <p className="text-white font-bold text-[10px] leading-tight truncate max-w-[80px]">
-                        {user.job_title || "Operator"}
-                      </p>
-                      <p className="text-indigo-200 text-[9px] font-medium leading-tight">
-                        {user.emp_id}
-                      </p>
-                    </div>
+                {/* RIGHT SIDE MOBILE: Lang Switcher + User Info */}
+                <div className="flex items-center gap-1">
+                  {/* Language Switcher - Compact for Mobile */}
+                  <div className="scale-75 origin-right">
+                    <LanguageSwitcher />
                   </div>
-                )}
+                  {/* User Info */}
+                  {user && (
+                    <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg px-2 py-1 shadow-lg flex-shrink-0">
+                      <div className="flex items-center justify-center w-7 h-7 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-md shadow">
+                        <User size={14} className="text-white" />
+                      </div>
+                      <div className="hidden sm:block">
+                        <p className="text-white font-bold text-[10px] leading-tight truncate max-w-[80px]">
+                          {user.job_title || t("fincheckInspection.operator")}
+                        </p>
+                        <p className="text-indigo-200 text-[9px] font-medium leading-tight">
+                          {user.emp_id}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
               {/* Tabs - Scrollable */}
               <div className="overflow-x-auto scrollbar-hide -mx-3 px-3">
@@ -1683,17 +1695,18 @@ const YPivotQAInspection = () => {
                   <div>
                     <div className="flex items-center gap-2">
                       <h1 className="text-xl font-black text-white tracking-tight">
-                        Fin Check | Inspection
+                        {t("fincheckInspection.title")} |{" "}
+                        {t("fincheckInspection.y_pivot_inspection")}
                       </h1>
                       <div className="flex items-center gap-1 px-2 py-0.5 bg-white/20 backdrop-blur-sm rounded-full">
                         <Sparkles size={10} className="text-yellow-300" />
                         <span className="text-[10px] font-bold text-white">
-                          PRO
+                          {t("fincheckInspection.pro")}
                         </span>
                       </div>
                     </div>
                     <p className="text-xs text-indigo-100 font-medium">
-                      Quality Inspection Data Collection
+                      {t("fincheckInspection.subtitle")}
                     </p>
                   </div>
                 </div>
@@ -1762,8 +1775,8 @@ const YPivotQAInspection = () => {
                     </p>
                     <p className="text-indigo-200 text-[10px] font-medium leading-tight">
                       {hasUnsavedChanges
-                        ? `Unsaved: ${getDirtySectionsList().length}`
-                        : "All Saved"}
+                        ? `${t("fincheckInspection.unsavedCount")}: ${getDirtySectionsList().length}`
+                        : t("fincheckInspection.allSaved")}
                     </p>
                   </div>
                 </div>
@@ -1781,27 +1794,31 @@ const YPivotQAInspection = () => {
                   </div>
                   <div className="text-left">
                     <p className="text-xs font-bold uppercase tracking-wider leading-none">
-                      New Inspection
+                      {t("fincheckInspection.newInspection")}
                     </p>
                   </div>
                 </button>
               </div>
-              {/* Right Side - User Info */}
-              {user && (
-                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-3 py-2 shadow-lg">
-                  <div className="flex items-center justify-center w-9 h-9 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg shadow">
-                    <User size={18} className="text-white" />
+              {/* Right Side - Language Switcher + User Info */}
+              <div className="flex items-center gap-3">
+                {/* Language Switcher Added Here */}
+                <LanguageSwitcher />
+                {user && (
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl px-3 py-2 shadow-lg">
+                    <div className="flex items-center justify-center w-9 h-9 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg shadow">
+                      <User size={18} className="text-white" />
+                    </div>
+                    <div>
+                      <p className="text-white font-bold text-sm leading-tight">
+                        {user.job_title || t("fincheckInspection.operator")}
+                      </p>
+                      <p className="text-indigo-200 text-xs font-medium leading-tight">
+                        {t("fincheckInspection.id")} : {user.emp_id}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-white font-bold text-sm leading-tight">
-                      {user.job_title || "Operator"}
-                    </p>
-                    <p className="text-indigo-200 text-xs font-medium leading-tight">
-                      ID: {user.emp_id}
-                    </p>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>

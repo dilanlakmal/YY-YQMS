@@ -53,6 +53,58 @@
       "aqlConfig": "AQL配置"
     }
   },
+  "fincheckInspection": {
+    "pageTitle": "Fin Check",
+    "pageSubtitle": "质量检验数据收集",
+    "title": "Fin Check",
+    "y_pivot_inspection": "检验",
+    "subtitle": "质量检验数据收集",
+    "pro": "专业版",
+    "new": "新建",
+    "active": "活跃",
+    "unsavedChanges": "未保存更改",
+    "unsavedCount": "未保存",
+    "allSaved": "已保存",
+    "newInspection": "新检验",
+    "operator": "操作员",
+    "id": "工号",
+    "tabs": {
+      "order": "订单",
+      "ppSheet": "产前会",
+      "header": "表头",
+      "photos": "照片",
+      "info": "信息",
+      "measB": "尺寸(洗前)",
+      "measA": "尺寸(洗后)",
+      "defects": "瑕疵",
+      "summary": "汇总",
+      "history": "历史",
+      "notifications": "通知"
+    },
+    "descriptions": {
+      "order": "订单及报告配置",
+      "ppSheet": "产前会议表",
+      "header": "检验表头",
+      "photos": "照片文档",
+      "info": "详细配置",
+      "meas": "尺寸数据",
+      "defects": "瑕疵记录",
+      "summary": "检验汇总",
+      "history": "搜索及下载历史报告",
+      "notifications": "组长反馈与决策"
+    },
+    "modals": {
+      "startNewTitle": "开始新检验?",
+      "startNewMessage": "确定要开始新报告吗？当前会话中未保存的更改将丢失。",
+      "cancel": "取消",
+      "confirmStart": "是的，开始",
+      "reportLoaded": "已加载现有报告",
+      "reportLoadedMsg": "报告加载成功。",
+      "reportCreated": "报告已创建",
+      "reportCreatedMsg": "新检验报告创建成功。",
+      "restoring": "正在恢复会话..."
+    }
+  },
   "fincheckHeader": {
     "checklist": "检查清单",
     "addRemark": "添加备注",

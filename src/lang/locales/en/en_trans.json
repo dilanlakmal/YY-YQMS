@@ -54,6 +54,58 @@
       "aqlConfig": "AQL Config"
     }
   },
+  "fincheckInspection": {
+    "pageTitle": "Fin Check",
+    "pageSubtitle": "Quality Inspection Data Collection",
+    "title": "Fin Check",
+    "y_pivot_inspection": "Inspection",
+    "subtitle": "Quality Inspection Data Collection",
+    "pro": "PRO",
+    "new": "New",
+    "active": "Active",
+    "unsavedChanges": "Unsaved changes",
+    "unsavedCount": "Unsaved",
+    "allSaved": "All Saved",
+    "newInspection": "New Inspection",
+    "operator": "Operator",
+    "id": "ID",
+    "tabs": {
+      "order": "Order",
+      "ppSheet": "PP Sheet",
+      "header": "Header",
+      "photos": "Photos",
+      "info": "Info",
+      "measB": "Meas. (B)",
+      "measA": "Meas. (A)",
+      "defects": "Defects",
+      "summary": "Summary",
+      "history": "History",
+      "notifications": "Notifications"
+    },
+    "descriptions": {
+      "order": "Order & Report configuration",
+      "ppSheet": "Pre-Production Meeting Sheet",
+      "header": "Inspection header",
+      "photos": "Photo documentation",
+      "info": "Detailed Configuration",
+      "meas": "Measurement Data",
+      "defects": "Defect recording",
+      "summary": "Inspection summary",
+      "history": "Search & Download Previous Reports",
+      "notifications": "Leader Feedback & Decisions"
+    },
+    "modals": {
+      "startNewTitle": "Start New Inspection?",
+      "startNewMessage": "Are you sure you want to start a new report? Any unsaved changes in the current session will be lost.",
+      "cancel": "Cancel",
+      "confirmStart": "Yes, Start New",
+      "reportLoaded": "Existing Report Loaded",
+      "reportLoadedMsg": "Report loaded successfully.",
+      "reportCreated": "Report Created",
+      "reportCreatedMsg": "New inspection report created successfully.",
+      "restoring": "Restoring Session..."
+    }
+  },
   "fincheckHeader": {
     "checklist": "Checklist",
     "addRemark": "Add Remark",

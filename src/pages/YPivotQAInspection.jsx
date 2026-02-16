@@ -1595,7 +1595,7 @@ const YPivotQAInspection = () => {
                 {/* RIGHT SIDE MOBILE: Lang Switcher + User Info */}
                 <div className="flex items-center gap-1">
                   {/* Language Switcher - Compact for Mobile */}
-                  <div className="scale-75 origin-right">
+                  <div className="scale-75 origin-right relative z-50">
                     <LanguageSwitcher />
                   </div>
                   {/* User Info */}

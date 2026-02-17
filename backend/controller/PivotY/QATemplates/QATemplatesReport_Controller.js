@@ -1,7 +1,7 @@
 import {
   QASectionsTemplates,
   QASectionsDefectCategory,
-  QASectionsPhotos
+  QASectionsPhotos,
 } from "../../MongoDB/dbConnectionController.js";
 
 /**
@@ -11,6 +11,7 @@ export const CreateTemplate = async (req, res) => {
   try {
     const {
       ReportType,
+      ReportTypeChinese,
       Measurement,
       MeasurementAdditional,
       Header,
@@ -26,7 +27,7 @@ export const CreateTemplate = async (req, res) => {
       QualityPlan,
       Conclusion,
       DefectCategoryList,
-      SelectedPhotoSectionList
+      SelectedPhotoSectionList,
     } = req.body;
 
     if (!ReportType) {
@@ -44,6 +45,7 @@ export const CreateTemplate = async (req, res) => {
     const newTemplate = new QASectionsTemplates({
       no: nextNo,
       ReportType,
+      ReportTypeChinese: ReportTypeChinese || "",
       Measurement,
       MeasurementAdditional: MeasurementAdditional || "No",
       Header,
@@ -59,7 +61,7 @@ export const CreateTemplate = async (req, res) => {
       QualityPlan,
       Conclusion,
       DefectCategoryList: DefectCategoryList || [],
-      SelectedPhotoSectionList: SelectedPhotoSectionList || []
+      SelectedPhotoSectionList: SelectedPhotoSectionList || [],
     });
 
     await newTemplate.save();
@@ -67,7 +69,7 @@ export const CreateTemplate = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Report Template created successfully.",
-      data: newTemplate
+      data: newTemplate,
     });
   } catch (error) {
     console.error("Error creating template:", error);
@@ -98,7 +100,7 @@ export const UpdateTemplate = async (req, res) => {
     const updatedTemplate = await QASectionsTemplates.findByIdAndUpdate(
       id,
       updateData,
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!updatedTemplate) {
@@ -110,7 +112,7 @@ export const UpdateTemplate = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Report Template updated successfully.",
-      data: updatedTemplate
+      data: updatedTemplate,
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -134,7 +136,7 @@ export const DeleteTemplate = async (req, res) => {
     // Re-sequence remaining templates after deletion
     const remainingTemplates = await QASectionsTemplates.find().sort({ no: 1 });
     const updatePromises = remainingTemplates.map((template, index) =>
-      QASectionsTemplates.findByIdAndUpdate(template._id, { no: index + 1 })
+      QASectionsTemplates.findByIdAndUpdate(template._id, { no: index + 1 }),
     );
     await Promise.all(updatePromises);
 
@@ -156,23 +158,22 @@ export const ReorderTemplates = async (req, res) => {
     if (!orderedIds || !Array.isArray(orderedIds)) {
       return res.status(400).json({
         success: false,
-        message: "orderedIds array is required."
+        message: "orderedIds array is required.",
       });
     }
 
-    // Use bulkWrite for efficient batch update
     const bulkOps = orderedIds.map((id, index) => ({
       updateOne: {
         filter: { _id: id },
-        update: { $set: { no: index + 1 } }
-      }
+        update: { $set: { no: index + 1 } },
+      },
     }));
 
     await QASectionsTemplates.bulkWrite(bulkOps);
 
     res.status(200).json({
       success: true,
-      message: "Templates reordered successfully."
+      message: "Templates reordered successfully.",
     });
   } catch (error) {
     console.error("Error reordering templates:", error);
@@ -198,10 +199,113 @@ export const GetCategoriesForSelection = async (req, res) => {
 export const GetPhotoSectionsForSelection = async (req, res) => {
   try {
     const photoSections = await QASectionsPhotos.find()
-      .select("sectionName itemList")
+      .select("sectionName sectionNameChinese itemList")
       .sort({ sectionName: 1 });
+
     res.status(200).json({ success: true, data: photoSections });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+/**
+ * BULK SYNC: Updates Chinese names in all templates from master data
+ */
+export const BulkSyncTemplateDetails = async (req, res) => {
+  try {
+    // 1. Fetch all Master Data
+    const [allCategories, allPhotoSections, allTemplates] = await Promise.all([
+      QASectionsDefectCategory.find({}).lean(),
+      QASectionsPhotos.find({}).lean(),
+      QASectionsTemplates.find({}),
+    ]);
+
+    // 2. Create Lookup Maps for O(1) access
+    const categoryMap = new Map();
+    allCategories.forEach((cat) => {
+      categoryMap.set(cat._id.toString(), {
+        code: cat.CategoryCode,
+        nameEng: cat.CategoryNameEng,
+        nameCh: cat.CategoryNameChinese || "",
+      });
+    });
+
+    const photoMap = new Map();
+    allPhotoSections.forEach((photo) => {
+      photoMap.set(photo._id.toString(), {
+        name: photo.sectionName,
+        nameCh: photo.sectionNameChinese || "",
+      });
+    });
+
+    // 3. Iterate and Update Templates
+    let updatedCount = 0;
+    const updatePromises = allTemplates.map(async (template) => {
+      let isModified = false;
+
+      // Update Defect Categories
+      if (
+        template.DefectCategoryList &&
+        template.DefectCategoryList.length > 0
+      ) {
+        template.DefectCategoryList.forEach((item) => {
+          // Safe check for categoryId
+          if (item.categoryId) {
+            const catIdStr = item.categoryId.toString();
+            const master = categoryMap.get(catIdStr);
+            if (master) {
+              // Update all fields from master
+              item.CategoryCode = master.code || item.CategoryCode;
+              item.CategoryNameEng = master.nameEng || item.CategoryNameEng;
+              item.CategoryNameChinese = master.nameCh || "";
+              isModified = true;
+            }
+          }
+        });
+      }
+
+      // Update Photo Sections
+      if (
+        template.SelectedPhotoSectionList &&
+        template.SelectedPhotoSectionList.length > 0
+      ) {
+        template.SelectedPhotoSectionList.forEach((item) => {
+          // Safe check for PhotoSectionID
+          if (item.PhotoSectionID) {
+            const photoIdStr = item.PhotoSectionID.toString();
+            const master = photoMap.get(photoIdStr);
+            if (master) {
+              // Update all fields from master
+              item.SectionName = master.name || item.SectionName;
+              item.SectionNameChinese = master.nameCh || "";
+              isModified = true;
+            }
+          }
+        });
+      }
+
+      if (isModified) {
+        template.markModified("DefectCategoryList");
+        template.markModified("SelectedPhotoSectionList");
+        updatedCount++;
+        return template.save();
+      }
+      return null;
+    });
+
+    await Promise.all(updatePromises);
+
+    return res.status(200).json({
+      success: true,
+      message: `Templates synced successfully. Updated ${updatedCount} templates.`,
+      updatedCount,
+    });
+  } catch (error) {
+    console.error("Bulk sync error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+    });
   }
 };

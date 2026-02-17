@@ -311,8 +311,13 @@ const ProductTypeSelector = ({
             <Package className="w-4 h-4 text-amber-500" />
             <span className={selectedProductType ? "" : "text-gray-400"}>
               {loading
-                ? "Loading..."
-                : selectedProductType || "Select Product Type..."}
+                ? t(
+                    "fincheckInspectionOrderDataBuyerDetermination.common.loading",
+                  )
+                : selectedProductType ||
+                  t(
+                    "fincheckInspectionOrderDataBuyerDetermination.productType.selectPlaceholder",
+                  )}
             </span>
           </div>
           {loading ? (
@@ -339,7 +344,9 @@ const ProductTypeSelector = ({
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search product type..."
+                  placeholder={t(
+                    "fincheckInspectionOrderDataBuyerDetermination.productType.searchPlaceholder",
+                  )}
                   className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   onClick={(e) => e.stopPropagation()}
                 />
@@ -395,7 +402,9 @@ const ProductTypeSelector = ({
                   })
                 ) : (
                   <div className="px-3 py-4 text-center text-sm text-gray-500">
-                    No product types found
+                    {t(
+                      "fincheckInspectionOrderDataBuyerDetermination.productType.noFound",
+                    )}
                   </div>
                 )}
               </div>
@@ -414,7 +423,9 @@ const ProductTypeSelector = ({
           />
           <div className="flex-1 min-w-0">
             <p className="text-xs text-amber-600 dark:text-amber-400 font-medium uppercase">
-              Selected Product Type
+              {t(
+                "fincheckInspectionOrderDataBuyerDetermination.productType.selectedLabel",
+              )}
             </p>
             <p className="text-sm font-bold text-amber-800 dark:text-amber-200 truncate">
               {selectedOption.EnglishProductName}
@@ -430,7 +441,7 @@ const ProductTypeSelector = ({
             ) : (
               <Save className="w-4 h-4" />
             )}
-            Save
+            {t("fincheckInspectionOrderDataBuyerDetermination.actions.save")}
           </button>
         </div>
       )}
@@ -611,7 +622,9 @@ const YPivotQAInspectionBuyerDetermination = ({
       >
         <h3 className="text-white font-bold text-sm flex items-center gap-2">
           <ShoppingBag className="w-4 h-4" />
-          <span>Customer</span>
+          <span>
+            {t("fincheckInspectionOrderDataBuyerDetermination.header.customer")}
+          </span>
           <span className="text-white/50">|</span>
           <span className="font-medium text-white/90 truncate">
             {orderDisplay}
@@ -633,7 +646,9 @@ const YPivotQAInspectionBuyerDetermination = ({
               </div>
               <div className="min-w-0">
                 <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                  Customer Info
+                  {t(
+                    "fincheckInspectionOrderDataBuyerDetermination.buyerInfo.customerInfo",
+                  )}
                 </p>
                 <p
                   className={`text-lg font-bold ${buyerInfo.textClass} truncate`}
@@ -649,7 +664,9 @@ const YPivotQAInspectionBuyerDetermination = ({
                 className={`px-5 py-2 rounded-xl bg-white dark:bg-gray-800 shadow-md border-2 ${buyerInfo.borderClass} flex-shrink-0`}
               >
                 <p className="text-[9px] text-gray-500 dark:text-gray-400 uppercase tracking-wide text-center font-medium">
-                  Code
+                  {t(
+                    "fincheckInspectionOrderDataBuyerDetermination.buyerInfo.code",
+                  )}
                 </p>
                 <p
                   className={`text-xl font-black ${buyerInfo.textClass} text-center`}
@@ -666,7 +683,9 @@ const YPivotQAInspectionBuyerDetermination = ({
           <div className="flex items-center gap-2 mb-3">
             <Package className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             <h4 className="text-sm font-bold text-emerald-800 dark:text-emerald-200">
-              Product Type
+              {t(
+                "fincheckInspectionOrderDataBuyerDetermination.productType.title",
+              )}
             </h4>
             {loadingProductType && (
               <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
@@ -683,7 +702,9 @@ const YPivotQAInspectionBuyerDetermination = ({
               />
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium uppercase mb-1">
-                  Current Product Type
+                  {t(
+                    "fincheckInspectionOrderDataBuyerDetermination.productType.currentLabel",
+                  )}
                 </p>
                 <p className="text-xl font-bold text-emerald-800 dark:text-emerald-100 truncate">
                   {productTypeInfo?.productType}
@@ -691,7 +712,9 @@ const YPivotQAInspectionBuyerDetermination = ({
                 {!productTypeInfo?.imageURL && (
                   <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 flex items-center gap-1">
                     <AlertCircle className="w-3 h-3" />
-                    No image available for this product type
+                    {t(
+                      "fincheckInspectionOrderDataBuyerDetermination.productType.noImage",
+                    )}
                   </p>
                 )}
               </div>
@@ -704,7 +727,9 @@ const YPivotQAInspectionBuyerDetermination = ({
               <div className="flex items-center gap-2 p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
                 <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                 <p className="text-xs text-amber-700 dark:text-amber-300">
-                  No product type assigned. Please select one below.
+                  {t(
+                    "fincheckInspectionOrderDataBuyerDetermination.productType.noAssigned",
+                  )}
                 </p>
               </div>
 

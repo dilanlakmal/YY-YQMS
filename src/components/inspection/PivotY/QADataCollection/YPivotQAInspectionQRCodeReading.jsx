@@ -10,10 +10,12 @@ import {
   FileText,
   X,
   StopCircle,
-  RefreshCcw
+  RefreshCcw,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const YPivotQAInspectionQRCodeReading = ({ onReportFound, isLoading }) => {
+  const { t } = useTranslation();
   const [reportIdInput, setReportIdInput] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [error, setError] = useState("");
@@ -29,7 +31,9 @@ const YPivotQAInspectionQRCodeReading = ({ onReportFound, isLoading }) => {
   const handleManualSubmit = (e) => {
     e.preventDefault();
     if (!reportIdInput.trim()) {
-      setError("Please enter a valid Report ID");
+      setError(
+        t("fincheckInspectionOrderDataQRCodeReading.errors.enterValidId"),
+      );
       return;
     }
     setError("");
@@ -45,7 +49,7 @@ const YPivotQAInspectionQRCodeReading = ({ onReportFound, isLoading }) => {
       const backCamera = devices.find(
         (device) =>
           device.label.toLowerCase().includes("back") ||
-          device.label.toLowerCase().includes("environment")
+          device.label.toLowerCase().includes("environment"),
       );
       if (backCamera) {
         setSelectedCameraId(backCamera.id);
@@ -86,7 +90,7 @@ const YPivotQAInspectionQRCodeReading = ({ onReportFound, isLoading }) => {
   const startScanning = async () => {
     setError("");
     if (!selectedCameraId) {
-      setError("No camera found or permission denied.");
+      setError(t("fincheckInspectionOrderDataQRCodeReading.errors.noCamera"));
       return;
     }
 
@@ -103,7 +107,7 @@ const YPivotQAInspectionQRCodeReading = ({ onReportFound, isLoading }) => {
         {
           fps: 10,
           qrbox: { width: 250, height: 250 },
-          aspectRatio: 1.0
+          aspectRatio: 1.0,
         },
         (decodedText) => {
           // Success Callback
@@ -114,10 +118,12 @@ const YPivotQAInspectionQRCodeReading = ({ onReportFound, isLoading }) => {
         },
         (errorMessage) => {
           // Ignore frame errors to prevent console spam
-        }
+        },
       );
     } catch (err) {
-      setError("Failed to start camera. Please check permissions.");
+      setError(
+        t("fincheckInspectionOrderDataQRCodeReading.errors.failedStartCamera"),
+      );
       setIsScanning(false);
     }
   };
@@ -160,7 +166,7 @@ const YPivotQAInspectionQRCodeReading = ({ onReportFound, isLoading }) => {
     } catch (err) {
       console.error("File scan error", err);
       setError(
-        "Could not read QR code from this image. Please ensure the image is clear."
+        t("fincheckInspectionOrderDataQRCodeReading.errors.failedReadQR"),
       );
     } finally {
       // Reset input so same file can be selected again if needed
@@ -176,7 +182,7 @@ const YPivotQAInspectionQRCodeReading = ({ onReportFound, isLoading }) => {
           <QrCode className="w-6 h-6 sm:w-8 sm:h-8" />
         </div>
         <h2 className="text-lg sm:text-2xl font-bold text-gray-800 dark:text-gray-200">
-          Previous Inspection Report
+          {t("fincheckInspectionOrderDataQRCodeReading.title")}
         </h2>
       </div>
 
@@ -188,7 +194,7 @@ const YPivotQAInspectionQRCodeReading = ({ onReportFound, isLoading }) => {
               <FileText className="w-4 h-4" />
             </div>
             <h3 className="font-bold text-sm sm:text-base text-gray-700 dark:text-gray-300">
-              Manual Entry
+              {t("fincheckInspectionOrderDataQRCodeReading.manualEntry.title")}
             </h3>
           </div>
 
@@ -197,7 +203,9 @@ const YPivotQAInspectionQRCodeReading = ({ onReportFound, isLoading }) => {
               type="text"
               value={reportIdInput}
               onChange={(e) => setReportIdInput(e.target.value)}
-              placeholder="Enter Report ID"
+              placeholder={t(
+                "fincheckInspectionOrderDataQRCodeReading.manualEntry.placeholder",
+              )}
               // Input text-base prevents iOS zoom
               className="w-full pl-4 pr-12 py-2.5 sm:py-3 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl font-medium text-base sm:text-sm text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
               disabled={isLoading}
@@ -215,7 +223,7 @@ const YPivotQAInspectionQRCodeReading = ({ onReportFound, isLoading }) => {
             </button>
           </form>
           <p className="text-xs text-gray-500 dark:text-gray-400 pl-1 hidden sm:block">
-            Type the unique ID found on the top of the report.
+            {t("fincheckInspectionOrderDataQRCodeReading.manualEntry.hint")}
           </p>
         </div>
 
@@ -226,7 +234,7 @@ const YPivotQAInspectionQRCodeReading = ({ onReportFound, isLoading }) => {
               <Camera className="w-4 h-4" />
             </div>
             <h3 className="font-bold text-sm sm:text-base text-gray-700 dark:text-gray-300">
-              Scan QR Code
+              {t("fincheckInspectionOrderDataQRCodeReading.scan.title")}
             </h3>
           </div>
 
@@ -241,7 +249,7 @@ const YPivotQAInspectionQRCodeReading = ({ onReportFound, isLoading }) => {
                   <Camera className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" />
                 </div>
                 <span className="text-xs font-bold text-gray-600 dark:text-gray-300 group-hover:text-purple-600 dark:group-hover:text-purple-400">
-                  Use Camera
+                  {t("fincheckInspectionOrderDataQRCodeReading.scan.useCamera")}
                 </span>
               </button>
 
@@ -254,7 +262,9 @@ const YPivotQAInspectionQRCodeReading = ({ onReportFound, isLoading }) => {
                   <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <span className="text-xs font-bold text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                  Upload Image
+                  {t(
+                    "fincheckInspectionOrderDataQRCodeReading.scan.uploadImage",
+                  )}
                 </span>
                 <input
                   type="file"
@@ -272,7 +282,10 @@ const YPivotQAInspectionQRCodeReading = ({ onReportFound, isLoading }) => {
                 onClick={stopScanning}
                 className="w-full py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center justify-center gap-2 font-bold transition-colors"
               >
-                <StopCircle className="w-5 h-5" /> Stop Scanning
+                <StopCircle className="w-5 h-5" />{" "}
+                {t(
+                  "fincheckInspectionOrderDataQRCodeReading.scan.stopScanning",
+                )}
               </button>
 
               {/* Camera Selector (if multiple) */}

@@ -311,6 +311,53 @@
       "notAvailable": "不适用"
     }
   },
+  "fincheckInspectionOrderDataQRCodeReading": {
+    "title": "历史检验报告",
+    "manualEntry": {
+      "title": "手动输入",
+      "placeholder": "输入报告编号",
+      "hint": "请输入报告顶部显示的唯一编号。"
+    },
+    "scan": {
+      "title": "扫描二维码",
+      "useCamera": "使用摄像头",
+      "uploadImage": "上传图片",
+      "stopScanning": "停止扫描",
+      "cameraLabel": "摄像头"
+    },
+    "errors": {
+      "enterValidId": "请输入有效的报告编号",
+      "noCamera": "未找到摄像头或权限被拒绝。",
+      "failedStartCamera": "摄像头启动失败，请检查权限设置。",
+      "failedReadQR": "无法从此图片中读取二维码，请确保图片清晰。"
+    }
+  },
+  "fincheckInspectionOrderDataBuyerDetermination": {
+    "common": {
+      "loading": "加载中..."
+    },
+    "header": {
+      "customer": "客户",
+      "more": "更多"
+    },
+    "buyerInfo": {
+      "customerInfo": "客户信息",
+      "code": "代码"
+    },
+    "productType": {
+      "title": "产品类型",
+      "selectPlaceholder": "选择产品类型...",
+      "searchPlaceholder": "搜索产品类型...",
+      "noFound": "未找到产品类型",
+      "selectedLabel": "已选产品类型",
+      "currentLabel": "当前产品类型",
+      "noImage": "此产品类型暂无图片",
+      "noAssigned": "未分配产品类型，请在下方选择。"
+    },
+    "actions": {
+      "save": "保存"
+    }
+  },
   "fincheckHeader": {
     "checklist": "检查清单",
     "addRemark": "添加备注",

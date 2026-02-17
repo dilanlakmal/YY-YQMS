@@ -312,6 +312,53 @@
       "notAvailable": "N/A"
     }
   },
+  "fincheckInspectionOrderDataQRCodeReading": {
+    "title": "Previous Inspection Report",
+    "manualEntry": {
+      "title": "Manual Entry",
+      "placeholder": "Enter Report ID",
+      "hint": "Type the unique ID found on the top of the report."
+    },
+    "scan": {
+      "title": "Scan QR Code",
+      "useCamera": "Use Camera",
+      "uploadImage": "Upload Image",
+      "stopScanning": "Stop Scanning",
+      "cameraLabel": "Camera"
+    },
+    "errors": {
+      "enterValidId": "Please enter a valid Report ID",
+      "noCamera": "No camera found or permission denied.",
+      "failedStartCamera": "Failed to start camera. Please check permissions.",
+      "failedReadQR": "Could not read QR code from this image. Please ensure the image is clear."
+    }
+  },
+   "fincheckInspectionOrderDataBuyerDetermination": {
+    "common": {
+      "loading": "Loading..."
+    },
+    "header": {
+      "customer": "Customer",
+      "more": "more"
+    },
+    "buyerInfo": {
+      "customerInfo": "Customer Info",
+      "code": "Code"
+    },
+    "productType": {
+      "title": "Product Type",
+      "selectPlaceholder": "Select Product Type...",
+      "searchPlaceholder": "Search product type...",
+      "noFound": "No product types found",
+      "selectedLabel": "Selected Product Type",
+      "currentLabel": "Current Product Type",
+      "noImage": "No image available for this product type",
+      "noAssigned": "No product type assigned. Please select one below."
+    },
+    "actions": {
+      "save": "Save"
+    }
+  },
   "fincheckHeader": {
     "checklist": "Checklist",
     "addRemark": "Add Remark",

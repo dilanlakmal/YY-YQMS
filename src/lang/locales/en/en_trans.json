@@ -55,88 +55,88 @@
     }
   },
   "fincheckTemplates": {
-  "title": "Manage Report Templates",
-  "subtitle": "Configure report structures and categories.",
-  "dragInfo": "Drag rows to reorder.",
-  "dragBannerTitle": "Drag and Drop to Reorder",
-  "dragBannerDesc": "Use the grip handle or drag any row to change the template order. Changes are saved automatically.",
-  "savingOrder": "Saving order...",
-  "addNew": "Add New Report",
-  "bulkUpdate": "Sync Names",
-  "bulkUpdateTooltip": "Update Chinese names for Categories and Photo Sections in all templates",
-  "noTemplates": "No templates found.",
-  "status": {
-    "Yes": "Yes",
-    "No": "No",
-    "Before": "Before",
-    "After": "After",
-    "Fixed": "Fixed",
-    "NA": "N/A"
+    "title": "Manage Report Templates",
+    "subtitle": "Configure report structures and categories.",
+    "dragInfo": "Drag rows to reorder.",
+    "dragBannerTitle": "Drag and Drop to Reorder",
+    "dragBannerDesc": "Use the grip handle or drag any row to change the template order. Changes are saved automatically.",
+    "savingOrder": "Saving order...",
+    "addNew": "Add New Report",
+    "bulkUpdate": "Sync Names",
+    "bulkUpdateTooltip": "Update Chinese names for Categories and Photo Sections in all templates",
+    "noTemplates": "No templates found.",
+    "status": {
+      "Yes": "Yes",
+      "No": "No",
+      "Before": "Before",
+      "After": "After",
+      "Fixed": "Fixed",
+      "NA": "N/A"
+    },
+    "table": {
+      "no": "No",
+      "reportType": "Report Type",
+      "meas": "Meas.",
+      "meas2": "Meas 2",
+      "head": "Head",
+      "pics": "Pics",
+      "defectCats": "Defect Categories",
+      "photoSecs": "Photo Sections",
+      "line": "Line",
+      "tab": "Tab",
+      "col": "Col",
+      "stage": "Stage",
+      "meth": "Meth",
+      "qty": "Qty",
+      "ctn": "Ctn",
+      "scan": "Scan",
+      "qplan": "Q.Plan",
+      "conc": "Conc",
+      "actions": "Actions",
+      "none": "None"
+    },
+    "modal": {
+      "editTitle": "Edit Report Template",
+      "addTitle": "Add New Report Template",
+      "reportTypeName": "Report Type Name (English)",
+      "reportTypeNameCh": "Report Type Name (Chinese)",
+      "includeDefects": "Include Defect Categories",
+      "includePhotos": "Include Photo Sections",
+      "noPhotosAvail": "No photo sections available to select.",
+      "cancel": "Cancel",
+      "save": "Save Template",
+      "update": "Update Template",
+      "saving": "Saving..."
+    },
+    "formLabels": {
+      "Measurement": "Measurement",
+      "MeasurementAdditional": "Meas. Additional (Tab 2)",
+      "Header": "Header",
+      "Photos": "Photos",
+      "Line": "Line",
+      "Table": "Table",
+      "Colors": "Colors",
+      "ShippingStage": "Shipping Stage",
+      "InspectedQtyMethod": "Insp. Method",
+      "InspectedQty": "Insp. Qty",
+      "isCarton": "is Carton",
+      "isQCScan": "is QC Scan",
+      "QualityPlan": "Quality Plan",
+      "Conclusion": "Conclusion"
+    },
+    "alerts": {
+      "success": "Success!",
+      "error": "Error",
+      "updated": "Updated!",
+      "saved": "Saved!",
+      "deleted": "Deleted!",
+      "reordered": "Reordered!",
+      "synced": "Synced!",
+      "syncSuccess": "All templates have been updated with latest Chinese names.",
+      "deleteConfirm": "Do you want to delete this template?",
+      "yesDelete": "Yes, delete it!"
+    }
   },
-  "table": {
-    "no": "No",
-    "reportType": "Report Type",
-    "meas": "Meas.",
-    "meas2": "Meas 2",
-    "head": "Head",
-    "pics": "Pics",
-    "defectCats": "Defect Categories",
-    "photoSecs": "Photo Sections",
-    "line": "Line",
-    "tab": "Tab",
-    "col": "Col",
-    "stage": "Stage",
-    "meth": "Meth",
-    "qty": "Qty",
-    "ctn": "Ctn",
-    "scan": "Scan",
-    "qplan": "Q.Plan",
-    "conc": "Conc",
-    "actions": "Actions",
-    "none": "None"
-  },
-  "modal": {
-    "editTitle": "Edit Report Template",
-    "addTitle": "Add New Report Template",
-    "reportTypeName": "Report Type Name (English)",
-    "reportTypeNameCh": "Report Type Name (Chinese)",
-    "includeDefects": "Include Defect Categories",
-    "includePhotos": "Include Photo Sections",
-    "noPhotosAvail": "No photo sections available to select.",
-    "cancel": "Cancel",
-    "save": "Save Template",
-    "update": "Update Template",
-    "saving": "Saving..."
-  },
-  "formLabels": {
-    "Measurement": "Measurement",
-    "MeasurementAdditional": "Meas. Additional (Tab 2)",
-    "Header": "Header",
-    "Photos": "Photos",
-    "Line": "Line",
-    "Table": "Table",
-    "Colors": "Colors",
-    "ShippingStage": "Shipping Stage",
-    "InspectedQtyMethod": "Insp. Method",
-    "InspectedQty": "Insp. Qty",
-    "isCarton": "is Carton",
-    "isQCScan": "is QC Scan",
-    "QualityPlan": "Quality Plan",
-    "Conclusion": "Conclusion"
-  },
-  "alerts": {
-    "success": "Success!",
-    "error": "Error",
-    "updated": "Updated!",
-    "saved": "Saved!",
-    "deleted": "Deleted!",
-    "reordered": "Reordered!",
-    "synced": "Synced!",
-    "syncSuccess": "All templates have been updated with latest Chinese names.",
-    "deleteConfirm": "Do you want to delete this template?",
-    "yesDelete": "Yes, delete it!"
-  }
-},
   "fincheckInspection": {
     "pageTitle": "Fin Check",
     "pageSubtitle": "Quality Inspection Data Collection",
@@ -187,6 +187,129 @@
       "reportCreated": "Report Created",
       "reportCreatedMsg": "New inspection report created successfully.",
       "restoring": "Restoring Session..."
+    }
+  },
+  "fincheckInspectionOrderData": {
+    "orderType": {
+      "scanQR": "Scan QR",
+      "scanQRShort": "QR",
+      "single": "Single",
+      "singleShort": "S",
+      "multi": "Multi",
+      "multiShort": "M",
+      "batch": "Batch",
+      "batchShort": "B"
+    },
+    "inspectionType": {
+      "first": "First Inspection",
+      "re": "Re-Inspection"
+    },
+    "sections": {
+      "order": "Order",
+      "orderData": "Order Data",
+      "orderInfo": "Order Information",
+      "additionalDetails": "Additional Order Details",
+      "colorSizeBreakdown": "Order Qty by Color & Size",
+      "skuData": "Order Data by SKU"
+    },
+    "status": {
+      "saved": "Saved",
+      "orderSelected": "Order Selected:",
+      "ordersCombined": "Orders Combined"
+    },
+    "descriptions": {
+      "qrMode": "Scan a QR code to load an existing inspection report.",
+      "singleMode": "Select a single order for inspection.",
+      "multiMode": "Automatically combines related orders (e.g., PTCOC335, PTCOC335A).",
+      "batchMode": "Manually select multiple orders for combined inspection."
+    },
+    "labels": {
+      "inspectionDate": "Inspection Date",
+      "inspectionType": "Inspection Type",
+      "orderNo": "Order No",
+      "addOrderNo": "Add Order No",
+      "selectedOrders": "Selected Orders",
+      "totalQty": "Total Qty:"
+    },
+    "fields": {
+      "custStyle": "Cust. Style",
+      "customer": "Customer",
+      "factory": "Factory",
+      "totalQty": "Total Qty",
+      "origin": "Origin",
+      "mode": "Mode",
+      "salesTeam": "Sales Team",
+      "country": "Country",
+      "skuDescription": "SKU Description",
+      "destination": "Destination",
+      "season": "Season",
+      "productType": "Product Type",
+      "fabricContent": "Fabric Content"
+    },
+    "table": {
+      "order": "Order",
+      "orders": "Orders",
+      "color": "Color",
+      "total": "Total",
+      "sku": "SKU",
+      "poLine": "PO Line",
+      "etd": "ETD",
+      "eta": "ETA",
+      "qty": "Qty"
+    },
+    "placeholders": {
+      "orderLocked": "Order locked",
+      "searchAddMore": "Search to add more orders...",
+      "searchMO": "Search MO Number..."
+    },
+    "actions": {
+      "clearAll": "Clear All",
+      "refreshData": "Refresh Data",
+      "clearSelection": "Clear Selection",
+      "clickToHide": "Click to hide",
+      "clickToView": "Click to view details",
+      "showLess": "Show Less",
+      "showAll": "Show All",
+      "saveReport": "Save Inspection Report",
+      "updateReport": "Update Inspection Report",
+      "saveReportShort": "Save Report",
+      "updateReportShort": "Update Report"
+    },
+    "units": {
+      "pcs": "pcs",
+      "items": "items"
+    },
+    "empty": {
+      "searchTitle": "Search for an Order",
+      "singleDesc": "Enter an MO Number to load order details.",
+      "multiDesc": "Search to find and combine related orders automatically.",
+      "batchDesc": "Search and select multiple orders for combined inspection.",
+      "noColorSize": "No color/size data available"
+    },
+    "messages": {
+      "readyToSave": "All required fields are complete. Ready to save!",
+      "completeRequired": "Complete all required fields to save/update the report.",
+      "canUpdate": "You can update the configuration details below.",
+      "identityLocked": "Identity fields (Order, Date, Type) are locked.",
+      "selectReportType": "Make sure to select a Report Type and fill in all required configuration."
+    },
+    "loading": {
+      "orderDetails": "Loading order details..."
+    },
+    "errors": {
+      "loadingOrder": "Error Loading Order",
+      "reportNotFound": "Report not found. Please check the ID or start a new inspection.",
+      "reportIdNotExist": "Report ID does not exist.",
+      "failedLoadReport": "Failed to load report data. Please try again.",
+      "orderDataNotFound": "Order data linked to this report could not be found."
+    },
+    "success": {
+      "reportLoadedQR": "Report loaded via QR Code",
+      "existingReportLoaded": "Existing report loaded automatically.",
+      "reportLoaded": "Report loaded successfully."
+    },
+    "common": {
+      "notAvailable": "N/A"
     }
   },
   "fincheckHeader": {

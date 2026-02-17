@@ -3,7 +3,7 @@ import React, {
   useEffect,
   useMemo,
   useCallback,
-  useRef
+  useRef,
 } from "react";
 import {
   Calendar,
@@ -35,10 +35,11 @@ import {
   Save,
   Lock,
   QrCode,
-  Edit3
+  Edit3,
 } from "lucide-react";
 import axios from "axios";
 import { API_BASE_URL } from "../../../../../config";
+import { useTranslation } from "react-i18next";
 
 // Import the Report Type component
 import YPivotQAInspectionReportType from "./YPivotQAInspectionReportType";
@@ -52,11 +53,14 @@ import YPivotQAInspectionQRCodeReading from "./YPivotQAInspectionQRCodeReading";
 
 // Color/Size Breakdown Table
 const ColorSizeBreakdownTable = ({ data, orderNo }) => {
+  const { t } = useTranslation();
   if (!data || !data.colors || data.colors.length === 0) {
     return (
       <div className="text-center py-6 text-gray-500 dark:text-gray-400">
         <Package className="w-10 h-10 mx-auto mb-2 opacity-50" />
-        <p className="text-sm">No color/size data available</p>
+        <p className="text-sm">
+          {t("fincheckInspectionOrderData.empty.noColorSize")}
+        </p>
       </div>
     );
   }
@@ -77,7 +81,7 @@ const ColorSizeBreakdownTable = ({ data, orderNo }) => {
           <thead>
             <tr className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
               <th className="px-3 py-2 text-left font-bold text-xs uppercase tracking-wide sticky left-0 bg-indigo-600 z-10">
-                Color
+                {t("fincheckInspectionOrderData.table.color")}
               </th>
               {sizeList.map((size) => (
                 <th
@@ -88,7 +92,7 @@ const ColorSizeBreakdownTable = ({ data, orderNo }) => {
                 </th>
               ))}
               <th className="px-3 py-2 text-center font-bold text-xs uppercase tracking-wide bg-indigo-700 min-w-[70px]">
-                Total
+                {t("fincheckInspectionOrderData.table.total")}
               </th>
             </tr>
           </thead>
@@ -134,7 +138,7 @@ const ColorSizeBreakdownTable = ({ data, orderNo }) => {
           <tfoot>
             <tr className="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 font-bold">
               <td className="px-3 py-2 text-xs text-gray-800 dark:text-gray-200 sticky left-0 bg-gray-200 dark:bg-gray-700 z-10">
-                Total
+                {t("fincheckInspectionOrderData.table.total")}
               </td>
               {sizeList.map((size) => (
                 <td
@@ -157,6 +161,7 @@ const ColorSizeBreakdownTable = ({ data, orderNo }) => {
 
 // SKU Data Table
 const SKUDataTable = ({ skuData, orderNo }) => {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (!skuData || skuData.length === 0) return null;
@@ -178,10 +183,10 @@ const SKUDataTable = ({ skuData, orderNo }) => {
             <tr className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
               <th className="px-2 py-1.5 text-left font-bold uppercase">SKU</th>
               <th className="px-2 py-1.5 text-left font-bold uppercase">
-                PO Line
+                {t("fincheckInspectionOrderData.table.poLine")}
               </th>
               <th className="px-2 py-1.5 text-left font-bold uppercase">
-                Color
+                {t("fincheckInspectionOrderData.table.color")}
               </th>
               <th className="px-2 py-1.5 text-center font-bold uppercase">
                 ETD
@@ -190,7 +195,7 @@ const SKUDataTable = ({ skuData, orderNo }) => {
                 ETA
               </th>
               <th className="px-2 py-1.5 text-right font-bold uppercase">
-                Qty
+                {t("fincheckInspectionOrderData.table.qty")}
               </th>
             </tr>
           </thead>
@@ -237,7 +242,9 @@ const SKUDataTable = ({ skuData, orderNo }) => {
           ) : (
             <ChevronDown className="w-3 h-3" />
           )}
-          {isExpanded ? "Show Less" : `Show All (${skuData.length})`}
+          {isExpanded
+            ? t("fincheckInspectionOrderData.actions.showLess")
+            : `Show All (${skuData.length})`}
         </button>
       )}
     </div>
@@ -256,7 +263,7 @@ const InfoCard = ({ icon: Icon, label, value, color = "indigo" }) => {
     orange:
       "bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800",
     blue: "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800",
-    pink: "bg-pink-50 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 border-pink-200 dark:border-pink-800"
+    pink: "bg-pink-50 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 border-pink-200 dark:border-pink-800",
   };
 
   return (
@@ -286,19 +293,38 @@ const OrderTypeToggle = ({
   orderType,
   setOrderType,
   hasData,
-  isSingleData
+  isSingleData,
 }) => {
+  const { t } = useTranslation();
   const types = [
-    { id: "qr", label: "Scan QR", short: "QR", icon: QrCode, color: "blue" },
+    {
+      id: "qr",
+      label: t("fincheckInspectionOrderData.orderType.scanQR"),
+      short: "QR",
+      icon: QrCode,
+      color: "blue",
+    },
     {
       id: "single",
-      label: "Single",
+      label: t("fincheckInspectionOrderData.orderType.single"),
       short: "S",
       icon: Package,
-      color: "indigo"
+      color: "indigo",
     },
-    { id: "multi", label: "Multi", short: "M", icon: Link2, color: "purple" },
-    { id: "batch", label: "Batch", short: "B", icon: Boxes, color: "emerald" }
+    {
+      id: "multi",
+      label: t("fincheckInspectionOrderData.orderType.multi"),
+      short: "M",
+      icon: Link2,
+      color: "purple",
+    },
+    {
+      id: "batch",
+      label: t("fincheckInspectionOrderData.orderType.batch"),
+      short: "B",
+      icon: Boxes,
+      color: "emerald",
+    },
   ];
 
   return (
@@ -330,8 +356,8 @@ const OrderTypeToggle = ({
               isActive
                 ? `bg-white dark:bg-gray-700 shadow-md text-${type.color}-600 dark:text-${type.color}-400`
                 : isDisabled
-                ? "text-gray-300 dark:text-gray-600 cursor-not-allowed opacity-60"
-                : "text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50"
+                  ? "text-gray-300 dark:text-gray-600 cursor-not-allowed opacity-60"
+                  : "text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50"
             }`}
           >
             <Icon className="w-3.5 h-3.5 flex-shrink-0" />
@@ -367,12 +393,6 @@ const SelectedOrdersChips = ({ orders, onRemove, isLocked }) => {
               <X className="w-3 h-3" />
             </button>
           )}
-          {/* <button
-            onClick={() => onRemove(orderNo)}
-            className="p-0.5 hover:bg-indigo-200 dark:hover:bg-indigo-800 rounded-full transition-colors"
-          >
-            <X className="w-3 h-3" />
-          </button> */}
         </div>
       ))}
     </div>
@@ -381,9 +401,18 @@ const SelectedOrdersChips = ({ orders, onRemove, isLocked }) => {
 
 // Inspection Type Toggle Component
 const InspectionTypeToggle = ({ inspectionType, setInspectionType }) => {
+  const { t } = useTranslation();
   const types = [
-    { id: "first", label: "First Inspection", color: "emerald" },
-    { id: "re", label: "Re-Inspection", color: "amber" }
+    {
+      id: "first",
+      label: t("fincheckInspectionOrderData.inspectionType.first"),
+      color: "emerald",
+    },
+    {
+      id: "re",
+      label: t("fincheckInspectionOrderData.inspectionType.re"),
+      color: "amber",
+    },
   ];
 
   return (
@@ -429,11 +458,12 @@ const YPivotQAInspectionOrderData = ({
   onSaveComplete,
   savedReportId,
   savedReportData,
-  isReportSaved = false
+  isReportSaved = false,
 }) => {
+  const { t } = useTranslation();
   // Use external state if provided, otherwise use local state
   const [inspectionDateLocal, setInspectionDateLocal] = useState(
-    new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0],
   );
   const [orderTypeLocal, setOrderTypeLocal] = useState("single");
   const [selectedOrdersLocal, setSelectedOrdersLocal] = useState([]);
@@ -503,7 +533,7 @@ const YPivotQAInspectionOrderData = ({
         inspectionType:
           updates.inspectionType !== undefined
             ? updates.inspectionType
-            : inspectionType
+            : inspectionType,
       };
 
       // Update local state
@@ -525,8 +555,8 @@ const YPivotQAInspectionOrderData = ({
       selectedOrders,
       orderData,
       inspectionType,
-      onOrderDataChange
-    ]
+      onOrderDataChange,
+    ],
   );
 
   // Wrapper functions
@@ -534,32 +564,32 @@ const YPivotQAInspectionOrderData = ({
     (value) => {
       updateState({ inspectionDate: value });
     },
-    [updateState]
+    [updateState],
   );
 
   const setOrderType = useCallback(
     (value) => {
       // ONLY update the orderType.
       updateState({
-        orderType: value
+        orderType: value,
       });
       // do NOT hide order details, so if user comes back, it's still there.
     },
-    [updateState]
+    [updateState],
   );
 
   const setSelectedOrders = useCallback(
     (value) => {
       updateState({ selectedOrders: value });
     },
-    [updateState]
+    [updateState],
   );
 
   const setOrderData = useCallback(
     (value) => {
       updateState({ orderData: value });
     },
-    [updateState]
+    [updateState],
   );
 
   // Add setInspectionType wrapper function (after other wrapper functions):
@@ -567,7 +597,7 @@ const YPivotQAInspectionOrderData = ({
     (value) => {
       updateState({ inspectionType: value });
     },
-    [updateState]
+    [updateState],
   );
 
   // Reset search state when order type changes (but NOT the order data - that's handled by setOrderType)
@@ -593,7 +623,7 @@ const YPivotQAInspectionOrderData = ({
       try {
         const mode = orderType === "multi" ? "multi" : "single";
         const res = await axios.get(
-          `${API_BASE_URL}/api/fincheck-inspection/search-orders?term=${term}&mode=${mode}`
+          `${API_BASE_URL}/api/fincheck-inspection/search-orders?term=${term}&mode=${mode}`,
         );
         if (res.data.success) {
           setSearchResults(res.data.data);
@@ -606,7 +636,7 @@ const YPivotQAInspectionOrderData = ({
         setSearchLoading(false);
       }
     },
-    [orderType]
+    [orderType],
   );
 
   // Debounced search
@@ -625,7 +655,7 @@ const YPivotQAInspectionOrderData = ({
     const fetchShippingStages = async () => {
       try {
         const response = await axios.get(
-          `${API_BASE_URL}/api/qa-sections-shipping-stage`
+          `${API_BASE_URL}/api/qa-sections-shipping-stage`,
         );
         if (response.data.success) {
           setShippingStages(response.data.data);
@@ -644,7 +674,7 @@ const YPivotQAInspectionOrderData = ({
     setError(null);
     try {
       const res = await axios.get(
-        `${API_BASE_URL}/api/fincheck-inspection/order-details/${moNo}`
+        `${API_BASE_URL}/api/fincheck-inspection/order-details/${moNo}`,
       );
       if (res.data.success) {
         const newOrderData = {
@@ -655,15 +685,15 @@ const YPivotQAInspectionOrderData = ({
               orderNo: moNo,
               totalQty: res.data.data.dtOrder.totalQty,
               colorSizeBreakdown: res.data.data.colorSizeBreakdown,
-              yorksysOrder: res.data.data.yorksysOrder
-            }
-          ]
+              yorksysOrder: res.data.data.yorksysOrder,
+            },
+          ],
         };
 
         // Update both selectedOrders and orderData together
         updateState({
           selectedOrders: [moNo],
-          orderData: newOrderData
+          orderData: newOrderData,
         });
 
         setShowSearchDropdown(false);
@@ -692,7 +722,7 @@ const YPivotQAInspectionOrderData = ({
     try {
       const res = await axios.post(
         `${API_BASE_URL}/api/fincheck-inspection/multiple-order-details`,
-        { orderNos: orderNos }
+        { orderNos: orderNos },
       );
       if (res.data.success) {
         // Include selectedOrders to avoid stale closure issue
@@ -700,8 +730,8 @@ const YPivotQAInspectionOrderData = ({
           selectedOrders: orderNos,
           orderData: {
             ...res.data.data,
-            isSingle: false
-          }
+            isSingle: false,
+          },
         });
         // Reset show order details when new orders are selected
         setShowOrderDetails(false);
@@ -762,7 +792,7 @@ const YPivotQAInspectionOrderData = ({
   const handleClearAll = () => {
     updateState({
       selectedOrders: [],
-      orderData: null
+      orderData: null,
     });
     setSearchTerm("");
     setSearchResults([]);
@@ -896,8 +926,8 @@ const YPivotQAInspectionOrderData = ({
               orderNos: selectedOrders,
               empId: user.emp_id,
               productTypeId,
-              reportTypeId
-            }
+              reportTypeId,
+            },
           );
 
           if (res.data.success && res.data.exists) {
@@ -909,7 +939,7 @@ const YPivotQAInspectionOrderData = ({
                 productionStatus:
                   foundReport.inspectionDetails.productionStatus || {},
                 packingList: foundReport.inspectionDetails.packingList || {},
-                accountedPercentage: "0.00" // Component will recalculate this automatically
+                accountedPercentage: "0.00", // Component will recalculate this automatically
               });
             }
 
@@ -918,7 +948,9 @@ const YPivotQAInspectionOrderData = ({
               onSaveComplete({
                 reportData: res.data.data,
                 isNew: false,
-                message: "Existing report loaded automatically."
+                message: t(
+                  "fincheckInspectionOrderData.success.existingReportLoaded",
+                ),
               });
             }
           }
@@ -941,7 +973,7 @@ const YPivotQAInspectionOrderData = ({
     savedReportState?.config?.productTypeId,
     user?.emp_id,
     isReportSaved, // Stop checking if we are already in saved mode
-    onSaveComplete
+    onSaveComplete,
   ]);
 
   // Validation for save
@@ -967,11 +999,6 @@ const YPivotQAInspectionOrderData = ({
       if (!config.cartonQty || parseInt(config.cartonQty) <= 0) return false;
     }
 
-    // If shipping stage is required
-    // if (template.ShippingStage === "Yes") {
-    //   if (!config.shippingStage) return false;
-    // }
-
     // Product Type is required
     if (!config.productTypeId && !orderData?.yorksysOrder?.productType)
       return false;
@@ -982,7 +1009,7 @@ const YPivotQAInspectionOrderData = ({
     inspectionType,
     selectedOrders,
     orderData,
-    savedReportState
+    savedReportState,
   ]);
 
   // Handle save modal confirm
@@ -1000,7 +1027,7 @@ const YPivotQAInspectionOrderData = ({
     try {
       // 1. Fetch Report Metadata
       const reportRes = await axios.get(
-        `${API_BASE_URL}/api/fincheck-inspection/report/${reportId}`
+        `${API_BASE_URL}/api/fincheck-inspection/report/${reportId}`,
       );
 
       if (reportRes.data.success) {
@@ -1019,7 +1046,7 @@ const YPivotQAInspectionOrderData = ({
 
         if (backendOrderType === "single" && backendOrderNos.length > 0) {
           const orderRes = await axios.get(
-            `${API_BASE_URL}/api/fincheck-inspection/order-details/${backendOrderNos[0]}`
+            `${API_BASE_URL}/api/fincheck-inspection/order-details/${backendOrderNos[0]}`,
           );
           if (orderRes.data.success) {
             const newOrderData = {
@@ -1030,9 +1057,9 @@ const YPivotQAInspectionOrderData = ({
                   orderNo: backendOrderNos[0],
                   totalQty: orderRes.data.data.dtOrder.totalQty,
                   colorSizeBreakdown: orderRes.data.data.colorSizeBreakdown,
-                  yorksysOrder: orderRes.data.data.yorksysOrder
-                }
-              ]
+                  yorksysOrder: orderRes.data.data.yorksysOrder,
+                },
+              ],
             };
 
             updateState({
@@ -1040,7 +1067,7 @@ const YPivotQAInspectionOrderData = ({
               orderData: newOrderData,
               inspectionDate: backendInspectionDate,
               inspectionType: backendInspectionType,
-              orderType: "single"
+              orderType: "single",
             });
             orderFetchSuccess = true;
           }
@@ -1050,7 +1077,7 @@ const YPivotQAInspectionOrderData = ({
         ) {
           const orderRes = await axios.post(
             `${API_BASE_URL}/api/fincheck-inspection/multiple-order-details`,
-            { orderNos: backendOrderNos }
+            { orderNos: backendOrderNos },
           );
           if (orderRes.data.success) {
             updateState({
@@ -1058,7 +1085,7 @@ const YPivotQAInspectionOrderData = ({
               orderData: { ...orderRes.data.data, isSingle: false },
               inspectionDate: backendInspectionDate,
               inspectionType: backendInspectionType,
-              orderType: backendOrderType
+              orderType: backendOrderType,
             });
             orderFetchSuccess = true;
           }
@@ -1074,7 +1101,7 @@ const YPivotQAInspectionOrderData = ({
           if (reportTypeId) {
             try {
               const templateRes = await axios.get(
-                `${API_BASE_URL}/api/qa-template-report-type/${reportTypeId}`
+                `${API_BASE_URL}/api/qa-template-report-type/${reportTypeId}`,
               );
               if (templateRes.data.success || templateRes.data) {
                 selectedTemplate = templateRes.data.data || templateRes.data;
@@ -1087,7 +1114,7 @@ const YPivotQAInspectionOrderData = ({
           // Attach the template to the report data
           const enrichedReportData = {
             ...reportData,
-            selectedTemplate: selectedTemplate
+            selectedTemplate: selectedTemplate,
           };
 
           // Hydrate Quality Plan / Production Status
@@ -1096,7 +1123,7 @@ const YPivotQAInspectionOrderData = ({
               productionStatus:
                 reportData.inspectionDetails.productionStatus || {},
               packingList: reportData.inspectionDetails.packingList || {},
-              accountedPercentage: "0.00"
+              accountedPercentage: "0.00",
             });
           }
 
@@ -1105,23 +1132,21 @@ const YPivotQAInspectionOrderData = ({
             onSaveComplete({
               reportData: enrichedReportData,
               isNew: false,
-              message: "Report loaded via QR Code"
+              message: t("fincheckInspectionOrderData.success.reportLoadedQR"),
             });
           }
         } else {
-          setError("Order data linked to this report could not be found.");
+          setError(t("fincheckInspectionOrderData.errors.orderDataNotFound"));
         }
       } else {
-        setError(
-          "Report not found. Please check the ID or start a new inspection."
-        );
+        setError(t("fincheckInspectionOrderData.errors.reportNotFound"));
       }
     } catch (err) {
       console.error("QR Load Error:", err);
       if (err.response && err.response.status === 404) {
-        setError("Report ID does not exist.");
+        setError(t("fincheckInspectionOrderData.errors.reportIdNotExist"));
       } else {
-        setError("Failed to load report data. Please try again.");
+        setError(t("fincheckInspectionOrderData.errors.failedLoadReport"));
       }
     } finally {
       setLoading(false);
@@ -1135,13 +1160,13 @@ const YPivotQAInspectionOrderData = ({
         <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-3 flex items-center justify-between">
           <h2 className="text-white font-bold text-sm flex items-center gap-2">
             <Package className="w-4 h-4" />
-            Order
+            {t("fincheckInspectionOrderData.sections.order")}
           </h2>
           <div className="flex items-center gap-2">
             {isReportSaved && (
               <div className="flex items-center gap-1.5 px-3 py-2 bg-green-500 rounded-lg text-xs font-bold text-white">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                Saved
+                {t("fincheckInspectionOrderData.status.saved")}
               </div>
             )}
             <OrderTypeToggle
@@ -1158,13 +1183,13 @@ const YPivotQAInspectionOrderData = ({
           <div className="p-2.5 bg-gray-50 dark:bg-gray-900 rounded-xl">
             <p className="text-xs text-gray-600 dark:text-gray-400">
               {orderType === "qr" &&
-                "Scan a QR code to load an existing inspection report."}
+                t("fincheckInspectionOrderData.descriptions.qrMode")}
               {orderType === "single" &&
-                "Select a single order for inspection."}
+                t("fincheckInspectionOrderData.descriptions.singleMode")}
               {orderType === "multi" &&
-                "Automatically combines related orders (e.g., PTCOC335, PTCOC335A)."}
+                t("fincheckInspectionOrderData.descriptions.multiMode")}
               {orderType === "batch" &&
-                "Manually select multiple orders for combined inspection."}
+                t("fincheckInspectionOrderData.descriptions.batchMode")}
             </p>
           </div>
 
@@ -1220,9 +1245,11 @@ const YPivotQAInspectionOrderData = ({
                   }`}
                   style={{ zIndex: 60 }}
                 >
-                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-1.5">
+                  <label className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-1.5">
                     <Search className="w-3.5 h-3.5 text-indigo-500" />
-                    {orderType === "batch" ? "Add Order No" : "Order No"}
+                    {orderType === "batch"
+                      ? t("fincheckInspectionOrderData.labels.addOrderNo")
+                      : t("fincheckInspectionOrderData.labels.orderNo")}
                     {/* SHOW LOCK ICON IF SAVED */}
                     {isReportSaved && (
                       <Lock className="w-3 h-3 text-gray-400" />
@@ -1238,10 +1265,16 @@ const YPivotQAInspectionOrderData = ({
                       }
                       placeholder={
                         isReportSaved
-                          ? "Order locked"
+                          ? t(
+                              "fincheckInspectionOrderData.placeholders.orderLocked",
+                            )
                           : orderType === "batch"
-                          ? "Search to add more orders..."
-                          : "Search MO Number..."
+                            ? t(
+                                "fincheckInspectionOrderData.placeholders.searchAddMore",
+                              )
+                            : t(
+                                "fincheckInspectionOrderData.placeholders.searchMO",
+                              )
                       }
                       className="w-full pl-10 pr-10 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-base sm:text-sm font-medium text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                     />
@@ -1260,14 +1293,15 @@ const YPivotQAInspectionOrderData = ({
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <label className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                        Selected Orders ({selectedOrders.length})
+                        {t("fincheckInspectionOrderData.labels.selectedOrders")}{" "}
+                        ({selectedOrders.length})
                       </label>
                       {!isReportSaved && (
                         <button
                           onClick={handleClearAll}
                           className="text-xs text-red-500 hover:text-red-600 font-medium"
                         >
-                          Clear All
+                          {t("fincheckInspectionOrderData.actions.clearAll")}
                         </button>
                       )}
                     </div>
@@ -1305,17 +1339,18 @@ const YPivotQAInspectionOrderData = ({
                   <CheckCircle2 className="w-5 h-5 text-green-500" />
                   <div className="flex-1">
                     <p className="text-sm font-bold text-green-700 dark:text-green-400">
-                      Order Selected: {selectedOrders[0]}
+                      {t("fincheckInspectionOrderData.status.orderSelected")}{" "}
+                      {selectedOrders[0]}
                     </p>
                     <p className="text-xs text-green-600 dark:text-green-500">
-                      Inspection Date:{" "}
+                      {t("fincheckInspectionOrderData.labels.inspectionDate")}:{" "}
                       {new Date(inspectionDate).toLocaleDateString()}
                     </p>
                   </div>
                   <button
                     onClick={handleRefresh}
                     className="p-2 hover:bg-green-100 dark:hover:bg-green-900/40 rounded-lg transition-colors"
-                    title="Refresh Data"
+                    title={t("fincheckInspectionOrderData.actions.refreshData")}
                   >
                     <RefreshCw className="w-4 h-4 text-green-600" />
                   </button>
@@ -1324,18 +1359,13 @@ const YPivotQAInspectionOrderData = ({
                     <button
                       onClick={handleClearAll}
                       className="p-2 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-colors"
-                      title="Clear Selection"
+                      title={t(
+                        "fincheckInspectionOrderData.actions.clearSelection",
+                      )}
                     >
                       <X className="w-4 h-4 text-red-500" />
                     </button>
                   )}
-                  {/* <button
-                    onClick={handleClearAll}
-                    className="p-2 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-colors"
-                    title="Clear Selection"
-                  >
-                    <X className="w-4 h-4 text-red-500" />
-                  </button> */}
                 </div>
               )}
 
@@ -1347,11 +1377,13 @@ const YPivotQAInspectionOrderData = ({
                     <Link2 className="w-5 h-5 text-purple-500" />
                     <div className="flex-1">
                       <p className="text-sm font-bold text-purple-700 dark:text-purple-400">
-                        {selectedOrders.length} Orders Combined
+                        {selectedOrders.length}{" "}
+                        {t("fincheckInspectionOrderData.status.ordersCombined")}
                       </p>
                       <p className="text-xs text-purple-600 dark:text-purple-500">
-                        Total Qty:{" "}
-                        {orderData.dtOrder?.totalQty?.toLocaleString() || 0} pcs
+                        {t("fincheckInspectionOrderData.labels.totalQty")}{" "}
+                        {orderData.dtOrder?.totalQty?.toLocaleString() || 0}{" "}
+                        {t("fincheckInspectionOrderData.units.pcs")}
                       </p>
                     </div>
                     <button
@@ -1373,7 +1405,7 @@ const YPivotQAInspectionOrderData = ({
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-12 flex flex-col items-center justify-center">
           <Loader2 className="w-10 h-10 text-indigo-500 animate-spin mb-4" />
           <p className="text-gray-600 dark:text-gray-400 font-medium">
-            Loading order details...
+            {t("fincheckInspectionOrderData.loading.orderDetails")}
           </p>
         </div>
       )}
@@ -1384,7 +1416,7 @@ const YPivotQAInspectionOrderData = ({
           <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
           <div>
             <p className="font-bold text-red-700 dark:text-red-400">
-              Error Loading Order
+              {t("fincheckInspectionOrderData.errors.loadingOrder")}
             </p>
             <p className="text-sm text-red-600 dark:text-red-500">{error}</p>
           </div>
@@ -1400,7 +1432,9 @@ const YPivotQAInspectionOrderData = ({
           >
             <div className="flex items-center gap-2">
               <Package className="w-4 h-4 text-white" />
-              <h3 className="text-white font-bold text-sm">Order Data</h3>
+              <h3 className="text-white font-bold text-sm">
+                {t("fincheckInspectionOrderData.sections.orderData")}
+              </h3>
               <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">
                 {selectedOrders.length}{" "}
                 {selectedOrders.length === 1 ? "Order" : "Orders"}
@@ -1408,7 +1442,9 @@ const YPivotQAInspectionOrderData = ({
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-white/70">
-                {showOrderDetails ? "Click to hide" : "Click to view details"}
+                {showOrderDetails
+                  ? t("fincheckInspectionOrderData.actions.clickToHide")
+                  : t("fincheckInspectionOrderData.actions.clickToView")}
               </span>
               {showOrderDetails ? (
                 <EyeOff className="w-5 h-5 text-white" />
@@ -1426,11 +1462,12 @@ const YPivotQAInspectionOrderData = ({
                 <div className="bg-gradient-to-r from-blue-500 to-cyan-600 px-4 py-2.5 flex items-center justify-between rounded-t-xl">
                   <h3 className="text-white font-bold text-sm flex items-center gap-2">
                     <Building2 className="w-4 h-4" />
-                    Order Information
+                    {t("fincheckInspectionOrderData.sections.orderInfo")}
                   </h3>
                   {!orderData.isSingle && (
                     <span className="text-xs bg-white/20 text-white px-2 py-1 rounded-full font-medium">
-                      {selectedOrders.length} Orders Combined
+                      {selectedOrders.length}{" "}
+                      {t("fincheckInspectionOrderData.status.ordersCombined")}
                     </span>
                   )}
                 </div>
@@ -1439,49 +1476,49 @@ const YPivotQAInspectionOrderData = ({
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                     <InfoCard
                       icon={Tag}
-                      label="Cust. Style"
+                      label={t("fincheckInspectionOrderData.fields.custStyle")}
                       value={orderData.dtOrder?.custStyle}
                       color="indigo"
                     />
                     <InfoCard
                       icon={User}
-                      label="Customer"
+                      label={t("fincheckInspectionOrderData.fields.customer")}
                       value={orderData.dtOrder?.customer}
                       color="purple"
                     />
                     <InfoCard
                       icon={Building2}
-                      label="Factory"
+                      label={t("fincheckInspectionOrderData.fields.factory")}
                       value={orderData.dtOrder?.factory}
                       color="blue"
                     />
                     <InfoCard
                       icon={Hash}
-                      label="Total Qty"
+                      label={t("fincheckInspectionOrderData.fields.totalQty")}
                       value={orderData.dtOrder?.totalQty?.toLocaleString()}
                       color="emerald"
                     />
                     <InfoCard
                       icon={Globe}
-                      label="Origin"
+                      label={t("fincheckInspectionOrderData.fields.origin")}
                       value={orderData.dtOrder?.origin}
                       color="orange"
                     />
                     <InfoCard
                       icon={Truck}
-                      label="Mode"
+                      label={t("fincheckInspectionOrderData.fields.mode")}
                       value={orderData.dtOrder?.mode}
                       color="pink"
                     />
                     <InfoCard
                       icon={Users}
-                      label="Sales Team"
+                      label={t("fincheckInspectionOrderData.fields.salesTeam")}
                       value={orderData.dtOrder?.salesTeamName}
                       color="indigo"
                     />
                     <InfoCard
                       icon={MapPin}
-                      label="Country"
+                      label={t("fincheckInspectionOrderData.fields.country")}
                       value={orderData.dtOrder?.country}
                       color="purple"
                     />
@@ -1495,7 +1532,9 @@ const YPivotQAInspectionOrderData = ({
                   <div className="bg-gradient-to-r from-purple-500 to-pink-600 px-4 py-2.5 rounded-t-xl">
                     <h3 className="text-white font-bold text-sm flex items-center gap-2">
                       <Layers className="w-4 h-4" />
-                      Additional Order Details
+                      {t(
+                        "fincheckInspectionOrderData.sections.additionalDetails",
+                      )}
                     </h3>
                   </div>
 
@@ -1503,25 +1542,31 @@ const YPivotQAInspectionOrderData = ({
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mb-3">
                       <InfoCard
                         icon={Tag}
-                        label="SKU Description"
+                        label={t(
+                          "fincheckInspectionOrderData.fields.skuDescription",
+                        )}
                         value={orderData.yorksysOrder.skuDescription}
                         color="purple"
                       />
                       <InfoCard
                         icon={MapPin}
-                        label="Destination"
+                        label={t(
+                          "fincheckInspectionOrderData.fields.destination",
+                        )}
                         value={orderData.yorksysOrder.destination}
                         color="blue"
                       />
                       <InfoCard
                         icon={Calendar}
-                        label="Season"
+                        label={t("fincheckInspectionOrderData.fields.season")}
                         value={orderData.yorksysOrder.season}
                         color="orange"
                       />
                       <InfoCard
                         icon={Shirt}
-                        label="Product Type"
+                        label={t(
+                          "fincheckInspectionOrderData.fields.productType",
+                        )}
                         value={orderData.yorksysOrder.productType}
                         color="pink"
                       />
@@ -1531,11 +1576,13 @@ const YPivotQAInspectionOrderData = ({
                       orderData.yorksysOrder.fabricContent.length > 0 && (
                         <div className="p-2.5 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
                           <p className="text-[9px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
-                            Fabric Content
+                            {t(
+                              "fincheckInspectionOrderData.fields.fabricContent",
+                            )}
                           </p>
                           <p className="text-xs font-medium text-gray-800 dark:text-gray-200">
                             {formatFabricContent(
-                              orderData.yorksysOrder.fabricContent
+                              orderData.yorksysOrder.fabricContent,
                             )}
                           </p>
                         </div>
@@ -1551,13 +1598,15 @@ const YPivotQAInspectionOrderData = ({
                     <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-2.5 flex items-center justify-between rounded-t-xl">
                       <h3 className="text-white font-bold text-sm flex items-center gap-2">
                         <Package className="w-4 h-4" />
-                        Order Qty by Color & Size
+                        {t(
+                          "fincheckInspectionOrderData.sections.colorSizeBreakdown",
+                        )}
                       </h3>
                       <span className="text-xs bg-white/20 text-white px-2 py-1 rounded-full font-medium">
                         {orderData.orderBreakdowns.length}{" "}
                         {orderData.orderBreakdowns.length === 1
-                          ? "Order"
-                          : "Orders"}
+                          ? t("fincheckInspectionOrderData.table.order")
+                          : t("fincheckInspectionOrderData.table.orders")}
                       </span>
                     </div>
                     <div className="p-3 space-y-4">
@@ -1587,13 +1636,13 @@ const YPivotQAInspectionOrderData = ({
               {/* SKU Data - Per Order */}
               {orderData.orderBreakdowns &&
                 orderData.orderBreakdowns.some(
-                  (b) => b.yorksysOrder?.skuData?.length > 0
+                  (b) => b.yorksysOrder?.skuData?.length > 0,
                 ) && (
                   <div className="bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700">
                     <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-2.5 flex items-center justify-between rounded-t-xl">
                       <h3 className="text-white font-bold text-sm flex items-center gap-2">
                         <Hash className="w-4 h-4" />
-                        Order Data by SKU
+                        {t("fincheckInspectionOrderData.sections.skuData")}
                       </h3>
                     </div>
                     <div className="p-3 space-y-4">
@@ -1633,15 +1682,15 @@ const YPivotQAInspectionOrderData = ({
             <Search className="w-10 h-10 text-indigo-500" />
           </div>
           <h3 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-2">
-            Search for an Order
+            {t("fincheckInspectionOrderData.empty.searchTitle")}
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400 text-center max-w-md">
             {orderType === "single" &&
-              "Enter an MO Number to load order details."}
+              t("fincheckInspectionOrderData.empty.singleDesc")}
             {orderType === "multi" &&
-              "Search to find and combine related orders automatically."}
+              t("fincheckInspectionOrderData.empty.multiDesc")}
             {orderType === "batch" &&
-              "Search and select multiple orders for combined inspection."}
+              t("fincheckInspectionOrderData.empty.batchDesc")}
           </p>
         </div>
       )}
@@ -1684,8 +1733,8 @@ const YPivotQAInspectionOrderData = ({
                   <Save className="w-4 h-4" />
                 )}
                 {isReportSaved
-                  ? "Update Inspection Report"
-                  : "Save Inspection Report"}
+                  ? t("fincheckInspectionOrderData.actions.updateReport")
+                  : t("fincheckInspectionOrderData.actions.saveReport")}
               </h3>
             </div>
 
@@ -1694,20 +1743,21 @@ const YPivotQAInspectionOrderData = ({
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {canSave
                     ? isReportSaved
-                      ? "You can update the configuration details below."
-                      : "All required fields are complete. Ready to save!"
-                    : "Complete all required fields to save/update the report."}
+                      ? t("fincheckInspectionOrderData.messages.canUpdate")
+                      : t("fincheckInspectionOrderData.messages.readyToSave")
+                    : t(
+                        "fincheckInspectionOrderData.messages.completeRequired",
+                      )}
                 </p>
                 {isReportSaved && (
                   <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 font-semibold flex items-center gap-1">
-                    <Lock className="w-3 h-3" /> Identity fields (Order, Date,
-                    Type) are locked.
+                    <Lock className="w-3 h-3" />{" "}
+                    {t("fincheckInspectionOrderData.messages.identityLocked")}
                   </p>
                 )}
                 {!canSave && (
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Make sure to select a Report Type and fill in all required
-                    configuration.
+                    {t("fincheckInspectionOrderData.messages.selectReportType")}
                   </p>
                 )}
               </div>
@@ -1726,12 +1776,12 @@ const YPivotQAInspectionOrderData = ({
                 {isReportSaved ? (
                   <>
                     <RefreshCw className="w-5 h-5" />
-                    Update Report
+                    {t("fincheckInspectionOrderData.actions.updateReportShort")}
                   </>
                 ) : (
                   <>
                     <Save className="w-5 h-5" />
-                    Save Report
+                    {t("fincheckInspectionOrderData.actions.saveReportShort")}
                   </>
                 )}
               </button>
@@ -1749,7 +1799,7 @@ const YPivotQAInspectionOrderData = ({
               inspectionType,
               selectedOrders,
               orderData,
-              orderType
+              orderType,
             }}
             reportState={savedReportState}
             qualityPlanData={qualityPlanData}

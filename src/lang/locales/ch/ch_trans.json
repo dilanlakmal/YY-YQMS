@@ -188,6 +188,129 @@
       "restoring": "正在恢复会话..."
     }
   },
+  "fincheckInspectionOrderData": {
+    "orderType": {
+      "scanQR": "扫描二维码",
+      "scanQRShort": "二维码",
+      "single": "单个",
+      "singleShort": "单",
+      "multi": "多个",
+      "multiShort": "多",
+      "batch": "批量",
+      "batchShort": "批"
+    },
+    "inspectionType": {
+      "first": "首次检验",
+      "re": "复检"
+    },
+    "sections": {
+      "order": "订单",
+      "orderData": "订单数据",
+      "orderInfo": "订单信息",
+      "additionalDetails": "附加订单详情",
+      "colorSizeBreakdown": "颜色尺码明细",
+      "skuData": "SKU数据"
+    },
+    "status": {
+      "saved": "已保存",
+      "orderSelected": "已选订单：",
+      "ordersCombined": "订单已合并"
+    },
+    "descriptions": {
+      "qrMode": "扫描二维码以加载现有检验报告。",
+      "singleMode": "选择单个订单进行检验。",
+      "multiMode": "自动合并相关订单（例如 PTCOC335、PTCOC335A）。",
+      "batchMode": "手动选择多个订单进行合并检验。"
+    },
+    "labels": {
+      "inspectionDate": "检验日期",
+      "inspectionType": "检验类型",
+      "orderNo": "订单号",
+      "addOrderNo": "添加订单号",
+      "selectedOrders": "已选订单",
+      "totalQty": "总数量："
+    },
+    "fields": {
+      "custStyle": "客户款号",
+      "customer": "客户",
+      "factory": "工厂",
+      "totalQty": "总数量",
+      "origin": "产地",
+      "mode": "运输方式",
+      "salesTeam": "销售团队",
+      "country": "国家",
+      "skuDescription": "SKU描述",
+      "destination": "目的地",
+      "season": "季节",
+      "productType": "产品类型",
+      "fabricContent": "面料成分"
+    },
+    "table": {
+      "order": "订单",
+      "orders": "订单",
+      "color": "颜色",
+      "total": "总计",
+      "sku": "SKU",
+      "poLine": "采购订单行",
+      "etd": "预计发货日期",
+      "eta": "预计到达日期",
+      "qty": "数量"
+    },
+    "placeholders": {
+      "orderLocked": "订单已锁定",
+      "searchAddMore": "搜索以添加更多订单...",
+      "searchMO": "搜索订单号..."
+    },
+    "actions": {
+      "clearAll": "清除全部",
+      "refreshData": "刷新数据",
+      "clearSelection": "清除选择",
+      "clickToHide": "点击隐藏",
+      "clickToView": "点击查看详情",
+      "showLess": "显示更少",
+      "showAll": "显示全部",
+      "saveReport": "保存检验报告",
+      "updateReport": "更新检验报告",
+      "saveReportShort": "保存报告",
+      "updateReportShort": "更新报告"
+    },
+    "units": {
+      "pcs": "件",
+      "items": "项"
+    },
+    "empty": {
+      "searchTitle": "搜索订单",
+      "singleDesc": "输入订单号以加载订单详情。",
+      "multiDesc": "搜索并自动合并相关订单。",
+      "batchDesc": "搜索并选择多个订单进行合并检验。",
+      "noColorSize": "无颜色/尺码数据"
+    },
+    "messages": {
+      "readyToSave": "所有必填字段已完成。准备保存！",
+      "completeRequired": "完成所有必填字段以保存/更新报告。",
+      "canUpdate": "您可以更新以下配置详情。",
+      "identityLocked": "标识字段（订单、日期、类型）已锁定。",
+      "selectReportType": "请确保选择报告类型并填写所有必需配置。"
+    },
+    "loading": {
+      "orderDetails": "正在加载订单详情..."
+    },
+    "errors": {
+      "loadingOrder": "订单加载错误",
+      "reportNotFound": "未找到报告。请检查ID或开始新检验。",
+      "reportIdNotExist": "报告ID不存在。",
+      "failedLoadReport": "加载报告数据失败。请重试。",
+      "orderDataNotFound": "未找到与此报告关联的订单数据。"
+    },
+    "success": {
+      "reportLoadedQR": "已通过二维码加载报告",
+      "existingReportLoaded": "已自动加载现有报告。",
+      "reportLoaded": "报告加载成功。"
+    },
+    "common": {
+      "notAvailable": "不适用"
+    }
+  },
   "fincheckHeader": {
     "checklist": "检查清单",
     "addRemark": "添加备注",

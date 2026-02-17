@@ -548,6 +548,82 @@
     "saved": "Saved",
     "error": "Error"
   },
+  "fincheckInspectionLineTableColorConfig": {
+    "common": {
+      "notAvailable": "N/A",
+      "searchDisabled": "Search disabled",
+      "selectQC": "Select QC...",
+      "typeIdOrName": "Type ID or Name...",
+      "noQCList": "No QC List"
+    },
+    "header": {
+      "aqlStandard": "AQL Standard",
+      "fixedQuantity": "Fixed Quantity",
+      "sample": "Sample",
+      "totalQty": "Total Qty"
+    },
+    "session": {
+      "activeSession": "Active Session",
+      "end": "End"
+    },
+    "status": {
+      "active": "Active",
+      "locked": "Locked",
+      "editing": "Editing"
+    },
+    "fields": {
+      "subConLine": "SubCon Line",
+      "line": "Line",
+      "table": "Table",
+      "color": "Color",
+      "selectPlaceholder": "Select...",
+      "qtyPlaceholder": "Qty"
+    },
+    "units": {
+      "pcs": "pcs"
+    },
+    "actions": {
+      "scan": "Scan",
+      "addInspector": "Add Inspector",
+      "addGroup": "Add Configuration Group",
+      "addAllColors": "Add All Colors",
+      "removeAll": "Remove All Config",
+      "start": "Start",
+      "activeBtnLabel": "Active"
+    },
+    "empty": {
+      "title": "No groups configured",
+      "description": "Add a group below to start"
+    },
+    "swal": {
+      "noColorsTitle": "No Colors",
+      "noColorsText": "No colors available.",
+      "allColorsAddedTitle": "Done",
+      "allColorsAddedText": "All colors already added.",
+      "colorsAddedTitle": "Added",
+      "colorsAddedText": "color groups added.",
+      "removeGroupTitle": "Remove Group?",
+      "removeGroupConfirm": "Remove",
+      "duplicateTitle": "Duplicate",
+      "duplicateText": "This combination exists.",
+      "qcDuplicateText": "QC already added.",
+      "qcAlreadyInList": "QC already in list.",
+      "missingTitle": "Missing",
+      "missingLine": "Select a Line.",
+      "missingTable": "Select a Table.",
+      "missingColor": "Select a Color.",
+      "sessionActiveTitle": "Session Active",
+      "incompleteTitle": "Incomplete",
+      "incompleteText": "Fill:",
+      "errorTitle": "Error",
+      "qcNotInFactory": "QC not in factory list.",
+      "emptyTitle": "Empty",
+      "emptyText": "No configurations to remove.",
+      "removeAllTitle": "Are you sure?",
+      "removeAllText": "This will remove ALL configuration groups permanently from the database.",
+      "removeAllConfirm": "Yes, Remove All"
+    }
+  },
   "fincheckProductLocation": {
     "title": "Product Location Management",
     "totalConfig": "Total Configurations",

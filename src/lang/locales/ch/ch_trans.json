@@ -547,6 +547,82 @@
     "saved": "已保存",
     "error": "错误"
   },
+  "fincheckInspectionLineTableColorConfig": {
+    "common": {
+      "notAvailable": "不适用",
+      "searchDisabled": "搜索已禁用",
+      "selectQC": "选择质检员...",
+      "typeIdOrName": "输入工号或姓名...",
+      "noQCList": "无质检员列表"
+    },
+    "header": {
+      "aqlStandard": "AQL 标准",
+      "fixedQuantity": "固定数量",
+      "sample": "样本",
+      "totalQty": "总数量"
+    },
+    "session": {
+      "activeSession": "当前会话",
+      "end": "结束"
+    },
+    "status": {
+      "active": "进行中",
+      "locked": "已锁定",
+      "editing": "编辑中"
+    },
+    "fields": {
+      "subConLine": "外包生产线",
+      "line": "生产线",
+      "table": "工作台",
+      "color": "颜色",
+      "selectPlaceholder": "请选择...",
+      "qtyPlaceholder": "数量"
+    },
+    "units": {
+      "pcs": "件"
+    },
+    "actions": {
+      "scan": "扫描",
+      "addInspector": "添加检验员",
+      "addGroup": "添加配置组",
+      "addAllColors": "添加全部颜色",
+      "removeAll": "删除全部配置",
+      "start": "开始",
+      "activeBtnLabel": "进行中"
+    },
+    "empty": {
+      "title": "暂无配置组",
+      "description": "请在下方添加配置组以开始"
+    },
+    "swal": {
+      "noColorsTitle": "无颜色",
+      "noColorsText": "暂无可用颜色。",
+      "allColorsAddedTitle": "完成",
+      "allColorsAddedText": "所有颜色已添加。",
+      "colorsAddedTitle": "已添加",
+      "colorsAddedText": "个颜色组已添加。",
+      "removeGroupTitle": "删除配置组？",
+      "removeGroupConfirm": "删除",
+      "duplicateTitle": "重复",
+      "duplicateText": "该组合已存在。",
+      "qcDuplicateText": "质检员已添加。",
+      "qcAlreadyInList": "质检员已在列表中。",
+      "missingTitle": "缺少信息",
+      "missingLine": "请选择生产线。",
+      "missingTable": "请选择工作台。",
+      "missingColor": "请选择颜色。",
+      "sessionActiveTitle": "会话已激活",
+      "incompleteTitle": "信息不完整",
+      "incompleteText": "请填写：",
+      "errorTitle": "错误",
+      "qcNotInFactory": "该质检员不在工厂列表中。",
+      "emptyTitle": "列表为空",
+      "emptyText": "暂无可删除的配置。",
+      "removeAllTitle": "确定要删除吗？",
+      "removeAllText": "此操作将永久从数据库中删除所有配置组。",
+      "removeAllConfirm": "是的，全部删除"
+    }
+  },
   "fincheckProductLocation": {
     "title": "产品位置管理",
     "totalConfig": "总配置数",

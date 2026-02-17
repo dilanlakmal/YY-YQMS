@@ -14,11 +14,12 @@ import {
   CopyPlus,
   Edit,
   Save,
-  ChevronDown
+  ChevronDown,
 } from "lucide-react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { API_BASE_URL } from "../../../../../config";
+import { useTranslation } from "react-i18next";
 import EmpQRCodeScanner from "../../qc_roving/EmpQRCodeScanner";
 
 // ============================================================
@@ -30,8 +31,9 @@ const SimpleSelect = ({
   value,
   onChange,
   placeholder,
-  disabled = false
+  disabled = false,
 }) => {
+  const { t } = useTranslation();
   const selectedLabel = options.find((o) => o.value === value)?.label || "";
 
   return (
@@ -73,6 +75,7 @@ const SimpleSelect = ({
 // Helper: QC User Inline Select (For SubCon)
 // ============================================================
 const QCInlineSelect = ({ options, onSelect, disabled }) => {
+  const { t } = useTranslation();
   return (
     <div className="relative w-full">
       <select
@@ -84,7 +87,9 @@ const QCInlineSelect = ({ options, onSelect, disabled }) => {
         disabled={disabled}
         className="w-full px-2 sm:px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-xs sm:text-sm font-medium appearance-none cursor-pointer focus:ring-2 focus:ring-indigo-500 outline-none min-h-[36px] sm:min-h-[40px] pr-8"
       >
-        <option value="">Select QC...</option>
+        <option value="">
+          {t("fincheckInspectionLineTableColorConfig.common.selectQC")}
+        </option>
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
@@ -100,6 +105,7 @@ const QCInlineSelect = ({ options, onSelect, disabled }) => {
 // Helper: Simple QC Search Input
 // ============================================================
 const SimpleQCSearch = ({ onSelect, disabled }) => {
+  const { t } = useTranslation();
   const [term, setTerm] = useState("");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -111,7 +117,7 @@ const SimpleQCSearch = ({ onSelect, disabled }) => {
         setLoading(true);
         try {
           const res = await axios.get(
-            `${API_BASE_URL}/api/users/search?term=${term}`
+            `${API_BASE_URL}/api/users/search?term=${term}`,
           );
           setResults(res.data);
           setShowResults(true);
@@ -138,7 +144,7 @@ const SimpleQCSearch = ({ onSelect, disabled }) => {
   if (disabled) {
     return (
       <div className="px-2 py-2 bg-gray-100 dark:bg-gray-700 text-gray-400 text-xs rounded-lg border min-h-[36px] flex items-center">
-        Search disabled
+        {t("fincheckInspectionLineTableColorConfig.common.searchDisabled")}
       </div>
     );
   }
@@ -149,7 +155,9 @@ const SimpleQCSearch = ({ onSelect, disabled }) => {
         <input
           type="text"
           className="w-full px-2 py-2 text-xs sm:text-sm outline-none bg-transparent dark:text-white min-h-[36px] sm:min-h-[40px]"
-          placeholder="Type ID or Name..."
+          placeholder={t(
+            "fincheckInspectionLineTableColorConfig.common.typeIdOrName",
+          )}
           value={term}
           onChange={(e) => setTerm(e.target.value)}
           onFocus={() => results.length > 0 && setShowResults(true)}
@@ -191,8 +199,9 @@ const YPivotQAInspectionLineTableColorConfig = ({
   activeGroup,
   onSaveWithData,
   onClearAll,
-  lockTrigger
+  lockTrigger,
 }) => {
+  const { t } = useTranslation();
   const { selectedTemplate, config } = reportData;
   const isAQL = selectedTemplate?.InspectedQtyMethod === "AQL";
   const aqlSampleSize = config?.aqlSampleSize || 0;
@@ -237,7 +246,7 @@ const YPivotQAInspectionLineTableColorConfig = ({
 
         if (config?.isSubCon) {
           promises.push(
-            axios.get(`${API_BASE_URL}/api/subcon-sewing-factories-manage`)
+            axios.get(`${API_BASE_URL}/api/subcon-sewing-factories-manage`),
           );
         } else if (selectedTemplate?.Line === "Yes") {
           promises.push(axios.get(`${API_BASE_URL}/api/qa-sections-lines`));
@@ -257,8 +266,8 @@ const YPivotQAInspectionLineTableColorConfig = ({
         ) {
           promises.push(
             axios.post(`${API_BASE_URL}/api/fincheck-inspection/order-colors`, {
-              orderNos: orderData.selectedOrders
-            })
+              orderNos: orderData.selectedOrders,
+            }),
           );
         } else {
           promises.push(Promise.resolve(null));
@@ -272,18 +281,18 @@ const YPivotQAInspectionLineTableColorConfig = ({
               ? linesRes.data
               : linesRes.data.data || [];
             const factory = allFactories.find(
-              (f) => f._id === config.selectedSubConFactory
+              (f) => f._id === config.selectedSubConFactory,
             );
             if (factory) {
               setLines(
-                (factory.lineList || []).map((l) => ({ value: l, label: l }))
+                (factory.lineList || []).map((l) => ({ value: l, label: l })),
               );
               setSubConQCs(
                 (factory.qcList || []).map((qc) => ({
                   value: qc.qcID,
                   label: `${qc.qcID} - ${qc.qcName}`,
-                  originalData: { emp_id: qc.qcID, eng_name: qc.qcName }
-                }))
+                  originalData: { emp_id: qc.qcID, eng_name: qc.qcName },
+                })),
               );
             }
           } else {
@@ -292,7 +301,7 @@ const YPivotQAInspectionLineTableColorConfig = ({
               setLines(
                 data
                   .filter((l) => l.Active)
-                  .map((l) => ({ value: l._id, label: l.LineNo }))
+                  .map((l) => ({ value: l._id, label: l.LineNo })),
               );
             }
           }
@@ -302,13 +311,16 @@ const YPivotQAInspectionLineTableColorConfig = ({
           setTables(
             tablesRes.data.data
               .filter((t) => t.Active)
-              .map((t) => ({ value: t._id, label: t.TableNo }))
+              .map((t) => ({ value: t._id, label: t.TableNo })),
           );
         }
 
         if (colorsRes) {
           setOrderColors(
-            colorsRes.data.data.map((c) => ({ value: c.color, label: c.color }))
+            colorsRes.data.data.map((c) => ({
+              value: c.color,
+              label: c.color,
+            })),
           );
         }
       } catch (err) {
@@ -357,7 +369,7 @@ const YPivotQAInspectionLineTableColorConfig = ({
       tableName: config?.isSubCon ? "N/A" : "",
       color: "",
       colorName: "",
-      assignments: [{ id: Date.now() + 1, qcUser: null, qty: defaultQty }]
+      assignments: [{ id: Date.now() + 1, qcUser: null, qty: defaultQty }],
     };
     const updated = [...groups, newGroup];
     setGroups(updated);
@@ -367,7 +379,11 @@ const YPivotQAInspectionLineTableColorConfig = ({
 
   const handleAddAllColors = () => {
     if (orderColors.length === 0) {
-      Swal.fire("No Colors", "No colors available.", "warning");
+      Swal.fire(
+        t("fincheckInspectionLineTableColorConfig.swal.noColorsTitle"),
+        t("fincheckInspectionLineTableColorConfig.swal.noColorsText"),
+        "warning",
+      );
       return;
     }
 
@@ -380,7 +396,11 @@ const YPivotQAInspectionLineTableColorConfig = ({
     const toAdd = orderColors.filter((c) => !existing.has(c.value));
 
     if (toAdd.length === 0) {
-      Swal.fire("Done", "All colors already added.", "info");
+      Swal.fire(
+        t("fincheckInspectionLineTableColorConfig.swal.allColorsAddedTitle"),
+        t("fincheckInspectionLineTableColorConfig.swal.allColorsAddedText"),
+        "info",
+      );
       return;
     }
 
@@ -393,8 +413,8 @@ const YPivotQAInspectionLineTableColorConfig = ({
       color: c.value,
       colorName: c.label,
       assignments: [
-        { id: Date.now() + i + 1000, qcUser: null, qty: defaultQty }
-      ]
+        { id: Date.now() + i + 1000, qcUser: null, qty: defaultQty },
+      ],
     }));
 
     const updated = [...groups, ...newGroups];
@@ -404,16 +424,22 @@ const YPivotQAInspectionLineTableColorConfig = ({
     if (onSaveWithData) {
       onSaveWithData(updated);
     }
-    Swal.fire("Added", `${newGroups.length} color groups added.`, "success");
+    Swal.fire(
+      t("fincheckInspectionLineTableColorConfig.swal.colorsAddedTitle"),
+      `${newGroups.length} color groups added.`,
+      "success",
+    );
   };
 
   const handleRemoveGroup = async (index) => {
     const result = await Swal.fire({
-      title: "Remove Group?",
+      title: t("fincheckInspectionLineTableColorConfig.swal.removeGroupTitle"),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#ef4444",
-      confirmButtonText: "Remove"
+      confirmButtonText: t(
+        "fincheckInspectionLineTableColorConfig.swal.removeGroupConfirm",
+      ),
     });
 
     if (result.isConfirmed) {
@@ -446,7 +472,11 @@ const YPivotQAInspectionLineTableColorConfig = ({
     const test = { ...updated[idx], [field]: value };
 
     if (checkDuplicate(test, idx)) {
-      Swal.fire("Duplicate", "This combination exists.", "warning");
+      Swal.fire(
+        t("fincheckInspectionLineTableColorConfig.swal.duplicateTitle"),
+        t("fincheckInspectionLineTableColorConfig.swal.duplicateText"),
+        "warning",
+      );
       return;
     }
 
@@ -481,7 +511,7 @@ const YPivotQAInspectionLineTableColorConfig = ({
         tableName: updated[idx].tableName || updated[idx].table,
         colorName: updated[idx].colorName || updated[idx].color,
         activeAssignmentId: activeGroup.activeAssignmentId,
-        activeQC: activeGroup.activeQC
+        activeQC: activeGroup.activeQC,
       });
     }
   };
@@ -489,10 +519,14 @@ const YPivotQAInspectionLineTableColorConfig = ({
   const handleAddAssignment = (gIdx, qcUser = null) => {
     if (qcUser) {
       const exists = groups[gIdx].assignments.some(
-        (a) => a.qcUser?.emp_id === qcUser.emp_id
+        (a) => a.qcUser?.emp_id === qcUser.emp_id,
       );
       if (exists) {
-        Swal.fire("Duplicate", "QC already added.", "error");
+        Swal.fire(
+          t("fincheckInspectionLineTableColorConfig.swal.duplicateTitle"),
+          t("fincheckInspectionLineTableColorConfig.swal.qcDuplicateText"),
+          "error",
+        );
         return;
       }
     }
@@ -523,10 +557,14 @@ const YPivotQAInspectionLineTableColorConfig = ({
     const updated = [...groups];
     if (field === "qcUser" && value) {
       const exists = groups[gIdx].assignments.some(
-        (a, i) => i !== aIdx && a.qcUser?.emp_id === value.emp_id
+        (a, i) => i !== aIdx && a.qcUser?.emp_id === value.emp_id,
       );
       if (exists) {
-        Swal.fire("Duplicate", "QC already added.", "error");
+        Swal.fire(
+          t("fincheckInspectionLineTableColorConfig.swal.duplicateTitle"),
+          t("fincheckInspectionLineTableColorConfig.swal.qcDuplicateText"),
+          "error",
+        );
         return;
       }
     }
@@ -540,10 +578,14 @@ const YPivotQAInspectionLineTableColorConfig = ({
   const handleQCSelect = (user, gIdx) => {
     const group = groups[gIdx];
     const exists = group.assignments.some(
-      (a) => a.qcUser?.emp_id === user.emp_id
+      (a) => a.qcUser?.emp_id === user.emp_id,
     );
     if (exists) {
-      Swal.fire("Duplicate", "QC already in list.", "error");
+      Swal.fire(
+        t("fincheckInspectionLineTableColorConfig.swal.duplicateTitle"),
+        t("fincheckInspectionLineTableColorConfig.swal.qcAlreadyInList"),
+        "error",
+      );
       return;
     }
 
@@ -561,7 +603,12 @@ const YPivotQAInspectionLineTableColorConfig = ({
         const id = userData.emp_id || userData;
         const found = subConQCs.find((q) => q.value === id);
         if (found) handleQCSelect(found.originalData, activeGroupIndex);
-        else Swal.fire("Error", "QC not in factory list.", "error");
+        else
+          Swal.fire(
+            t("fincheckInspectionLineTableColorConfig.swal.errorTitle"),
+            t("fincheckInspectionLineTableColorConfig.swal.qcNotInFactory"),
+            "error",
+          );
       } else {
         handleQCSelect(userData, activeGroupIndex);
       }
@@ -572,13 +619,25 @@ const YPivotQAInspectionLineTableColorConfig = ({
 
   const handleActivateGroup = (group, assignment = null) => {
     if (selectedTemplate.Line === "Yes" && !group.line) {
-      return Swal.fire("Missing", "Select a Line.", "warning");
+      return Swal.fire(
+        t("fincheckInspectionLineTableColorConfig.swal.missingTitle"),
+        t("fincheckInspectionLineTableColorConfig.swal.missingLine"),
+        "warning",
+      );
     }
     if (selectedTemplate.Table === "Yes" && !config?.isSubCon && !group.table) {
-      return Swal.fire("Missing", "Select a Table.", "warning");
+      return Swal.fire(
+        t("fincheckInspectionLineTableColorConfig.swal.missingTitle"),
+        t("fincheckInspectionLineTableColorConfig.swal.missingTable"),
+        "warning",
+      );
     }
     if (selectedTemplate.Colors === "Yes" && !group.color) {
-      return Swal.fire("Missing", "Select a Color.", "warning");
+      return Swal.fire(
+        t("fincheckInspectionLineTableColorConfig.swal.missingTitle"),
+        t("fincheckInspectionLineTableColorConfig.swal.missingColor"),
+        "warning",
+      );
     }
 
     // Lock the card when activated
@@ -593,15 +652,17 @@ const YPivotQAInspectionLineTableColorConfig = ({
       colorName:
         orderColors.find((c) => c.value === group.color)?.label || group.color,
       activeAssignmentId: assignment?.id,
-      activeQC: assignment?.qcUser
+      activeQC: assignment?.qcUser,
     };
 
     onSetActiveGroup(ctx);
     Swal.fire({
       icon: "success",
-      title: "Session Active",
+      title: t(
+        "fincheckInspectionLineTableColorConfig.swal.sessionActiveTitle",
+      ),
       timer: 1200,
-      showConfirmButton: false
+      showConfirmButton: false,
     });
   };
 
@@ -618,7 +679,11 @@ const YPivotQAInspectionLineTableColorConfig = ({
           missing.push("QC");
 
         if (missing.length > 0) {
-          Swal.fire("Incomplete", `Fill: ${missing.join(", ")}`, "warning");
+          Swal.fire(
+            t("fincheckInspectionLineTableColorConfig.swal.incompleteTitle"),
+            `Fill: ${missing.join(", ")}`,
+            "warning",
+          );
           return;
         }
       }
@@ -634,18 +699,24 @@ const YPivotQAInspectionLineTableColorConfig = ({
   // ✅ Handle Remove All Button Click
   const handleRemoveAllGroups = async () => {
     if (groups.length === 0) {
-      Swal.fire("Empty", "No configurations to remove.", "info");
+      Swal.fire(
+        t("fincheckInspectionLineTableColorConfig.swal.emptyTitle"),
+        t("fincheckInspectionLineTableColorConfig.swal.emptyText"),
+        "info",
+      );
       return;
     }
 
     const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "This will remove ALL configuration groups permanently from the database.",
+      title: t("fincheckInspectionLineTableColorConfig.swal.removeAllTitle"),
+      text: t("fincheckInspectionLineTableColorConfig.swal.removeAllText"),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#ef4444",
       cancelButtonColor: "#6b7280",
-      confirmButtonText: "Yes, Remove All"
+      confirmButtonText: t(
+        "fincheckInspectionLineTableColorConfig.swal.removeAllConfirm",
+      ),
     });
 
     if (result.isConfirmed) {
@@ -694,12 +765,18 @@ const YPivotQAInspectionLineTableColorConfig = ({
               <span className="truncate">{selectedTemplate.ReportType}</span>
             </h2>
             <p className="text-indigo-200 text-[10px] sm:text-xs">
-              {isAQL ? "AQL Standard" : "Fixed Quantity"}
+              {isAQL
+                ? t("fincheckInspectionLineTableColorConfig.header.aqlStandard")
+                : t(
+                    "fincheckInspectionLineTableColorConfig.header.fixedQuantity",
+                  )}
             </p>
           </div>
           <div className="text-right flex-shrink-0">
             <p className="text-indigo-200 text-[9px] sm:text-[10px] font-bold uppercase">
-              {isAQL ? "Sample" : "Total Qty"}
+              {isAQL
+                ? t("fincheckInspectionLineTableColorConfig.header.sample")
+                : t("fincheckInspectionLineTableColorConfig.header.totalQty")}
             </p>
             <div className="flex items-center gap-1.5 justify-end">
               <span className="text-xl sm:text-2xl font-black text-white">
@@ -730,13 +807,15 @@ const YPivotQAInspectionLineTableColorConfig = ({
             </div>
             <div className="min-w-0">
               <p className="text-xs sm:text-sm font-bold text-green-800 dark:text-green-300 truncate">
-                Active Session
+                {t(
+                  "fincheckInspectionLineTableColorConfig.session.activeSession",
+                )}
               </p>
               <p className="text-[10px] sm:text-xs text-green-700 dark:text-green-400 truncate">
                 {[
                   activeGroup.lineName,
                   activeGroup.tableName,
-                  activeGroup.colorName
+                  activeGroup.colorName,
                 ]
                   .filter(Boolean)
                   .join(" • ")}
@@ -747,7 +826,7 @@ const YPivotQAInspectionLineTableColorConfig = ({
             onClick={() => onSetActiveGroup(null)}
             className="px-2 py-1 bg-white dark:bg-gray-800 border border-green-200 dark:border-green-700 text-green-700 dark:text-green-400 text-[10px] sm:text-xs font-bold rounded-lg flex-shrink-0"
           >
-            End
+            {t("fincheckInspectionLineTableColorConfig.session.end")}
           </button>
         </div>
       )}
@@ -774,13 +853,23 @@ const YPivotQAInspectionLineTableColorConfig = ({
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 mb-2">
                   {showLine && (
                     <SimpleSelect
-                      label={config?.isSubCon ? "SubCon Line" : "Line"}
+                      label={
+                        config?.isSubCon
+                          ? t(
+                              "fincheckInspectionLineTableColorConfig.fields.subConLine",
+                            )
+                          : t(
+                              "fincheckInspectionLineTableColorConfig.fields.line",
+                            )
+                      }
                       options={lines}
                       value={group.line}
                       onChange={(v) =>
                         handleUpdateGroup(gIdx, "line", v, lines)
                       }
-                      placeholder="Select..."
+                      placeholder={t(
+                        "fincheckInspectionLineTableColorConfig.fields.selectPlaceholder",
+                      )}
                       disabled={isLocked}
                     />
                   )}
@@ -789,34 +878,46 @@ const YPivotQAInspectionLineTableColorConfig = ({
                     (config?.isSubCon ? (
                       <div>
                         <label className="block text-[10px] sm:text-xs font-bold text-gray-500 mb-1">
-                          Table
+                          {t(
+                            "fincheckInspectionLineTableColorConfig.fields.table",
+                          )}
                         </label>
                         <div className="px-2 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-xs text-gray-500 font-bold text-center min-h-[36px] flex items-center justify-center">
-                          N/A
+                          {t(
+                            "fincheckInspectionLineTableColorConfig.common.notAvailable",
+                          )}
                         </div>
                       </div>
                     ) : (
                       <SimpleSelect
-                        label="Table"
+                        label={t(
+                          "fincheckInspectionLineTableColorConfig.fields.table",
+                        )}
                         options={tables}
                         value={group.table}
                         onChange={(v) =>
                           handleUpdateGroup(gIdx, "table", v, tables)
                         }
-                        placeholder="Select..."
+                        placeholder={t(
+                          "fincheckInspectionLineTableColorConfig.fields.selectPlaceholder",
+                        )}
                         disabled={isLocked}
                       />
                     ))}
 
                   {showColors && (
                     <SimpleSelect
-                      label="Color"
+                      label={t(
+                        "fincheckInspectionLineTableColorConfig.fields.color",
+                      )}
                       options={orderColors}
                       value={group.color}
                       onChange={(v) =>
                         handleUpdateGroup(gIdx, "color", v, orderColors)
                       }
-                      placeholder="Select..."
+                      placeholder={t(
+                        "fincheckInspectionLineTableColorConfig.fields.selectPlaceholder",
+                      )}
                       disabled={isLocked}
                     />
                   )}
@@ -828,17 +929,23 @@ const YPivotQAInspectionLineTableColorConfig = ({
                     {isActive && (
                       <span className="px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded flex items-center gap-0.5">
                         <CheckCircle2 className="w-3 h-3" />
-                        Active
+                        {t(
+                          "fincheckInspectionLineTableColorConfig.status.active",
+                        )}
                       </span>
                     )}
                     {isLocked && !isActive && (
                       <span className="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-[10px] font-medium rounded">
-                        Locked
+                        {t(
+                          "fincheckInspectionLineTableColorConfig.status.locked",
+                        )}
                       </span>
                     )}
                     {isEditing && (
                       <span className="px-1.5 py-0.5 bg-indigo-100 text-indigo-600 text-[10px] font-bold rounded">
-                        Editing
+                        {t(
+                          "fincheckInspectionLineTableColorConfig.status.editing",
+                        )}
                       </span>
                     )}
                   </div>
@@ -898,7 +1005,7 @@ const YPivotQAInspectionLineTableColorConfig = ({
                                       gIdx,
                                       aIdx,
                                       "qcUser",
-                                      null
+                                      null,
                                     )
                                   }
                                   className="p-1 text-gray-400 hover:text-red-500"
@@ -922,7 +1029,9 @@ const YPivotQAInspectionLineTableColorConfig = ({
                               >
                                 <Scan className="w-3.5 h-3.5" />
                                 <span className="text-[10px] font-bold hidden sm:inline">
-                                  Scan
+                                  {t(
+                                    "fincheckInspectionLineTableColorConfig.actions.scan",
+                                  )}
                                 </span>
                               </button>
                               <div className="flex-1">
@@ -935,7 +1044,9 @@ const YPivotQAInspectionLineTableColorConfig = ({
                                     />
                                   ) : (
                                     <div className="px-2 py-2 bg-gray-100 text-gray-400 text-xs rounded-lg">
-                                      No QC List
+                                      {t(
+                                        "fincheckInspectionLineTableColorConfig.common.noQCList",
+                                      )}
                                     </div>
                                   )
                                 ) : (
@@ -962,16 +1073,22 @@ const YPivotQAInspectionLineTableColorConfig = ({
                                 gIdx,
                                 aIdx,
                                 "qty",
-                                e.target.value
+                                e.target.value,
                               )
                             }
                             disabled={isLocked}
                             className={`w-20 sm:w-24 px-2 py-2 border rounded-lg text-xs sm:text-sm font-bold text-center focus:ring-2 focus:ring-indigo-500 outline-none ${
                               isLocked ? "bg-gray-50 text-gray-500" : "bg-white"
                             }`}
-                            placeholder="Qty"
+                            placeholder={t(
+                              "fincheckInspectionLineTableColorConfig.fields.qtyPlaceholder",
+                            )}
                           />
-                          <span className="text-[10px] text-gray-400">pcs</span>
+                          <span className="text-[10px] text-gray-400">
+                            {t(
+                              "fincheckInspectionLineTableColorConfig.units.pcs",
+                            )}
+                          </span>
                         </div>
                       )}
 
@@ -999,7 +1116,13 @@ const YPivotQAInspectionLineTableColorConfig = ({
                           ) : (
                             <Play className="w-3.5 h-3.5 fill-current" />
                           )}
-                          {isActive ? "Active" : "Start"}
+                          {isActive
+                            ? t(
+                                "fincheckInspectionLineTableColorConfig.actions.activeBtnLabel",
+                              )
+                            : t(
+                                "fincheckInspectionLineTableColorConfig.actions.start",
+                              )}
                         </button>
                       </div>
                     </div>
@@ -1013,7 +1136,10 @@ const YPivotQAInspectionLineTableColorConfig = ({
                       onClick={() => handleAddAssignment(gIdx)}
                       className="w-full py-2 text-[10px] sm:text-xs font-bold text-indigo-600 border border-dashed border-indigo-300 rounded-lg flex items-center justify-center gap-1 hover:bg-indigo-50"
                     >
-                      <Plus className="w-3.5 h-3.5" /> Add Inspector
+                      <Plus className="w-3.5 h-3.5" />{" "}
+                      {t(
+                        "fincheckInspectionLineTableColorConfig.actions.addInspector",
+                      )}
                     </button>
                   </div>
                 )}
@@ -1027,9 +1153,11 @@ const YPivotQAInspectionLineTableColorConfig = ({
           <div className="flex flex-col items-center justify-center py-10 bg-gray-50 dark:bg-gray-800/50 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700">
             <FileText className="w-8 h-8 text-gray-400 mb-2" />
             <p className="text-gray-500 text-sm font-medium">
-              No groups configured
+              {t("fincheckInspectionLineTableColorConfig.empty.title")}
             </p>
-            <p className="text-gray-400 text-xs">Add a group below to start</p>
+            <p className="text-gray-400 text-xs">
+              {t("fincheckInspectionLineTableColorConfig.empty.description")}
+            </p>
           </div>
         )}
 
@@ -1045,7 +1173,7 @@ const YPivotQAInspectionLineTableColorConfig = ({
             }`}
           >
             <Plus className="w-5 h-5" />
-            Add Configuration Group
+            {t("fincheckInspectionLineTableColorConfig.actions.addGroup")}
           </button>
 
           {canAddAllColors && (
@@ -1054,7 +1182,10 @@ const YPivotQAInspectionLineTableColorConfig = ({
               className="py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:from-amber-600 hover:to-orange-700 active:scale-[0.98] transition-all"
             >
               <CopyPlus className="w-5 h-5" />
-              Add All Colors ({orderColors.length})
+              {t(
+                "fincheckInspectionLineTableColorConfig.actions.addAllColors",
+              )}{" "}
+              ({orderColors.length})
             </button>
           )}
 
@@ -1065,7 +1196,7 @@ const YPivotQAInspectionLineTableColorConfig = ({
               className="py-3 bg-white dark:bg-gray-700 border-2 border-red-100 dark:border-red-900/30 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm"
             >
               <Trash2 className="w-5 h-5" />
-              Remove All Config
+              {t("fincheckInspectionLineTableColorConfig.actions.removeAll")}
             </button>
           )}
         </div>

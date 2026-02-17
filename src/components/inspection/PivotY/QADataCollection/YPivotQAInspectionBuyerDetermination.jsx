@@ -12,6 +12,7 @@ import {
   Save,
 } from "lucide-react";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 import { API_BASE_URL, PUBLIC_ASSET_URL } from "../../../../../config";
 
 // ============================================================
@@ -280,6 +281,7 @@ const ProductTypeSelector = ({
   onSave,
   saving,
 }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -458,6 +460,7 @@ const YPivotQAInspectionBuyerDetermination = ({
   orderType = "single",
   onProductTypeUpdate, // <--- FIX 1: New Prop to bubble up ID
 }) => {
+  const { t } = useTranslation();
   // Product Type State
   const [productTypeInfo, setProductTypeInfo] = useState(null);
   const [productTypeOptions, setProductTypeOptions] = useState([]);

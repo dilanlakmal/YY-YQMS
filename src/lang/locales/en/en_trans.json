@@ -333,7 +333,7 @@
       "failedReadQR": "Could not read QR code from this image. Please ensure the image is clear."
     }
   },
-   "fincheckInspectionOrderDataBuyerDetermination": {
+  "fincheckInspectionOrderDataBuyerDetermination": {
     "common": {
       "loading": "Loading..."
     },
@@ -357,6 +357,80 @@
     },
     "actions": {
       "save": "Save"
+    }
+  },
+  "fincheckInspectionOrderDataReportSection": {
+    "common": {
+      "notAvailable": "N/A",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "measurement": {
+      "before": "Before",
+      "after": "After"
+    },
+    "method": {
+      "fixed": "Fixed",
+      "aql": "AQL"
+    },
+    "dropdown": {
+      "noMatches": "No matches found",
+      "noOptions": "No options available",
+      "selectPlaceholder": "Select..."
+    },
+    "emptyState": {
+      "title": "No Order Selected",
+      "description": "Please select an order in the \"Order\" tab first to configure the report type."
+    },
+    "sections": {
+      "reportType": "Report Type",
+      "inspectionDetails": "Inspection Details",
+      "aqlConfig": "AQL Configuration"
+    },
+    "supplier": {
+      "title": "Supplier",
+      "label": "Supplier",
+      "ym": "YM",
+      "external": "External",
+      "factory": "Factory",
+      "factoryPlaceholder": "Select factory..."
+    },
+    "fields": {
+      "cartonQty": "Carton Qty",
+      "cartonQtyPlaceholder": "Enter carton qty...",
+      "inspectedQty": "Inspected Qty (Lot Size)",
+      "lotSizePlaceholder": "Enter Lot Size...",
+      "maxLabel": "Max:",
+      "shippingStage": "Shipping Stage",
+      "shippingStagesPlaceholder": "Select stages...",
+      "remarks": "Remarks",
+      "remarksPlaceholder": "Enter any remarks or notes..."
+    },
+    "badges": {
+      "required": "Required",
+      "aql": "AQL"
+    },
+    "errors": {
+      "failedLoadTemplates": "Failed to load report templates"
+    },
+    "aql": {
+      "noConfigFound": "No AQL configuration found for",
+      "type": "Type",
+      "level": "Level",
+      "minorAql": "Minor AQL",
+      "majorAql": "Major AQL",
+      "criticalAql": "Critical AQL",
+      "inspectedQty": "Inspected Qty",
+      "batch": "Batch",
+      "sampleLetter": "Sample Letter",
+      "sampleSize": "Sample Size",
+      "status": "Status",
+      "accept": "Accept (Ac)",
+      "reject": "Reject (Re)",
+      "minor": "Minor",
+      "major": "Major",
+      "critical": "Critical",
+      "noMatchingBatch": "No matching batch found for inspected qty:"
     }
   },
   "fincheckHeader": {

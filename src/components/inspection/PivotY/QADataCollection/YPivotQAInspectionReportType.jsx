@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { API_BASE_URL } from "../../../../../config";
+import { useTranslation } from "react-i18next";
 import YPivotQAInspectionBuyerDetermination, {
   determineBuyerFromOrderNo,
 } from "./YPivotQAInspectionBuyerDetermination";
@@ -32,26 +33,59 @@ import YPivotQAInspectionEMBPrintInfo from "./YPivotQAInspectionEMBPrintInfo";
 // Sub-Components
 // ============================================================
 
-const ReportTypeCard = ({ template, isSelected, onSelect }) => {
+const ReportTypeCard = ({
+  template,
+  isSelected,
+  onSelect,
+  getReportTypeName,
+}) => {
+  const { t, i18n } = useTranslation();
+  const displayName = getReportTypeName(template);
   const getMeasurementLabel = (measurement) => {
     switch (measurement) {
       case "Before":
-        return { label: "Before", color: "bg-blue-500" };
+        return {
+          label: t(
+            "fincheckInspectionOrderDataReportSection.measurement.before",
+          ),
+          color: "bg-blue-500",
+        };
       case "After":
-        return { label: "After", color: "bg-green-500" };
+        return {
+          label: t(
+            "fincheckInspectionOrderDataReportSection.measurement.after",
+          ),
+          color: "bg-green-500",
+        };
       default:
-        return { label: "N/A", color: "bg-gray-400" };
+        return {
+          label: t(
+            "fincheckInspectionOrderDataReportSection.common.notAvailable",
+          ),
+          color: "bg-gray-400",
+        };
     }
   };
 
   const getMethodLabel = (method) => {
     switch (method) {
       case "Fixed":
-        return { label: "Fixed", color: "bg-purple-500" };
+        return {
+          label: t("fincheckInspectionOrderDataReportSection.method.fixed"),
+          color: "bg-purple-500",
+        };
       case "AQL":
-        return { label: "AQL", color: "bg-orange-500" };
+        return {
+          label: t("fincheckInspectionOrderDataReportSection.method.aql"),
+          color: "bg-orange-500",
+        };
       default:
-        return { label: "N/A", color: "bg-gray-400" };
+        return {
+          label: t(
+            "fincheckInspectionOrderDataReportSection.common.notAvailable",
+          ),
+          color: "bg-gray-400",
+        };
     }
   };
 
@@ -73,9 +107,9 @@ const ReportTypeCard = ({ template, isSelected, onSelect }) => {
             ? "text-indigo-700 dark:text-indigo-300"
             : "text-gray-800 dark:text-gray-200"
         }`}
-        title={template.ReportType}
+        title={displayName}
       >
-        {template.ReportType}
+        {displayName}
       </p>
 
       <div className="flex flex-wrap gap-1">
@@ -112,6 +146,7 @@ const SearchableSingleSelect = ({
   valueKey = "value",
   color = "indigo",
 }) => {
+  const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -256,7 +291,13 @@ const SearchableSingleSelect = ({
                 })
               ) : (
                 <div className="px-3 py-4 text-center text-sm text-gray-500">
-                  {searchTerm ? "No matches found" : "No options available"}
+                  {searchTerm
+                    ? t(
+                        "fincheckInspectionOrderDataReportSection.dropdown.noMatches",
+                      )
+                    : t(
+                        "fincheckInspectionOrderDataReportSection.dropdown.noOptions",
+                      )}
                 </div>
               )}
             </div>
@@ -276,6 +317,7 @@ const MultiSelectDropdown = ({
   onChange, // Callback with new array
   placeholder = "Select...",
 }) => {
+  const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -348,11 +390,13 @@ const MultiSelectDropdown = ({
 };
 
 const AQLConfigTable = ({ aqlConfigs, inspectedQty, buyer }) => {
+  const { t, i18n } = useTranslation();
   if (!aqlConfigs || aqlConfigs.length === 0) {
     return (
       <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl text-center">
         <p className="text-sm text-gray-500">
-          No AQL configuration found for {buyer}
+          {t("fincheckInspectionOrderDataReportSection.aql.noConfigFound")}{" "}
+          {buyer}
         </p>
       </div>
     );
@@ -381,37 +425,49 @@ const AQLConfigTable = ({ aqlConfigs, inspectedQty, buyer }) => {
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
         <div className="p-2 bg-gray-100 dark:bg-gray-900 rounded-lg text-center">
-          <p className="text-[9px] text-gray-500 uppercase">Type</p>
+          <p className="text-[9px] text-gray-500 uppercase">
+            {t("fincheckInspectionOrderDataReportSection.aql.type")}
+          </p>
           <p className="text-xs font-bold text-gray-800 dark:text-gray-200">
             {baseConfig.InspectionType}
           </p>
         </div>
         <div className="p-2 bg-gray-100 dark:bg-gray-900 rounded-lg text-center">
-          <p className="text-[9px] text-gray-500 uppercase">Level</p>
+          <p className="text-[9px] text-gray-500 uppercase">
+            {t("fincheckInspectionOrderDataReportSection.aql.level")}
+          </p>
           <p className="text-xs font-bold text-gray-800 dark:text-gray-200">
             {baseConfig.Level}
           </p>
         </div>
         <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-center">
-          <p className="text-[9px] text-blue-600 uppercase">Minor AQL</p>
+          <p className="text-[9px] text-blue-600 uppercase">
+            {t("fincheckInspectionOrderDataReportSection.aql.minorAql")}
+          </p>
           <p className="text-xs font-bold text-blue-700 dark:text-blue-300">
             {minorConfig?.AQLLevel || "N/A"}
           </p>
         </div>
         <div className="p-2 bg-orange-50 dark:bg-orange-900/30 rounded-lg text-center">
-          <p className="text-[9px] text-orange-600 uppercase">Major AQL</p>
+          <p className="text-[9px] text-orange-600 uppercase">
+            {t("fincheckInspectionOrderDataReportSection.aql.majorAql")}
+          </p>
           <p className="text-xs font-bold text-orange-700 dark:text-orange-300">
             {majorConfig?.AQLLevel || "N/A"}
           </p>
         </div>
         <div className="p-2 bg-red-50 dark:bg-red-900/30 rounded-lg text-center">
-          <p className="text-[9px] text-red-600 uppercase">Critical AQL</p>
+          <p className="text-[9px] text-red-600 uppercase">
+            {t("fincheckInspectionOrderDataReportSection.aql.criticalAql")}
+          </p>
           <p className="text-xs font-bold text-red-700 dark:text-red-300">
             {criticalConfig?.AQLLevel || "N/A"}
           </p>
         </div>
         <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg text-center">
-          <p className="text-[9px] text-indigo-600 uppercase">Inspected Qty</p>
+          <p className="text-[9px] text-indigo-600 uppercase">
+            {t("fincheckInspectionOrderDataReportSection.aql.inspectedQty")}
+          </p>
           <p className="text-xs font-bold text-indigo-700 dark:text-indigo-300">
             {inspectedQty || 0}
           </p>
@@ -421,21 +477,25 @@ const AQLConfigTable = ({ aqlConfigs, inspectedQty, buyer }) => {
       {(minorSample || majorSample || criticalSample) && (
         <div className="grid grid-cols-3 gap-2">
           <div className="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg text-center">
-            <p className="text-[9px] text-purple-600 uppercase">Batch</p>
+            <p className="text-[9px] text-purple-600 uppercase">
+              {t("fincheckInspectionOrderDataReportSection.aql.batch")}
+            </p>
             <p className="text-xs font-bold text-purple-700 dark:text-purple-300">
               {minorSample?.BatchName || majorSample?.BatchName || "N/A"}
             </p>
           </div>
           <div className="p-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg text-center">
             <p className="text-[9px] text-emerald-600 uppercase">
-              Sample Letter
+              {t("fincheckInspectionOrderDataReportSection.aql.sampleLetter")}
             </p>
             <p className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
               {minorSample?.SampleLetter || majorSample?.SampleLetter || "N/A"}
             </p>
           </div>
           <div className="p-2 bg-cyan-50 dark:bg-cyan-900/30 rounded-lg text-center">
-            <p className="text-[9px] text-cyan-600 uppercase">Sample Size</p>
+            <p className="text-[9px] text-cyan-600 uppercase">
+              {t("fincheckInspectionOrderDataReportSection.aql.sampleSize")}
+            </p>
             <p className="text-xs font-bold text-cyan-700 dark:text-cyan-300">
               {minorSample?.SampleSize || majorSample?.SampleSize || "N/A"}
             </p>
@@ -448,20 +508,20 @@ const AQLConfigTable = ({ aqlConfigs, inspectedQty, buyer }) => {
           <thead>
             <tr className="bg-gradient-to-r from-gray-700 to-gray-800 text-white">
               <th className="px-3 py-2 text-left text-xs font-bold uppercase">
-                Status
+                {t("fincheckInspectionOrderDataReportSection.aql.status")}
               </th>
               <th className="px-3 py-2 text-center text-xs font-bold uppercase">
-                Accept (Ac)
+                {t("fincheckInspectionOrderDataReportSection.aql.accept")}
               </th>
               <th className="px-3 py-2 text-center text-xs font-bold uppercase">
-                Reject (Re)
+                {t("fincheckInspectionOrderDataReportSection.aql.reject")}
               </th>
             </tr>
           </thead>
           <tbody>
             <tr className="border-b border-gray-200 dark:border-gray-700 bg-blue-50/50 dark:bg-blue-900/10">
               <td className="px-3 py-2 font-semibold text-blue-700 dark:text-blue-400">
-                Minor
+                {t("fincheckInspectionOrderDataReportSection.aql.minor")}
               </td>
               <td className="px-3 py-2 text-center font-bold text-green-600 dark:text-green-400">
                 {minorSample?.Ac ?? "—"}
@@ -472,7 +532,7 @@ const AQLConfigTable = ({ aqlConfigs, inspectedQty, buyer }) => {
             </tr>
             <tr className="border-b border-gray-200 dark:border-gray-700 bg-orange-50/50 dark:bg-orange-900/10">
               <td className="px-3 py-2 font-semibold text-orange-700 dark:text-orange-400">
-                Major
+                {t("fincheckInspectionOrderDataReportSection.aql.major")}
               </td>
               <td className="px-3 py-2 text-center font-bold text-green-600 dark:text-green-400">
                 {majorSample?.Ac ?? "—"}
@@ -483,7 +543,7 @@ const AQLConfigTable = ({ aqlConfigs, inspectedQty, buyer }) => {
             </tr>
             <tr className="bg-red-50/50 dark:bg-red-900/10">
               <td className="px-3 py-2 font-semibold text-red-700 dark:text-red-400">
-                Critical
+                {t("fincheckInspectionOrderDataReportSection.aql.critical")}
               </td>
               <td className="px-3 py-2 text-center font-bold text-green-600 dark:text-green-400">
                 {criticalSample?.Ac ?? "—"}
@@ -499,7 +559,8 @@ const AQLConfigTable = ({ aqlConfigs, inspectedQty, buyer }) => {
       {!minorSample && !majorSample && !criticalSample && inspectedQty > 0 && (
         <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
           <p className="text-xs text-amber-700 dark:text-amber-400">
-            No matching batch found for inspected qty: {inspectedQty}
+            {t("fincheckInspectionOrderDataReportSection.aql.noMatchingBatch")}{" "}
+            {inspectedQty}
           </p>
         </div>
       )}
@@ -519,6 +580,12 @@ const YPivotQAInspectionReportType = ({
   shippingStages = [],
   loadedReportData = null,
 }) => {
+  const { t, i18n } = useTranslation();
+  // Track current language (same pattern as Header component)
+  const [currentLanguage, setCurrentLanguage] = useState(
+    () => localStorage.getItem("preferredLanguage") || i18n.language || "en",
+  );
+
   const [reportTemplates, setReportTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(
     savedState?.selectedTemplate || null,
@@ -681,6 +748,23 @@ const YPivotQAInspectionReportType = ({
 
   // --- Effects ---
 
+  // Listen for language changes
+  useEffect(() => {
+    const handleI18nLanguageChange = (lng) => setCurrentLanguage(lng);
+    const handleCustomLanguageChange = (event) => {
+      const newLang = event.detail?.language;
+      if (newLang) setCurrentLanguage(newLang);
+    };
+
+    i18n.on("languageChanged", handleI18nLanguageChange);
+    window.addEventListener("languageChanged", handleCustomLanguageChange);
+
+    return () => {
+      i18n.off("languageChanged", handleI18nLanguageChange);
+      window.removeEventListener("languageChanged", handleCustomLanguageChange);
+    };
+  }, [i18n]);
+
   // Fetch Report Templates
   useEffect(() => {
     const fetchTemplates = async () => {
@@ -694,7 +778,11 @@ const YPivotQAInspectionReportType = ({
         }
       } catch (err) {
         console.error(err);
-        setError("Failed to load report templates");
+        setError(
+          t(
+            "fincheckInspectionOrderDataReportSection.errors.failedLoadTemplates",
+          ),
+        );
       } finally {
         setLoadingTemplates(false);
       }
@@ -917,6 +1005,17 @@ const YPivotQAInspectionReportType = ({
     onReportDataChange,
   ]);
 
+  // Helper to get report type display name
+  const getReportTypeName = useCallback(
+    (template) => {
+      if (currentLanguage === "ch" && template.ReportTypeChinese) {
+        return template.ReportTypeChinese;
+      }
+      return template.ReportType;
+    },
+    [currentLanguage],
+  );
+
   const handleInspectedQtyChange = (e) => {
     const rawVal = e.target.value.replace(/[^0-9]/g, "");
     const val = parseInt(rawVal) || 0;
@@ -961,11 +1060,12 @@ const YPivotQAInspectionReportType = ({
             <AlertCircle className="w-10 h-10 text-amber-500" />
           </div>
           <h3 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-2">
-            No Order Selected
+            {t("fincheckInspectionOrderDataReportSection.emptyState.title")}
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400 text-center max-w-md">
-            Please select an order in the "Order" tab first to configure the
-            report type.
+            {t(
+              "fincheckInspectionOrderDataReportSection.emptyState.description",
+            )}
           </p>
         </div>
       </div>
@@ -987,7 +1087,7 @@ const YPivotQAInspectionReportType = ({
         <div className="bg-gradient-to-r from-purple-500 to-pink-600 px-4 py-3">
           <h3 className="text-white font-bold text-sm flex items-center gap-2">
             <FileText className="w-4 h-4" />
-            Report Type
+            {t("fincheckInspectionOrderDataReportSection.sections.reportType")}
           </h3>
         </div>
         <div className="p-4">
@@ -1003,6 +1103,7 @@ const YPivotQAInspectionReportType = ({
                   template={template}
                   isSelected={selectedTemplate?._id === template._id}
                   onSelect={setSelectedTemplate}
+                  getReportTypeName={getReportTypeName}
                 />
               ))}
             </div>
@@ -1016,7 +1117,9 @@ const YPivotQAInspectionReportType = ({
           <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-3 rounded-t-2xl">
             <h3 className="text-white font-bold text-sm flex items-center gap-2">
               <Box className="w-4 h-4" />
-              Inspection Details
+              {t(
+                "fincheckInspectionOrderDataReportSection.sections.inspectionDetails",
+              )}
             </h3>
           </div>
 
@@ -1026,7 +1129,7 @@ const YPivotQAInspectionReportType = ({
               <div className="flex items-center gap-2 mb-2">
                 <Building className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 <span className="text-sm font-bold text-gray-700 dark:text-gray-300">
-                  Supplier
+                  {t("fincheckInspectionOrderDataReportSection.supplier.title")}
                 </span>
               </div>
 
@@ -1034,10 +1137,12 @@ const YPivotQAInspectionReportType = ({
                 {/* Supplier (YM - Fixed) */}
                 <div>
                   <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                    Supplier
+                    {t(
+                      "fincheckInspectionOrderDataReportSection.supplier.title",
+                    )}
                   </label>
                   <div className="px-3 py-2.5 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-xl text-sm font-bold text-indigo-700 dark:text-indigo-300">
-                    YM
+                    {t("fincheckInspectionOrderDataReportSection.supplier.ym")}
                   </div>
                 </div>
 
@@ -1045,7 +1150,9 @@ const YPivotQAInspectionReportType = ({
                 <div className="flex items-end pb-1">
                   <div className="flex items-center gap-3 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl">
                     <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                      External
+                      {t(
+                        "fincheckInspectionOrderDataReportSection.supplier.external",
+                      )}
                     </span>
                     <button
                       onClick={() => setIsSubCon(!isSubCon)}
@@ -1066,7 +1173,13 @@ const YPivotQAInspectionReportType = ({
                         isSubCon ? "text-indigo-600" : "text-gray-500"
                       }`}
                     >
-                      {isSubCon ? "Yes" : "No"}
+                      {isSubCon
+                        ? t(
+                            "fincheckInspectionOrderDataReportSection.common.yes",
+                          )
+                        : t(
+                            "fincheckInspectionOrderDataReportSection.common.no",
+                          )}
                     </span>
                   </div>
                 </div>
@@ -1075,12 +1188,16 @@ const YPivotQAInspectionReportType = ({
                 {isSubCon && (
                   <div className="sm:col-span-2">
                     <SearchableSingleSelect
-                      label="Factory"
+                      label={t(
+                        "fincheckInspectionOrderDataReportSection.supplier.factory",
+                      )}
                       icon={Factory}
                       options={subConFactoryOptions}
                       selectedValue={selectedSubConFactory}
                       onSelectionChange={setSelectedSubConFactory}
-                      placeholder="Select factory..."
+                      placeholder={t(
+                        "fincheckInspectionOrderDataReportSection.supplier.factoryPlaceholder",
+                      )}
                       loading={loadingSubConFactories}
                       color="amber"
                     />
@@ -1094,9 +1211,13 @@ const YPivotQAInspectionReportType = ({
               <div>
                 <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-1.5">
                   <Box className="w-3.5 h-3.5 text-amber-500" />
-                  Carton Qty
+                  {t(
+                    "fincheckInspectionOrderDataReportSection.fields.cartonQty",
+                  )}
                   <span className="text-[9px] bg-amber-100 dark:bg-amber-900/30 text-amber-600 px-1.5 py-0.5 rounded ml-1">
-                    Required
+                    {t(
+                      "fincheckInspectionOrderDataReportSection.badges.required",
+                    )}
                   </span>
                 </label>
                 <input
@@ -1105,7 +1226,9 @@ const YPivotQAInspectionReportType = ({
                   pattern="[0-9]*"
                   value={cartonQty}
                   onChange={handleCartonQtyChange}
-                  placeholder="Enter carton qty..."
+                  placeholder={t(
+                    "fincheckInspectionOrderDataReportSection.fields.cartonQtyPlaceholder",
+                  )}
                   className="w-full sm:w-48 px-3 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-bold text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 />
               </div>
@@ -1116,15 +1239,21 @@ const YPivotQAInspectionReportType = ({
               {/* Inspected Qty - Hidden if Fixed */}
               {isAQL && (
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-1.5">
+                  <label className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-1.5">
                     <Hash className="w-3.5 h-3.5 text-indigo-500" />
-                    Inspected Qty (Lot Size)
+                    {t(
+                      "fincheckInspectionOrderDataReportSection.fields.inspectedQty",
+                    )}
                     <span className="text-[9px] bg-orange-100 dark:bg-orange-900/30 text-orange-600 px-1.5 py-0.5 rounded ml-1">
-                      AQL
+                      {t("fincheckInspectionOrderDataReportSection.badges.aql")}
                     </span>
                     {maxOrderQty > 0 && (
                       <span className="text-[9px] text-gray-400 ml-auto">
-                        (Max: {maxOrderQty})
+                        (
+                        {t(
+                          "fincheckInspectionOrderDataReportSection.fields.maxLabel",
+                        )}{" "}
+                        {maxOrderQty})
                       </span>
                     )}
                   </label>
@@ -1134,7 +1263,9 @@ const YPivotQAInspectionReportType = ({
                     pattern="[0-9]*"
                     value={inspectedQty}
                     onChange={handleInspectedQtyChange}
-                    placeholder="Enter Lot Size..."
+                    placeholder={t(
+                      "fincheckInspectionOrderDataReportSection.fields.lotSizePlaceholder",
+                    )}
                     className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-bold text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   />
                 </div>
@@ -1143,9 +1274,11 @@ const YPivotQAInspectionReportType = ({
               {/* Shipping Stage */}
               {showShippingStage && (
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-1.5">
+                  <label className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-1.5">
                     <Truck className="w-3.5 h-3.5 text-cyan-500" />
-                    Shipping Stage
+                    {t(
+                      "fincheckInspectionOrderDataReportSection.fields.shippingStage",
+                    )}
                   </label>
 
                   {/* USE NEW COMPONENT */}
@@ -1153,7 +1286,9 @@ const YPivotQAInspectionReportType = ({
                     options={shippingStageOptions}
                     selectedValues={shippingStage} // Pass array
                     onChange={setShippingStage} // Receives new array
-                    placeholder="Select stages..."
+                    placeholder={t(
+                      "fincheckInspectionOrderDataReportSection.fields.shippingStagesPlaceholder",
+                    )}
                   />
                 </div>
               )}
@@ -1163,7 +1298,7 @@ const YPivotQAInspectionReportType = ({
             <div>
               <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-1.5">
                 <MessageSquare className="w-3.5 h-3.5 text-gray-500" />
-                Remarks
+                {t("fincheckInspectionOrderDataReportSection.fields.remarks")}
                 <span className="text-[9px] text-gray-400 ml-1">
                   ({remarks.length}/250)
                 </span>
@@ -1171,7 +1306,9 @@ const YPivotQAInspectionReportType = ({
               <textarea
                 value={remarks}
                 onChange={handleRemarksChange}
-                placeholder="Enter any remarks or notes..."
+                placeholder={t(
+                  "fincheckInspectionOrderDataReportSection.fields.remarksPlaceholder",
+                )}
                 maxLength={250}
                 rows={3}
                 className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-gray-500 focus:border-transparent resize-none"

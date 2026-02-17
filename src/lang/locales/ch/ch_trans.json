@@ -358,6 +358,80 @@
       "save": "保存"
     }
   },
+  "fincheckInspectionOrderDataReportSection": {
+    "common": {
+      "notAvailable": "不适用",
+      "yes": "是",
+      "no": "否"
+    },
+    "measurement": {
+      "before": "洗前",
+      "after": "洗后"
+    },
+    "method": {
+      "fixed": "固定",
+      "aql": "AQL"
+    },
+    "dropdown": {
+      "noMatches": "未找到匹配项",
+      "noOptions": "暂无选项",
+      "selectPlaceholder": "请选择..."
+    },
+    "emptyState": {
+      "title": "未选择订单",
+      "description": "请先在『订单』标签页中选择订单，以配置报告类型。"
+    },
+    "sections": {
+      "reportType": "报告类型",
+      "inspectionDetails": "检验详情",
+      "aqlConfig": "AQL 配置"
+    },
+    "supplier": {
+      "title": "供应商",
+      "label": "供应商",
+      "ym": "YM",
+      "external": "外部",
+      "factory": "工厂",
+      "factoryPlaceholder": "选择工厂..."
+    },
+    "fields": {
+      "cartonQty": "纸箱数量",
+      "cartonQtyPlaceholder": "输入纸箱数量...",
+      "inspectedQty": "检验数量（批量）",
+      "lotSizePlaceholder": "输入批量...",
+      "maxLabel": "最大值：",
+      "shippingStage": "运输阶段",
+      "shippingStagesPlaceholder": "选择阶段...",
+      "remarks": "备注",
+      "remarksPlaceholder": "输入备注或说明..."
+    },
+    "badges": {
+      "required": "必填",
+      "aql": "AQL"
+    },
+    "errors": {
+      "failedLoadTemplates": "报告模板加载失败"
+    },
+    "aql": {
+      "noConfigFound": "未找到对应的 AQL 配置，买家：",
+      "type": "类型",
+      "level": "等级",
+      "minorAql": "轻微 AQL",
+      "majorAql": "严重 AQL",
+      "criticalAql": "极严重 AQL",
+      "inspectedQty": "检验数量",
+      "batch": "批次",
+      "sampleLetter": "样本字母",
+      "sampleSize": "样本量",
+      "status": "状态",
+      "accept": "接受 (Ac)",
+      "reject": "拒绝 (Re)",
+      "minor": "轻微",
+      "major": "严重",
+      "critical": "极严重",
+      "noMatchingBatch": "未找到与检验数量匹配的批次："
+    }
+  },
   "fincheckHeader": {
     "checklist": "检查清单",
     "addRemark": "添加备注",

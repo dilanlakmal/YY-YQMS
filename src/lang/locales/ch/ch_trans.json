@@ -568,7 +568,9 @@
     "status": {
       "active": "进行中",
       "locked": "已锁定",
-      "editing": "编辑中"
+      "editing": "编辑中",
+      "dataSaved": "已保存",
+      "notSaved": "未保存"
     },
     "fields": {
       "subConLine": "外包生产线",
@@ -588,11 +590,17 @@
       "addAllColors": "添加全部颜色",
       "removeAll": "删除全部配置",
       "start": "开始",
-      "activeBtnLabel": "进行中"
+      "activeBtnLabel": "进行中",
+      "updating": "更新中...",
+      "saving": "保存中...",
+      "updateConfig": "更新配置数据",
+      "saveConfig": "保存配置数据"
     },
     "empty": {
       "title": "暂无配置组",
-      "description": "请在下方添加配置组以开始"
+      "description": "请在下方添加配置组以开始",
+      "configRequired": "需要配置",
+      "configRequiredDesc": "请在下方添加配置组，然后点击「开始」以启动检验。"
     },
     "swal": {
       "noColorsTitle": "无颜色",
@@ -621,6 +629,23 @@
       "removeAllTitle": "确定要删除吗？",
       "removeAllText": "此操作将永久从数据库中删除所有配置组。",
       "removeAllConfirm": "是的，全部删除"
+    },
+    "modal": {
+      "success": "成功",
+      "error": "错误"
+    },
+    "loading": {
+      "config": "正在加载配置..."
+    },
+    "messages": {
+      "updateSuccess": "配置数据更新成功！",
+      "saveSuccess": "配置数据保存成功！",
+      "saveFailed": "配置保存失败。",
+      "saveOrderFirst": "请先保存订单信息。",
+      "addAtLeastOne": "请至少添加一个配置组。",
+      "group": "配置组",
+      "clearSuccess": "所有配置已成功删除！",
+      "clearFailed": "配置清除失败。"
     }
   },
   "fincheckProductLocation": {

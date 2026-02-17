@@ -7,10 +7,11 @@ import {
   Info,
   RefreshCw,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { API_BASE_URL } from "../../../../../config";
+import { useTranslation } from "react-i18next";
 import YPivotQAInspectionLineTableColorConfig from "./YPivotQAInspectionLineTableColorConfig";
 
 // ==============================================================================
@@ -54,7 +55,7 @@ const AutoDismissModal = ({ isOpen, onClose, type, message }) => {
         </p>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 };
 
@@ -69,8 +70,9 @@ const YPivotQAInspectionConfigSave = ({
   activeGroup,
   reportId,
   isReportSaved,
-  onSaveSuccess
+  onSaveSuccess,
 }) => {
+  const { t } = useTranslation();
   const [saving, setSaving] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
   const [isUpdateMode, setIsUpdateMode] = useState(false);
@@ -78,7 +80,7 @@ const YPivotQAInspectionConfigSave = ({
   const [statusModal, setStatusModal] = useState({
     isOpen: false,
     type: "success",
-    message: ""
+    message: "",
   });
 
   const [lockTrigger, setLockTrigger] = useState(0);
@@ -99,7 +101,7 @@ const YPivotQAInspectionConfigSave = ({
       setLoadingData(true);
       try {
         const res = await axios.get(
-          `${API_BASE_URL}/api/fincheck-inspection/report/${reportId}`
+          `${API_BASE_URL}/api/fincheck-inspection/report/${reportId}`,
         );
 
         if (res.data.success && res.data.data.inspectionConfig) {
@@ -107,7 +109,7 @@ const YPivotQAInspectionConfigSave = ({
           if (savedConfig?.configGroups?.length > 0) {
             onUpdate(
               { lineTableConfig: savedConfig.configGroups },
-              { isFromBackend: true }
+              { isFromBackend: true },
             );
             setIsUpdateMode(true);
           } else {
@@ -131,7 +133,7 @@ const YPivotQAInspectionConfigSave = ({
   const saveToBackend = async (
     groupsToSave,
     showModal = true,
-    shouldLock = true
+    shouldLock = true,
   ) => {
     if (!isReportSaved || !reportId) return;
 
@@ -146,7 +148,7 @@ const YPivotQAInspectionConfigSave = ({
       total = groupsToSave.reduce(
         (t, g) =>
           t + g.assignments.reduce((s, a) => s + (parseInt(a.qty) || 0), 0),
-        0
+        0,
       );
     }
 
@@ -156,12 +158,12 @@ const YPivotQAInspectionConfigSave = ({
         reportName: selectedTemplate.ReportType,
         inspectionMethod: selectedTemplate.InspectedQtyMethod || "Fixed",
         sampleSize: total,
-        configGroups: groupsToSave
+        configGroups: groupsToSave,
       };
 
       const res = await axios.post(
         `${API_BASE_URL}/api/fincheck-inspection/update-inspection-config`,
-        { reportId, configData: payload }
+        { reportId, configData: payload },
       );
 
       if (res.data.success) {
@@ -184,8 +186,12 @@ const YPivotQAInspectionConfigSave = ({
             isOpen: true,
             type: "success",
             message: isUpdateMode
-              ? "Config Data Updated Successfully!"
-              : "Config Data Saved Successfully!"
+              ? t(
+                  "fincheckInspectionLineTableColorConfig.messages.updateSuccess",
+                )
+              : t(
+                  "fincheckInspectionLineTableColorConfig.messages.saveSuccess",
+                ),
           });
         }
       }
@@ -195,7 +201,9 @@ const YPivotQAInspectionConfigSave = ({
         setStatusModal({
           isOpen: true,
           type: "error",
-          message: "Failed to save configuration."
+          message: t(
+            "fincheckInspectionLineTableColorConfig.messages.saveFailed",
+          ),
         });
       }
     } finally {
@@ -209,7 +217,9 @@ const YPivotQAInspectionConfigSave = ({
       setStatusModal({
         isOpen: true,
         type: "error",
-        message: "Please save Order information first."
+        message: t(
+          "fincheckInspectionLineTableColorConfig.messages.saveOrderFirst",
+        ),
       });
       return;
     }
@@ -219,7 +229,9 @@ const YPivotQAInspectionConfigSave = ({
       setStatusModal({
         isOpen: true,
         type: "error",
-        message: "Add at least one configuration group."
+        message: t(
+          "fincheckInspectionLineTableColorConfig.messages.addAtLeastOne",
+        ),
       });
       return;
     }
@@ -244,7 +256,7 @@ const YPivotQAInspectionConfigSave = ({
         Swal.fire({
           icon: "warning",
           title: `Group ${i + 1} Incomplete`,
-          text: `Fill: ${missing.join(", ")}`
+          text: `Fill: ${missing.join(", ")}`,
         });
         return;
       }
@@ -268,7 +280,7 @@ const YPivotQAInspectionConfigSave = ({
     try {
       const res = await axios.post(
         `${API_BASE_URL}/api/fincheck-inspection/clear-inspection-config`,
-        { reportId }
+        { reportId },
       );
 
       if (res.data.success) {
@@ -279,7 +291,9 @@ const YPivotQAInspectionConfigSave = ({
         setStatusModal({
           isOpen: true,
           type: "success",
-          message: "All configurations removed successfully!"
+          message: t(
+            "fincheckInspectionLineTableColorConfig.messages.clearSuccess",
+          ),
         });
 
         // Update UI mode
@@ -290,7 +304,9 @@ const YPivotQAInspectionConfigSave = ({
       setStatusModal({
         isOpen: true,
         type: "error",
-        message: "Failed to clear configuration."
+        message: t(
+          "fincheckInspectionLineTableColorConfig.messages.clearFailed",
+        ),
       });
     } finally {
       setSaving(false);
@@ -302,7 +318,7 @@ const YPivotQAInspectionConfigSave = ({
       <div className="flex flex-col justify-center items-center h-64 gap-3">
         <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
         <span className="text-gray-600 dark:text-gray-400 font-medium text-sm">
-          Loading configuration...
+          {t("fincheckInspectionLineTableColorConfig.loading.config")}
         </span>
       </div>
     );
@@ -316,10 +332,12 @@ const YPivotQAInspectionConfigSave = ({
           <Info className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
           <div className="min-w-0">
             <p className="text-xs sm:text-sm font-bold text-blue-700 dark:text-blue-300">
-              Configuration Required
+              {t("fincheckInspectionLineTableColorConfig.empty.configRequired")}
             </p>
             <p className="text-[10px] sm:text-xs text-blue-600 dark:text-blue-400">
-              Add groups below and click "Start" to begin inspection.
+              {t(
+                "fincheckInspectionLineTableColorConfig.empty.configRequiredDesc",
+              )}
             </p>
           </div>
         </div>
@@ -345,12 +363,12 @@ const YPivotQAInspectionConfigSave = ({
             {isUpdateMode ? (
               <span className="flex items-center gap-1.5 text-xs font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-full">
                 <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                Data Saved
+                {t("fincheckInspectionLineTableColorConfig.status.dataSaved")}
               </span>
             ) : (
               <span className="flex items-center gap-1.5 text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-1.5 rounded-full">
                 <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
-                Not Saved
+                {t("fincheckInspectionLineTableColorConfig.status.notSaved")}
               </span>
             )}
           </div>
@@ -370,17 +388,21 @@ const YPivotQAInspectionConfigSave = ({
             {saving ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                {isUpdateMode ? "Updating..." : "Saving..."}
+                {isUpdateMode
+                  ? t("fincheckInspectionLineTableColorConfig.actions.updating")
+                  : t("fincheckInspectionLineTableColorConfig.actions.saving")}
               </>
             ) : isUpdateMode ? (
               <>
                 <RefreshCw className="w-5 h-5" />
-                Update Config Data
+                {t(
+                  "fincheckInspectionLineTableColorConfig.actions.updateConfig",
+                )}
               </>
             ) : (
               <>
                 <Save className="w-5 h-5" />
-                Save Config Data
+                {t("fincheckInspectionLineTableColorConfig.actions.saveConfig")}
               </>
             )}
           </button>

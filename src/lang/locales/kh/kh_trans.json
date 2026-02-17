@@ -528,7 +528,9 @@
     "status": {
       "active": "Active",
       "locked": "Locked",
-      "editing": "Editing"
+      "editing": "Editing",
+      "dataSaved": "Data Saved",
+      "notSaved": "Not Saved"
     },
     "fields": {
       "subConLine": "SubCon Line",
@@ -548,11 +550,17 @@
       "addAllColors": "Add All Colors",
       "removeAll": "Remove All Config",
       "start": "Start",
-      "activeBtnLabel": "Active"
+      "activeBtnLabel": "Active",
+      "updating": "Updating...",
+      "saving": "Saving...",
+      "updateConfig": "Update Config Data",
+      "saveConfig": "Save Config Data"
     },
     "empty": {
       "title": "No groups configured",
-      "description": "Add a group below to start"
+      "description": "Add a group below to start",
+      "configRequired": "Configuration Required",
+      "configRequiredDesc": "Add groups below and click \"Start\" to begin inspection."
     },
     "swal": {
       "noColorsTitle": "No Colors",
@@ -581,6 +589,23 @@
       "removeAllTitle": "Are you sure?",
       "removeAllText": "This will remove ALL configuration groups permanently from the database.",
       "removeAllConfirm": "Yes, Remove All"
+    },
+    "modal": {
+      "success": "Success",
+      "error": "Error"
+    },
+    "loading": {
+      "config": "Loading configuration..."
+    },
+    "messages": {
+      "updateSuccess": "Config Data Updated Successfully!",
+      "saveSuccess": "Config Data Saved Successfully!",
+      "saveFailed": "Failed to save configuration.",
+      "saveOrderFirst": "Please save Order information first.",
+      "addAtLeastOne": "Add at least one configuration group.",
+      "group": "Group",
+      "clearSuccess": "All configurations removed successfully!",
+      "clearFailed": "Failed to clear configuration."
     }
   },
   "fincheckProductLocation": {

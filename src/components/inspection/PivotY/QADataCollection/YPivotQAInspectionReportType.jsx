@@ -1324,7 +1324,7 @@ const YPivotQAInspectionReportType = ({
           <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-3">
             <h3 className="text-white font-bold text-sm flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
-              AQL Configuration
+              {t("fincheckInspectionOrderDataReportSection.sections.aqlConfig")}
             </h3>
           </div>
           <div className="p-4">

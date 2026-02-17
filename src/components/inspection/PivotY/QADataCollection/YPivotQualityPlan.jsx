@@ -12,8 +12,9 @@ import {
   Calculator,
   TrendingUp,
   AlertCircle,
-  Percent
+  Percent,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 // ============================================================
 // Production Stage Input Component
@@ -23,8 +24,9 @@ const ProductionStageInput = ({
   label,
   value,
   onChange,
-  color = "indigo"
+  color = "indigo",
 }) => {
+  const { t } = useTranslation();
   const [localValue, setLocalValue] = useState(value || "");
   const [error, setError] = useState(null);
 
@@ -33,38 +35,38 @@ const ProductionStageInput = ({
       bg: "bg-indigo-50 dark:bg-indigo-900/30",
       border: "border-indigo-200 dark:border-indigo-800",
       text: "text-indigo-600 dark:text-indigo-400",
-      ring: "focus:ring-indigo-500"
+      ring: "focus:ring-indigo-500",
     },
     emerald: {
       bg: "bg-emerald-50 dark:bg-emerald-900/30",
       border: "border-emerald-200 dark:border-emerald-800",
       text: "text-emerald-600 dark:text-emerald-400",
-      ring: "focus:ring-emerald-500"
+      ring: "focus:ring-emerald-500",
     },
     orange: {
       bg: "bg-orange-50 dark:bg-orange-900/30",
       border: "border-orange-200 dark:border-orange-800",
       text: "text-orange-600 dark:text-orange-400",
-      ring: "focus:ring-orange-500"
+      ring: "focus:ring-orange-500",
     },
     purple: {
       bg: "bg-purple-50 dark:bg-purple-900/30",
       border: "border-purple-200 dark:border-purple-800",
       text: "text-purple-600 dark:text-purple-400",
-      ring: "focus:ring-purple-500"
+      ring: "focus:ring-purple-500",
     },
     cyan: {
       bg: "bg-cyan-50 dark:bg-cyan-900/30",
       border: "border-cyan-200 dark:border-cyan-800",
       text: "text-cyan-600 dark:text-cyan-400",
-      ring: "focus:ring-cyan-500"
+      ring: "focus:ring-cyan-500",
     },
     pink: {
       bg: "bg-pink-50 dark:bg-pink-900/30",
       border: "border-pink-200 dark:border-pink-800",
       text: "text-pink-600 dark:text-pink-400",
-      ring: "focus:ring-pink-500"
-    }
+      ring: "focus:ring-pink-500",
+    },
   };
 
   const colors = colorClasses[color] || colorClasses.indigo;
@@ -86,7 +88,9 @@ const ProductionStageInput = ({
     const numValue = parseInt(rawValue, 10);
 
     if (numValue < 0 || numValue > 100) {
-      setError("Value must be between 0-100");
+      setError(
+        t("fincheckInspectionOrderDataProductionStatus.errors.valueRange"),
+      );
       return;
     }
 
@@ -123,7 +127,7 @@ const ProductionStageInput = ({
       <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full mb-2 overflow-hidden">
         <div
           className={`h-full ${getProgressColor(
-            localValue
+            localValue,
           )} transition-all duration-300 rounded-full`}
           style={{ width: `${progressPercent}%` }}
         />
@@ -166,24 +170,25 @@ const PackingInput = ({
   onPcsChange,
   icon: Icon,
   color = "indigo",
-  disabled = false
+  disabled = false,
 }) => {
+  const { t } = useTranslation();
   const colorClasses = {
     indigo: {
       bg: "bg-indigo-50 dark:bg-indigo-900/30",
       border: "border-indigo-200 dark:border-indigo-800",
-      text: "text-indigo-600 dark:text-indigo-400"
+      text: "text-indigo-600 dark:text-indigo-400",
     },
     emerald: {
       bg: "bg-emerald-50 dark:bg-emerald-900/30",
       border: "border-emerald-200 dark:border-emerald-800",
-      text: "text-emerald-600 dark:text-emerald-400"
+      text: "text-emerald-600 dark:text-emerald-400",
     },
     amber: {
       bg: "bg-amber-50 dark:bg-amber-900/30",
       border: "border-amber-200 dark:border-amber-800",
-      text: "text-amber-600 dark:text-amber-400"
-    }
+      text: "text-amber-600 dark:text-amber-400",
+    },
   };
 
   const colors = colorClasses[color] || colorClasses.indigo;
@@ -225,7 +230,7 @@ const PackingInput = ({
             }`}
           />
           <span className="text-xs font-bold text-gray-600 dark:text-gray-400 whitespace-nowrap">
-            CTNS
+            {t("fincheckInspectionOrderDataProductionStatus.units.ctns")}
           </span>
         </div>
 
@@ -246,7 +251,7 @@ const PackingInput = ({
             }`}
           />
           <span className="text-xs font-bold text-gray-600 dark:text-gray-400 whitespace-nowrap">
-            Pcs
+            {t("fincheckInspectionOrderDataProductionStatus.units.pcs")}
           </span>
         </div>
       </div>
@@ -260,8 +265,9 @@ const PackingInput = ({
 const YPivotQualityPlan = ({
   selectedTemplate,
   qualityPlanData,
-  onQualityPlanChange
+  onQualityPlanChange,
 }) => {
+  const { t } = useTranslation();
   // Check if QualityPlan should be shown
   const showQualityPlan = selectedTemplate?.QualityPlan === "Yes";
 
@@ -273,7 +279,7 @@ const YPivotQualityPlan = ({
     qc2FinishedChecking:
       qualityPlanData?.productionStatus?.qc2FinishedChecking || "",
     folding: qualityPlanData?.productionStatus?.folding || "",
-    packing: qualityPlanData?.productionStatus?.packing || ""
+    packing: qualityPlanData?.productionStatus?.packing || "",
   });
 
   // Local state for packing list
@@ -281,7 +287,7 @@ const YPivotQualityPlan = ({
     totalCartons: qualityPlanData?.packingList?.totalCartons || "",
     totalPcs: qualityPlanData?.packingList?.totalPcs || "",
     finishedCartons: qualityPlanData?.packingList?.finishedCartons || "",
-    finishedPcs: qualityPlanData?.packingList?.finishedPcs || ""
+    finishedPcs: qualityPlanData?.packingList?.finishedPcs || "",
   });
 
   // Calculate accounted percentage
@@ -319,11 +325,11 @@ const YPivotQualityPlan = ({
         onQualityPlanChange({
           productionStatus: newProductionStatus,
           packingList: newPackingList,
-          accountedPercentage: accountedPct
+          accountedPercentage: accountedPct,
         });
       }
     },
-    [onQualityPlanChange]
+    [onQualityPlanChange],
   );
 
   // Handle production status change
@@ -365,7 +371,9 @@ const YPivotQualityPlan = ({
       <div className="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-3">
         <h3 className="text-white font-bold text-sm flex items-center gap-2">
           <Factory className="w-4 h-4" />
-          Production Status
+          {t(
+            "fincheckInspectionOrderDataProductionStatus.sections.productionStatus",
+          )}
         </h3>
       </div>
 
@@ -374,28 +382,36 @@ const YPivotQualityPlan = ({
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <ProductionStageInput
             icon={Scissors}
-            label="Cutting"
+            label={t(
+              "fincheckInspectionOrderDataProductionStatus.stages.cutting",
+            )}
             value={productionStatus.cutting}
             onChange={(val) => handleProductionChange("cutting", val)}
             color="indigo"
           />
           <ProductionStageInput
             icon={Shirt}
-            label="Sewing"
+            label={t(
+              "fincheckInspectionOrderDataProductionStatus.stages.sewing",
+            )}
             value={productionStatus.sewing}
             onChange={(val) => handleProductionChange("sewing", val)}
             color="emerald"
           />
           <ProductionStageInput
             icon={Thermometer}
-            label="Ironing"
+            label={t(
+              "fincheckInspectionOrderDataProductionStatus.stages.ironing",
+            )}
             value={productionStatus.ironing}
             onChange={(val) => handleProductionChange("ironing", val)}
             color="orange"
           />
           <ProductionStageInput
             icon={CheckSquare}
-            label="QC2 Finished"
+            label={t(
+              "fincheckInspectionOrderDataProductionStatus.stages.qc2Finished",
+            )}
             value={productionStatus.qc2FinishedChecking}
             onChange={(val) =>
               handleProductionChange("qc2FinishedChecking", val)
@@ -404,14 +420,18 @@ const YPivotQualityPlan = ({
           />
           <ProductionStageInput
             icon={FolderOpen}
-            label="Folding"
+            label={t(
+              "fincheckInspectionOrderDataProductionStatus.stages.folding",
+            )}
             value={productionStatus.folding}
             onChange={(val) => handleProductionChange("folding", val)}
             color="cyan"
           />
           <ProductionStageInput
             icon={Package}
-            label="Packing"
+            label={t(
+              "fincheckInspectionOrderDataProductionStatus.stages.packing",
+            )}
             value={productionStatus.packing}
             onChange={(val) => handleProductionChange("packing", val)}
             color="pink"
@@ -426,14 +446,18 @@ const YPivotQualityPlan = ({
           <div className="flex items-center gap-2">
             <Boxes className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200">
-              Packing List
+              {t(
+                "fincheckInspectionOrderDataProductionStatus.sections.packingList",
+              )}
             </h4>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Total Packing */}
             <PackingInput
-              label="Total"
+              label={t(
+                "fincheckInspectionOrderDataProductionStatus.packing.total",
+              )}
               icon={Hash}
               cartonValue={packingList.totalCartons}
               pcsValue={packingList.totalPcs}
@@ -444,7 +468,9 @@ const YPivotQualityPlan = ({
 
             {/* Actual Finished Packing */}
             <PackingInput
-              label="Actual Finished Packing"
+              label={t(
+                "fincheckInspectionOrderDataProductionStatus.packing.actualFinished",
+              )}
               icon={CheckSquare}
               cartonValue={packingList.finishedCartons}
               pcsValue={packingList.finishedPcs}
@@ -459,7 +485,7 @@ const YPivotQualityPlan = ({
           {/* Accounted Percentage */}
           <div
             className={`p-4 rounded-xl border-2 ${getAccountedColor(
-              accountedPercentage
+              accountedPercentage,
             )} transition-all`}
           >
             <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -467,7 +493,11 @@ const YPivotQualityPlan = ({
                 <div className="p-2 rounded-lg bg-white dark:bg-gray-800 shadow-sm">
                   <TrendingUp className="w-5 h-5" />
                 </div>
-                <span className="text-sm font-bold">Accounted for</span>
+                <span className="text-sm font-bold">
+                  {t(
+                    "fincheckInspectionOrderDataProductionStatus.accounted.label",
+                  )}
+                </span>
               </div>
               <div className="flex items-center gap-1">
                 <span className="text-2xl font-black">
@@ -484,15 +514,15 @@ const YPivotQualityPlan = ({
                   parseFloat(accountedPercentage) >= 100
                     ? "bg-green-500"
                     : parseFloat(accountedPercentage) >= 75
-                    ? "bg-emerald-500"
-                    : parseFloat(accountedPercentage) >= 50
-                    ? "bg-yellow-500"
-                    : parseFloat(accountedPercentage) >= 25
-                    ? "bg-orange-500"
-                    : "bg-red-500"
+                      ? "bg-emerald-500"
+                      : parseFloat(accountedPercentage) >= 50
+                        ? "bg-yellow-500"
+                        : parseFloat(accountedPercentage) >= 25
+                          ? "bg-orange-500"
+                          : "bg-red-500"
                 }`}
                 style={{
-                  width: `${Math.min(parseFloat(accountedPercentage), 100)}%`
+                  width: `${Math.min(parseFloat(accountedPercentage), 100)}%`,
                 }}
               />
             </div>
@@ -504,8 +534,9 @@ const YPivotQualityPlan = ({
               <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
                 <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                 <p className="text-xs text-amber-700 dark:text-amber-300">
-                  Please enter Total Cartons to calculate the accounted
-                  percentage.
+                  {t(
+                    "fincheckInspectionOrderDataProductionStatus.validation.enterTotalCartons",
+                  )}
                 </p>
               </div>
             )}
@@ -516,7 +547,9 @@ const YPivotQualityPlan = ({
               <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
                 <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0" />
                 <p className="text-xs text-red-700 dark:text-red-300">
-                  Finished Cartons cannot exceed Total Cartons.
+                  {t(
+                    "fincheckInspectionOrderDataProductionStatus.validation.finishedExceedsTotal",
+                  )}
                 </p>
               </div>
             )}

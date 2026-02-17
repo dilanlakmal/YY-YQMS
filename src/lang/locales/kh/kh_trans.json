@@ -392,6 +392,38 @@
       "noMatchingBatch": "No matching batch found for inspected qty:"
     }
   },
+  "fincheckInspectionOrderDataProductionStatus": {
+    "errors": {
+      "valueRange": "Value must be between 0-100"
+    },
+    "sections": {
+      "productionStatus": "Production Status",
+      "packingList": "Packing List"
+    },
+    "stages": {
+      "cutting": "Cutting",
+      "sewing": "Sewing",
+      "ironing": "Ironing",
+      "qc2Finished": "QC2 Finished",
+      "folding": "Folding",
+      "packing": "Packing"
+    },
+    "packing": {
+      "total": "Total",
+      "actualFinished": "Actual Finished Packing"
+    },
+    "units": {
+      "ctns": "CTNS",
+      "pcs": "Pcs"
+    },
+    "accounted": {
+      "label": "Accounted for"
+    },
+    "validation": {
+      "enterTotalCartons": "Please enter Total Cartons to calculate the accounted percentage.",
+      "finishedExceedsTotal": "Finished Cartons cannot exceed Total Cartons."
+    }
+  },
   "fincheckHeader": {
     "checklist": "Checklist",
     "addRemark": "Add Remark",

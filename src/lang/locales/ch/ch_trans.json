@@ -432,6 +432,38 @@
       "noMatchingBatch": "未找到与检验数量匹配的批次："
     }
   },
+  "fincheckInspectionOrderDataProductionStatus": {
+    "errors": {
+      "valueRange": "数值必须在 0-100 之间"
+    },
+    "sections": {
+      "productionStatus": "生产状态",
+      "packingList": "装箱清单"
+    },
+    "stages": {
+      "cutting": "裁剪",
+      "sewing": "缝纫",
+      "ironing": "熨烫",
+      "qc2Finished": "QC2 完成检验",
+      "folding": "折叠",
+      "packing": "包装"
+    },
+    "packing": {
+      "total": "总计",
+      "actualFinished": "实际完成包装"
+    },
+    "units": {
+      "ctns": "纸箱",
+      "pcs": "件"
+    },
+    "accounted": {
+      "label": "已入账"
+    },
+    "validation": {
+      "enterTotalCartons": "请输入总箱数以计算入账百分比。",
+      "finishedExceedsTotal": "完成箱数不能超过总箱数。"
+    }
+  },
   "fincheckHeader": {
     "checklist": "检查清单",
     "addRemark": "添加备注",

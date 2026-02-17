@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Zap,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 // Reusable Row Component
 const ConfigRow = ({
@@ -28,6 +29,7 @@ const ConfigRow = ({
   max,
   customError = false, // Prop to trigger red background
 }) => {
+  const { t } = useTranslation();
   return (
     <div
       className={`flex items-center gap-3 p-2 rounded-xl border transition-all ${
@@ -74,7 +76,11 @@ const ConfigRow = ({
               disabled={!isEnabled}
               min={min}
               max={max}
-              placeholder={isEnabled ? placeholder : "Disabled"}
+              placeholder={
+                isEnabled
+                  ? placeholder
+                  : t("fincheckInspectionOrderDataEMBPrint.common.disabled")
+              }
               className={`w-full bg-transparent text-sm font-bold focus:outline-none placeholder-gray-400 disabled:cursor-not-allowed ${
                 customError
                   ? "text-red-600 dark:text-red-400"
@@ -92,7 +98,11 @@ const ConfigRow = ({
             ? "text-green-500 hover:text-green-600"
             : "text-gray-400 hover:text-gray-500"
         }`}
-        title={isEnabled ? "Disable Field" : "Enable Field"}
+        title={
+          isEnabled
+            ? t("fincheckInspectionOrderDataEMBPrint.toggle.disable")
+            : t("fincheckInspectionOrderDataEMBPrint.toggle.enable")
+        }
       >
         {isEnabled ? <ToggleRight size={24} /> : <ToggleLeft size={24} />}
       </button>
@@ -106,6 +116,7 @@ const YPivotQAInspectionEMBPrintInfo = ({
   printData,
   onUpdate,
 }) => {
+  const { t } = useTranslation();
   const isEMB = reportType.toLowerCase().includes("emb");
   const isPrinting = reportType.toLowerCase().includes("printing");
 
@@ -204,7 +215,9 @@ const YPivotQAInspectionEMBPrintInfo = ({
           ) : (
             <Settings className="w-4 h-4" />
           )}
-          {isPrinting ? "Printing Configuration" : "EMB Configuration"}
+          {isPrinting
+            ? t("fincheckInspectionOrderDataEMBPrint.sections.printingConfig")
+            : t("fincheckInspectionOrderDataEMBPrint.sections.embConfig")}
         </h3>
       </div>
 
@@ -214,7 +227,7 @@ const YPivotQAInspectionEMBPrintInfo = ({
           <div className="space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <ConfigRow
-                label="Speed"
+                label={t("fincheckInspectionOrderDataEMBPrint.emb.speed")}
                 icon={Gauge}
                 value={localEmb.speed.value}
                 isEnabled={localEmb.speed.enabled}
@@ -223,10 +236,12 @@ const YPivotQAInspectionEMBPrintInfo = ({
                   updateEmb("speed", "enabled", !localEmb.speed.enabled)
                 }
                 type="number"
-                placeholder="RPM / SPM"
+                placeholder={t(
+                  "fincheckInspectionOrderDataEMBPrint.emb.speedPlaceholder",
+                )}
               />
               <ConfigRow
-                label="Stitch"
+                label={t("fincheckInspectionOrderDataEMBPrint.emb.stitch")}
                 icon={Activity}
                 value={localEmb.stitch.value}
                 isEnabled={localEmb.stitch.enabled}
@@ -235,10 +250,12 @@ const YPivotQAInspectionEMBPrintInfo = ({
                   updateEmb("stitch", "enabled", !localEmb.stitch.enabled)
                 }
                 type="number"
-                placeholder="Stitch Count"
+                placeholder={t(
+                  "fincheckInspectionOrderDataEMBPrint.emb.stitchPlaceholder",
+                )}
               />
               <ConfigRow
-                label="Needle Size (7-16)"
+                label={t("fincheckInspectionOrderDataEMBPrint.emb.needleSize")}
                 icon={PenTool}
                 value={localEmb.needleSize.value}
                 isEnabled={localEmb.needleSize.enabled}
@@ -253,7 +270,9 @@ const YPivotQAInspectionEMBPrintInfo = ({
                 type="number"
                 min="7"
                 max="16"
-                placeholder="7 - 16"
+                placeholder={t(
+                  "fincheckInspectionOrderDataEMBPrint.emb.needlePlaceholder",
+                )}
                 // Pass true if invalid to trigger red styling
                 customError={isNeedleSizeInvalid(localEmb.needleSize.value)}
               />
@@ -262,14 +281,14 @@ const YPivotQAInspectionEMBPrintInfo = ({
             {/* Warning Message for Needle */}
             {isNeedleSizeInvalid(localEmb.needleSize.value) && (
               <p className="text-[10px] text-red-500 font-bold px-1">
-                * Needle size must be between 7 and 16.
+                {t("fincheckInspectionOrderDataEMBPrint.emb.needleError")}
               </p>
             )}
 
             <div>
               <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-1.5">
                 <MessageSquare className="w-3.5 h-3.5 text-gray-500" />
-                EMB Remarks
+                {t("fincheckInspectionOrderDataEMBPrint.emb.remarks")}
                 <span className="text-[9px] text-gray-400 ml-auto">
                   {localEmb.remarks.length}/250
                 </span>
@@ -279,7 +298,9 @@ const YPivotQAInspectionEMBPrintInfo = ({
                 onChange={(e) =>
                   updateEmb("remarks", null, e.target.value.slice(0, 250))
                 }
-                placeholder="Enter additional EMB details..."
+                placeholder={t(
+                  "fincheckInspectionOrderDataEMBPrint.emb.remarksPlaceholder",
+                )}
                 rows={2}
                 className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
               />
@@ -292,7 +313,9 @@ const YPivotQAInspectionEMBPrintInfo = ({
           <div className="space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <ConfigRow
-                label="Machine Type"
+                label={t(
+                  "fincheckInspectionOrderDataEMBPrint.print.machineType",
+                )}
                 icon={Settings}
                 value={localPrint.machineType.value}
                 isEnabled={localPrint.machineType.enabled}
@@ -305,10 +328,13 @@ const YPivotQAInspectionEMBPrintInfo = ({
                   )
                 }
                 isSelect={true}
-                options={["Auto", "Manual"]}
+                options={[
+                  t("fincheckInspectionOrderDataEMBPrint.print.machineAuto"),
+                  t("fincheckInspectionOrderDataEMBPrint.print.machineManual"),
+                ]}
               />
               <ConfigRow
-                label="Speed"
+                label={t("fincheckInspectionOrderDataEMBPrint.print.speed")}
                 icon={Zap}
                 value={localPrint.speed.value}
                 isEnabled={localPrint.speed.enabled}
@@ -317,10 +343,12 @@ const YPivotQAInspectionEMBPrintInfo = ({
                   updatePrint("speed", "enabled", !localPrint.speed.enabled)
                 }
                 type="number"
-                placeholder="Speed value"
+                placeholder={t(
+                  "fincheckInspectionOrderDataEMBPrint.print.speedPlaceholder",
+                )}
               />
               <ConfigRow
-                label="Pressure (1-10)"
+                label={t("fincheckInspectionOrderDataEMBPrint.print.pressure")}
                 icon={Activity}
                 value={localPrint.pressure.value}
                 isEnabled={localPrint.pressure.enabled}
@@ -334,7 +362,9 @@ const YPivotQAInspectionEMBPrintInfo = ({
                 }
                 type="number"
                 min="0"
-                placeholder="1 - 10"
+                placeholder={t(
+                  "fincheckInspectionOrderDataEMBPrint.print.pressurePlaceholder",
+                )}
                 // Pass true if > 10 to trigger red styling
                 customError={isPressureHigh(localPrint.pressure.value)}
               />
@@ -343,14 +373,14 @@ const YPivotQAInspectionEMBPrintInfo = ({
             {/* Warning Message for Pressure */}
             {isPressureHigh(localPrint.pressure.value) && (
               <p className="text-[10px] text-red-500 font-bold px-1">
-                * Pressure is higher than recommended (1-10).
+                {t("fincheckInspectionOrderDataEMBPrint.print.pressureError")}
               </p>
             )}
 
             <div>
-              <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-1.5">
+              <label className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-1.5">
                 <MessageSquare className="w-3.5 h-3.5 text-gray-500" />
-                Printing Remarks
+                {t("fincheckInspectionOrderDataEMBPrint.print.remarks")}
                 <span className="text-[9px] text-gray-400 ml-auto">
                   {localPrint.remarks.length}/250
                 </span>
@@ -360,7 +390,9 @@ const YPivotQAInspectionEMBPrintInfo = ({
                 onChange={(e) =>
                   updatePrint("remarks", null, e.target.value.slice(0, 250))
                 }
-                placeholder="Enter additional Printing details..."
+                placeholder={t(
+                  "fincheckInspectionOrderDataEMBPrint.print.remarksPlaceholder",
+                )}
                 rows={2}
                 className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none"
               />

@@ -464,6 +464,42 @@
       "finishedExceedsTotal": "完成箱数不能超过总箱数。"
     }
   },
+  "fincheckInspectionOrderDataEMBPrint": {
+    "toggle": {
+      "disable": "禁用字段",
+      "enable": "启用字段"
+    },
+    "common": {
+      "disabled": "已禁用"
+    },
+    "sections": {
+      "embConfig": "刺绣配置",
+      "printingConfig": "印花配置"
+    },
+    "emb": {
+      "speed": "速度",
+      "stitch": "针迹",
+      "needleSize": "针号 (7-16)",
+      "speedPlaceholder": "转速 / 针速",
+      "stitchPlaceholder": "针迹数",
+      "needlePlaceholder": "7 - 16",
+      "needleError": "* 针号必须在 7 至 16 之间。",
+      "remarks": "刺绣备注",
+      "remarksPlaceholder": "输入额外的刺绣说明..."
+    },
+    "print": {
+      "machineType": "机器类型",
+      "speed": "速度",
+      "pressure": "压力 (1-10)",
+      "speedPlaceholder": "速度值",
+      "pressurePlaceholder": "1 - 10",
+      "pressureError": "* 压力高于建议范围 (1-10)。",
+      "remarks": "印花备注",
+      "remarksPlaceholder": "输入额外的印花说明...",
+      "machineAuto": "自动",
+      "machineManual": "手动"
+    }
+  },
   "fincheckHeader": {
     "checklist": "检查清单",
     "addRemark": "添加备注",

@@ -424,6 +424,42 @@
       "finishedExceedsTotal": "Finished Cartons cannot exceed Total Cartons."
     }
   },
+  "fincheckInspectionOrderDataEMBPrint": {
+    "toggle": {
+      "disable": "Disable Field",
+      "enable": "Enable Field"
+    },
+    "common": {
+      "disabled": "Disabled"
+    },
+    "sections": {
+      "embConfig": "EMB Configuration",
+      "printingConfig": "Printing Configuration"
+    },
+    "emb": {
+      "speed": "Speed",
+      "stitch": "Stitch",
+      "needleSize": "Needle Size (7-16)",
+      "speedPlaceholder": "RPM / SPM",
+      "stitchPlaceholder": "Stitch Count",
+      "needlePlaceholder": "7 - 16",
+      "needleError": "* Needle size must be between 7 and 16.",
+      "remarks": "EMB Remarks",
+      "remarksPlaceholder": "Enter additional EMB details..."
+    },
+    "print": {
+      "machineType": "Machine Type",
+      "speed": "Speed",
+      "pressure": "Pressure (1-10)",
+      "speedPlaceholder": "Speed value",
+      "pressurePlaceholder": "1 - 10",
+      "pressureError": "* Pressure is higher than recommended (1-10).",
+      "remarks": "Printing Remarks",
+      "remarksPlaceholder": "Enter additional Printing details...",
+      "machineAuto": "Auto",
+      "machineManual": "Manual"
+    }
+  },
   "fincheckHeader": {
     "checklist": "Checklist",
     "addRemark": "Add Remark",

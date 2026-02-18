@@ -758,6 +758,53 @@
       "pcs": "件"
     }
   },
+  "fincheckInspectionMeasurementSummary": {
+    "stats": {
+      "totalPoints": "总点数",
+      "failPoints": "不合格点数",
+      "pointPassRate": "点数合格率",
+      "totalPcs": "总件数",
+      "failPcs": "不合格件数",
+      "pcsPassRate": "件数合格率"
+    },
+    "legend": {
+      "label": "图例：",
+      "all": "全部",
+      "critical": "关键",
+      "criticalPt": "关键点",
+      "withinTol": "公差内",
+      "outOfTol": "超公差"
+    },
+    "table": {
+      "noData": "暂无测量记录",
+      "point": "测量点",
+      "tolMinus": "公差 (-)",
+      "tolPlus": "公差 (+)",
+      "spec": "规格",
+      "kValue": "K值：",
+      "config": "配置",
+      "result": "结果"
+    },
+    "status": {
+      "pass": "通过",
+      "fail": "不合格",
+      "active": "进行中",
+      "locked": "已锁定"
+    },
+    "empty": {
+      "title": "暂无测量数据",
+      "description": "请在“设置与测量”标签页完成测量输入。"
+    },
+    "group": {
+      "line": "生产线",
+      "table": "工作台",
+      "color": "颜色",
+      "session": "检验会话",
+      "general": "常规",
+      "qc": "质检员：",
+      "title": "测量汇总"
+    }
+  },
   "fincheckProductLocation": {
     "title": "产品位置管理",
     "totalConfig": "总配置数",

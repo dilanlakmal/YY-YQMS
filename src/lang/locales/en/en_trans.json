@@ -759,6 +759,53 @@
       "pcs": "Pcs"
     }
   },
+  "fincheckInspectionMeasurementSummary": {
+    "stats": {
+      "totalPoints": "Total Points",
+      "failPoints": "Fail Points",
+      "pointPassRate": "Point Pass Rate",
+      "totalPcs": "Total Pcs",
+      "failPcs": "Fail Pcs",
+      "pcsPassRate": "Pcs Pass Rate"
+    },
+    "legend": {
+      "label": "Legend:",
+      "all": "All",
+      "critical": "Critical",
+      "criticalPt": "Critical Pt",
+      "withinTol": "Within Tol",
+      "outOfTol": "Out of Tol"
+    },
+    "table": {
+      "noData": "No measurements recorded",
+      "point": "Point",
+      "tolMinus": "TOL (-)",
+      "tolPlus": "TOL (+)",
+      "spec": "Spec",
+      "kValue": "K:",
+      "config": "Configuration",
+      "result": "Result"
+    },
+    "status": {
+      "pass": "PASS",
+      "fail": "FAIL",
+      "active": "Active",
+      "locked": "Locked"
+    },
+    "empty": {
+      "title": "No Measurements Yet",
+      "description": "Complete measurement entries from Setup & Measure tab."
+    },
+    "group": {
+      "line": "Line",
+      "table": "Table",
+      "color": "Color",
+      "session": "Inspection Session",
+      "general": "General",
+      "qc": "QC:",
+      "title": "Measurement Summary"
+    }
+  },
   "fincheckProductLocation": {
     "title": "Product Location Management",
     "totalConfig": "Total Configurations",

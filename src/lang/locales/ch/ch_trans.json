@@ -648,6 +648,54 @@
       "clearFailed": "配置清除失败。"
     }
   },
+  "fincheckInspectionMeasurementConfig": {
+    "errors": {
+      "noOrder": "未选择订单",
+      "notRequired": "无需测量"
+    },
+    "header": {
+      "measurement": "测量：",
+      "wash": "水洗",
+      "order": "订单：",
+      "criticalPoints": "关键点",
+      "kValue": "K值："
+    },
+    "tabs": {
+      "manual": "手动",
+      "setupMeasure": "设置与测量",
+      "results": "结果",
+      "summary": "汇总"
+    },
+    "session": {
+      "active": "进行中：",
+      "line": "生产线",
+      "table": "工作台",
+      "color": "颜色",
+      "qc": "质检员："
+    },
+    "warnings": {
+      "noContext": "无活动检验上下文",
+      "noContextDesc": "请返回<strong>信息</strong>标签页，并在特定卡片上点击<strong>「开始」</strong>。",
+      "infoTab": "信息",
+      "startBtn": "开始"
+    },
+    "setup": {
+      "title": "设置",
+      "configure": "配置",
+      "kValue": "K值",
+      "selected": "已选：",
+      "selectK": "-- 选择 K 值 --",
+      "size": "尺码",
+      "done": "完成",
+      "startMeasuring": "开始测量"
+    },
+    "preview": {
+      "title": "关键点预览"
+    },
+    "confirm": {
+      "deleteMessage": "删除此测量记录？"
+    }
+  },
   "fincheckProductLocation": {
     "title": "产品位置管理",
     "totalConfig": "总配置数",

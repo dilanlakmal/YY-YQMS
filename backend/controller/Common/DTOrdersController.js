@@ -180,8 +180,8 @@ export const saveWashingSpecs = async (req, res) => {
 
         afterWashSpecs.push({
           no: rowIndex + 1,
-          seq: row.seq, // NEW: Added seq field
-          kValue: firstSheetData.sheetName, // P1, P2, etc.
+          seq: row.seq,
+          kValue: "NA", // Always it is NA
           MeasurementPointEngName: row["Measurement Point - Eng"] || "",
           MeasurementPointChiName: row["Measurement Point - Chi"] || "",
           TolMinus: {

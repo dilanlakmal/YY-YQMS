@@ -430,6 +430,7 @@ export const saveQASectionsMeasurementSpecsAW = async (req, res) => {
       return {
         ...spec,
         seq: spec.seq, // Ensure seq is saved
+        kValue: "NA",
         TolMinus: sanitizeToleranceValue(spec.TolMinus),
         TolPlus: sanitizeToleranceValue(spec.TolPlus),
         Specs: cleanSpecsValues,
@@ -445,6 +446,7 @@ export const saveQASectionsMeasurementSpecsAW = async (req, res) => {
       return {
         ...spec,
         seq: spec.seq, // Ensure seq is saved
+        kValue: "NA",
         TolMinus: sanitizeToleranceValue(spec.TolMinus),
         TolPlus: sanitizeToleranceValue(spec.TolPlus),
         Specs: cleanSpecsValues,
@@ -766,6 +768,7 @@ export const syncBWSelectionToAW = async (req, res) => {
         ...spec,
         id: new mongoose.Types.ObjectId().toString(),
         seq: spec.seq,
+        kValue: "NA",
         TolMinus: sanitizeToleranceValue(spec.TolMinus),
         TolPlus: sanitizeToleranceValue(spec.TolPlus),
         Specs:

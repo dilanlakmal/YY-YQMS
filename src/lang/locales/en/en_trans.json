@@ -649,6 +649,54 @@
       "clearFailed": "Failed to clear configuration."
     }
   },
+  "fincheckInspectionMeasurementConfig": {
+    "errors": {
+      "noOrder": "No Order Selected",
+      "notRequired": "Measurement Not Required"
+    },
+    "header": {
+      "measurement": "Measurement:",
+      "wash": "Wash",
+      "order": "Order:",
+      "criticalPoints": "Critical Points",
+      "kValue": "K:"
+    },
+    "tabs": {
+      "manual": "Manual",
+      "setupMeasure": "Setup & Measure",
+      "results": "Results",
+      "summary": "Summary"
+    },
+    "session": {
+      "active": "Active:",
+      "line": "Line",
+      "table": "Table",
+      "color": "Color",
+      "qc": "QC:"
+    },
+    "warnings": {
+      "noContext": "No Active Inspection Context",
+      "noContextDesc": "Please go back to the <strong>Info</strong> tab and click \"<strong>Start</strong>\" on a specific card.",
+      "infoTab": "Info",
+      "startBtn": "Start"
+    },
+    "setup": {
+      "title": "Setup",
+      "configure": "Configure",
+      "kValue": "K Value",
+      "selected": "Selected:",
+      "selectK": "-- Select K --",
+      "size": "Size",
+      "done": "DONE",
+      "startMeasuring": "Start Measuring"
+    },
+    "preview": {
+      "title": "Critical Points Preview"
+    },
+    "confirm": {
+      "deleteMessage": "Delete this measurement?"
+    }
+  },
   "fincheckProductLocation": {
     "title": "Product Location Management",
     "totalConfig": "Total Configurations",

@@ -696,6 +696,68 @@
       "deleteMessage": "删除此测量记录？"
     }
   },
+  "fincheckInspectionMeasurementResult": {
+    "empty": {
+      "title": "暂无测量数据",
+      "description": "请在规格标签页完成测量输入，结果将显示在此处。"
+    },
+    "stats": {
+      "totalPts": "总点数",
+      "passPts": "通过点数",
+      "failPts": "不合格点数",
+      "totalPcs": "总件数",
+      "passPcs": "通过件数",
+      "failPcs": "不合格件数",
+      "pointPassRate": "点数通过率",
+      "pcsPassRate": "件数通过率"
+    },
+    "card": {
+      "size": "尺码：",
+      "kValue": "K值：",
+      "fail": "不合格",
+      "sys": "系统：",
+      "remark": "备注："
+    },
+    "status": {
+      "pass": "通过",
+      "fail": "不合格",
+      "pending": "待定"
+    },
+    "actions": {
+      "edit": "编辑测量",
+      "locked": "已锁定",
+      "delete": "删除测量"
+    },
+    "sections": {
+      "allPoints": "全部测量点",
+      "pcsChecked": "件已检",
+      "noAllData": "无全部测量点数据",
+      "criticalPoints": "关键测量点",
+      "noCriticalData": "无关键测量点数据"
+    },
+    "decision": {
+      "inspector": "检验员决定：",
+      "passLabel": "通过",
+      "failLabel": "不合格"
+    },
+    "summary": {
+      "title": "总体汇总",
+      "totalPoints": "总点数"
+    },
+    "group": {
+      "line": "生产线",
+      "table": "工作台",
+      "color": "颜色",
+      "session": "检验会话",
+      "qc": "质检员：",
+      "active": "进行中",
+      "general": "常规测量"
+    },
+    "units": {
+      "pts": "点",
+      "pcs": "件"
+    }
+  },
   "fincheckProductLocation": {
     "title": "产品位置管理",
     "totalConfig": "总配置数",

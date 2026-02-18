@@ -656,6 +656,68 @@
       "deleteMessage": "Delete this measurement?"
     }
   },
+  "fincheckInspectionMeasurementResult": {
+    "empty": {
+      "title": "No Measurements Yet",
+      "description": "Complete measurement entries from the Specs tab to see results here."
+    },
+    "stats": {
+      "totalPts": "Total Pts",
+      "passPts": "Pass Pts",
+      "failPts": "Fail Pts",
+      "totalPcs": "Total Pcs",
+      "passPcs": "Pass Pcs",
+      "failPcs": "Fail Pcs",
+      "pointPassRate": "Point Pass Rate",
+      "pcsPassRate": "Pcs Pass Rate"
+    },
+    "card": {
+      "size": "Size:",
+      "kValue": "K:",
+      "fail": "Fail",
+      "sys": "Sys:",
+      "remark": "Remark:"
+    },
+    "status": {
+      "pass": "pass",
+      "fail": "fail",
+      "pending": "pending"
+    },
+    "actions": {
+      "edit": "Edit Measurement",
+      "locked": "Locked",
+      "delete": "Delete Measurement"
+    },
+    "sections": {
+      "allPoints": "All Points",
+      "pcsChecked": "Pcs Checked",
+      "noAllData": "No All Points data recorded",
+      "criticalPoints": "Critical Points",
+      "noCriticalData": "No Critical Points data recorded"
+    },
+    "decision": {
+      "inspector": "Inspector Decision:",
+      "passLabel": "PASS",
+      "failLabel": "FAIL"
+    },
+    "summary": {
+      "title": "Overall Summary",
+      "totalPoints": "Total Points"
+    },
+    "group": {
+      "line": "Line",
+      "table": "Table",
+      "color": "Color",
+      "session": "Inspection Session",
+      "qc": "QC:",
+      "active": "Active",
+      "general": "General Measurements"
+    },
+    "units": {
+      "pts": "Pts",
+      "pcs": "Pcs"
+    }
+  },
   "fincheckProductLocation": {
     "title": "Product Location Management",
     "totalConfig": "Total Configurations",

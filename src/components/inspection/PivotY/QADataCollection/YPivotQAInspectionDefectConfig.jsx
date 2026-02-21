@@ -32,6 +32,7 @@ import {
   Upload,
 } from "lucide-react";
 import { API_BASE_URL } from "../../../../../config";
+import { useTranslation, Trans } from "react-i18next";
 
 // Sub-components
 import YPivotQATemplatesDefectLocationSelection from "../QATemplates/YPivotQATemplatesDefectLocationSelection";
@@ -112,6 +113,7 @@ const YPivotQAInspectionDefectConfig = ({
   onDefectsSaved,
 }) => {
   // --- Derived Data ---
+  const { t } = useTranslation();
   const activeProductTypeId = reportData?.config?.productTypeId;
 
   const determinedBuyer = useMemo(() => {
@@ -847,7 +849,9 @@ const YPivotQAInspectionDefectConfig = ({
     const agg = aggregatedDefects[aggregatedKey];
     if (!agg) return;
 
-    const typeLabel = agg.isNoLocation ? "(No Location)" : "(With Locations)";
+    const typeLabel = agg.isNoLocation
+      ? t("fincheckInspectionDefectConfig.location.noLocation")
+      : t("fincheckInspectionDefectConfig.location.withLocation");
 
     // Open the custom modal
     setDeleteConfirm({
@@ -961,10 +965,19 @@ const YPivotQAInspectionDefectConfig = ({
           <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
           <div>
             <p className="font-bold text-amber-700 dark:text-amber-400 text-sm">
-              No Active Inspection Context
+              {t("fincheckInspectionDefectConfig.warnings.noContext")}
             </p>
             <p className="text-xs text-amber-600 dark:text-amber-500">
-              Go to <strong>Info</strong> tab and click "Start" to add defects.
+              <Trans
+                i18nKey="fincheckInspectionDefectConfig.warnings.noContextDesc"
+                values={{
+                  infoTab: t("fincheckInspectionDefectConfig.warnings.infoTab"),
+                  startBtn: t(
+                    "fincheckInspectionDefectConfig.warnings.startBtn",
+                  ),
+                }}
+                components={{ strong: <strong /> }}
+              />
             </p>
           </div>
         </div>
@@ -976,15 +989,17 @@ const YPivotQAInspectionDefectConfig = ({
         <div className="flex items-center gap-2">
           <Play className="w-3.5 h-3.5 text-green-600 fill-current" />
           <div className="text-xs font-bold text-green-800 dark:text-green-300 flex flex-wrap gap-1">
-            <span>Active:</span>
+            <span>{t("fincheckInspectionDefectConfig.session.active")}</span>
             {activeGroup.lineName && (
               <span className="bg-white/50 px-1.5 rounded border border-green-200">
-                Line {activeGroup.lineName}
+                {t("fincheckInspectionDefectConfig.session.line")}{" "}
+                {activeGroup.lineName}
               </span>
             )}
             {activeGroup.tableName && (
               <span className="bg-white/50 px-1.5 rounded border border-green-200">
-                Table {activeGroup.tableName}
+                {t("fincheckInspectionDefectConfig.session.table")}{" "}
+                {activeGroup.tableName}
               </span>
             )}
             {activeGroup.colorName && (
@@ -1010,7 +1025,9 @@ const YPivotQAInspectionDefectConfig = ({
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search defects..."
+              placeholder={t(
+                "fincheckInspectionDefectConfig.search.placeholder",
+              )}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-9 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
@@ -1025,7 +1042,8 @@ const YPivotQAInspectionDefectConfig = ({
               <Check className="w-4 h-4 text-indigo-600" />
               <span className="text-sm font-bold text-indigo-700 dark:text-indigo-300">
                 {selectedDefectIds.size} defect
-                {selectedDefectIds.size > 1 ? "s" : ""} selected
+                {selectedDefectIds.size > 1 ? "s" : ""}{" "}
+                {t("fincheckInspectionDefectConfig.selection.selected")}
               </span>
             </div>
             <div className="flex gap-2">
@@ -1033,14 +1051,14 @@ const YPivotQAInspectionDefectConfig = ({
                 onClick={() => setSelectedDefectIds(new Set())}
                 className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
               >
-                Clear
+                {t("fincheckInspectionDefectConfig.actions.clear")}
               </button>
               <button
                 onClick={handleOpenModalForSelected}
                 className="px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 flex items-center gap-1.5 shadow-md"
               >
                 <Plus className="w-4 h-4" />
-                Add Selected
+                {t("fincheckInspectionDefectConfig.actions.addSelected")}
               </button>
             </div>
           </div>
@@ -1101,12 +1119,12 @@ const YPivotQAInspectionDefectConfig = ({
                               {defect.code}
                             </span>
                             <span className="text-xs font-medium text-gray-800 dark:text-gray-200">
-                              {defect.english}
+                              {defect.chinese}
                             </span>
                           </div>
-                          {defect.khmer && (
+                          {defect.english && (
                             <p className="text-[10px] text-gray-500 mt-0.5 ml-7">
-                              {defect.khmer}
+                              {defect.english}
                             </p>
                           )}
                         </div>
@@ -1165,7 +1183,7 @@ const YPivotQAInspectionDefectConfig = ({
                   {activeSessionStats.total}
                 </h2>
                 <p className="text-[10px] text-slate-400 uppercase tracking-wider">
-                  Active Session Defects
+                  {t("fincheckInspectionDefectConfig.summary.activeSession")}
                 </p>
               </div>
               <div className="flex gap-3">
@@ -1173,19 +1191,25 @@ const YPivotQAInspectionDefectConfig = ({
                   <p className="text-lg font-bold text-red-400">
                     {activeSessionStats.critical}
                   </p>
-                  <p className="text-[9px] uppercase opacity-70">Critical</p>
+                  <p className="text-[9px] uppercase opacity-70">
+                    {t("fincheckInspectionDefectConfig.status.critical")}
+                  </p>
                 </div>
                 <div className="text-center px-2 py-1 bg-orange-500/20 rounded-lg border border-orange-500/30">
                   <p className="text-lg font-bold text-orange-400">
                     {activeSessionStats.major}
                   </p>
-                  <p className="text-[9px] uppercase opacity-70">Major</p>
+                  <p className="text-[9px] uppercase opacity-70">
+                    {t("fincheckInspectionDefectConfig.status.major")}
+                  </p>
                 </div>
                 <div className="text-center px-2 py-1 bg-green-500/20 rounded-lg border border-green-500/30">
                   <p className="text-lg font-bold text-green-400">
                     {activeSessionStats.minor}
                   </p>
-                  <p className="text-[9px] uppercase opacity-70">Minor</p>
+                  <p className="text-[9px] uppercase opacity-70">
+                    {t("fincheckInspectionDefectConfig.status.minor")}
+                  </p>
                 </div>
               </div>
             </div>
@@ -1228,11 +1252,12 @@ const YPivotQAInspectionDefectConfig = ({
                 </div>
                 {isActive ? (
                   <span className="text-[10px] bg-green-500 text-white px-2 py-0.5 rounded font-bold">
-                    Active
+                    {t("fincheckInspectionDefectConfig.status.active")}
                   </span>
                 ) : (
                   <span className="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded font-bold flex items-center gap-1">
-                    <Lock className="w-3 h-3" /> Locked
+                    <Lock className="w-3 h-3" />{" "}
+                    {t("fincheckInspectionDefectConfig.status.locked")}
                   </span>
                 )}
               </div>
@@ -1320,10 +1345,16 @@ const YPivotQAInspectionDefectConfig = ({
                               >
                                 <div className="flex justify-between items-start mb-2">
                                   <span className="text-[10px] font-bold text-gray-500">
-                                    Entry #{idx + 1}
+                                    {t(
+                                      "fincheckInspectionDefectConfig.card.entry",
+                                    )}
+                                    {idx + 1}
                                   </span>
                                   <span className="text-xs font-bold text-indigo-600">
-                                    Qty: {entry.qty}
+                                    {t(
+                                      "fincheckInspectionDefectConfig.card.qty",
+                                    )}{" "}
+                                    {entry.qty}
                                   </span>
                                 </div>
 
@@ -1354,7 +1385,9 @@ const YPivotQAInspectionDefectConfig = ({
                                           {getTotalImagesCount(
                                             entry.locations,
                                           )}{" "}
-                                          Image(s) Attached
+                                          {t(
+                                            "fincheckInspectionDefectConfig.card.imagesAttached",
+                                          )}
                                         </span>
                                       </div>
                                     )}
@@ -1482,8 +1515,12 @@ const YPivotQAInspectionDefectConfig = ({
         {Object.keys(aggregatedDefects).length === 0 && (
           <div className="text-center py-10 text-gray-400">
             <Bug className="w-10 h-10 mx-auto mb-2 opacity-50" />
-            <p className="font-medium text-sm">No defects recorded yet.</p>
-            <p className="text-xs">Select defects from the list to add.</p>
+            <p className="font-medium text-sm">
+              {t("fincheckInspectionDefectConfig.empty.title")}
+            </p>
+            <p className="text-xs">
+              {t("fincheckInspectionDefectConfig.empty.description")}
+            </p>
           </div>
         )}
       </div>
@@ -1601,7 +1638,8 @@ const YPivotQAInspectionDefectConfig = ({
             <div className="flex items-center gap-2">
               <Bug className="w-5 h-5 text-white" />
               <h2 className="text-white font-bold text-sm">
-                Configure Defects ({selectedDefectsForModal.length})
+                {t("fincheckInspectionDefectConfig.modal.title")} (
+                {selectedDefectsForModal.length})
               </h2>
             </div>
             <button
@@ -1615,7 +1653,7 @@ const YPivotQAInspectionDefectConfig = ({
           {/* Buyer Info */}
           {determinedBuyer && determinedBuyer !== "Unknown" && (
             <div className="text-[10px] text-indigo-200 mb-2">
-              Buyer:{" "}
+              {t("fincheckInspectionDefectConfig.modal.buyer")}{" "}
               <span className="font-bold text-white">{determinedBuyer}</span>
             </div>
           )}
@@ -1679,7 +1717,9 @@ const YPivotQAInspectionDefectConfig = ({
                 </h3>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-gray-500">Total Qty</span>
+                <span className="text-[10px] text-gray-500">
+                  {t("fincheckInspectionDefectConfig.modal.totalQty")}
+                </span>
                 <p className="text-2xl font-black text-indigo-600">
                   {calculatedQty}
                 </p>
@@ -1703,7 +1743,7 @@ const YPivotQAInspectionDefectConfig = ({
                 className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500"
               />
               <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                No Location Required
+                {t("fincheckInspectionDefectConfig.modal.noLocationRequired")}
               </span>
             </label>
             <MapPinOff className="w-4 h-4 text-gray-400" />
@@ -1716,7 +1756,7 @@ const YPivotQAInspectionDefectConfig = ({
               {/* Global Qty Control */}
               <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <span className="text-xs font-bold text-gray-600">
-                  Total Pieces
+                  {t("fincheckInspectionDefectConfig.modal.totalPieces")}
                 </span>
                 <div className="flex items-center gap-3">
                   <button
@@ -1855,7 +1895,7 @@ const YPivotQAInspectionDefectConfig = ({
               {availableQCs.length > 0 && (
                 <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700">
                   <h4 className="text-[10px] font-bold text-gray-500 uppercase mb-2">
-                    QC / Inspector
+                    {t("fincheckInspectionDefectConfig.modal.qcInspector")}
                   </h4>
                   <div className="flex gap-2 overflow-x-auto pb-1">
                     {availableQCs.map((qc) => {
@@ -1922,7 +1962,8 @@ const YPivotQAInspectionDefectConfig = ({
               <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-[10px] font-bold text-gray-500 uppercase flex items-center gap-1">
-                    <FileText className="w-3 h-3" /> Additional Remark
+                    <FileText className="w-3 h-3" />{" "}
+                    {t("fincheckInspectionDefectConfig.modal.additionalRemark")}
                   </h4>
                   <span
                     className={`text-[9px] ${
@@ -1941,7 +1982,9 @@ const YPivotQAInspectionDefectConfig = ({
                       additionalRemark: e.target.value.slice(0, 250),
                     })
                   }
-                  placeholder="Add remark..."
+                  placeholder={t(
+                    "fincheckInspectionDefectConfig.modal.remarkPlaceholder",
+                  )}
                   maxLength={250}
                   rows={2}
                   className="w-full px-3 py-2 text-xs bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
@@ -1955,7 +1998,8 @@ const YPivotQAInspectionDefectConfig = ({
             <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-[10px] font-bold text-gray-500 uppercase flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5" /> Locations & Pieces
+                  <MapPin className="w-3.5 h-3.5" />{" "}
+                  {t("fincheckInspectionDefectConfig.modal.locationsPieces")}
                 </h4>
                 <span className="text-[10px] text-gray-500">
                   {currentForm.locations.length} location
@@ -1986,13 +2030,23 @@ const YPivotQAInspectionDefectConfig = ({
                 <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
                 <div className="text-xs text-amber-700 dark:text-amber-400">
                   {currentForm.isNoLocation ? (
-                    <p>Please set quantity greater than 0</p>
+                    <p>
+                      {t(
+                        "fincheckInspectionDefectConfig.validation.qtyGreaterThanZero",
+                      )}
+                    </p>
                   ) : currentForm.locations.length === 0 ? (
-                    <p>Please select at least one location</p>
+                    <p>
+                      {t(
+                        "fincheckInspectionDefectConfig.validation.selectLocation",
+                      )}
+                    </p>
                   ) : (
                     <div>
                       <p className="font-medium mb-1">
-                        Required images missing:
+                        {t(
+                          "fincheckInspectionDefectConfig.validation.imagesMissing",
+                        )}
                       </p>
                       {currentForm.locations.map((loc) => {
                         const missingPcs = (loc.positions || []).filter(
@@ -2027,15 +2081,21 @@ const YPivotQAInspectionDefectConfig = ({
           >
             <Save className="w-5 h-5" />
             {editingDefectId
-              ? "Update Defect"
-              : `Add Defects (${selectedDefectsForModal.length})`}
+              ? t("fincheckInspectionDefectConfig.actions.updateDefect")
+              : t(
+                  "fincheckInspectionDefectConfig.actions.addDefectsWithCount",
+                  {
+                    count: selectedDefectsForModal.length,
+                  },
+                )}
           </button>
 
           {!allDefectsValid && (
             <p className="text-center text-[10px] text-gray-400 mt-2">
               Complete all {selectedDefectsForModal.length} defect
               configurations to continue ({validDefectsCount}/
-              {selectedDefectsForModal.length} ready)
+              {selectedDefectsForModal.length}{" "}
+              {t("fincheckInspectionDefectConfig.modal.ready")})
             </p>
           )}
         </div>
@@ -2052,10 +2112,11 @@ const YPivotQAInspectionDefectConfig = ({
       <div className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h3 className="font-bold text-gray-800 dark:text-white flex items-center gap-2 text-sm">
-            <Bug className="w-4 h-4 text-indigo-500" /> Defect Entry
+            <Bug className="w-4 h-4 text-indigo-500" />{" "}
+            {t("fincheckInspectionDefectConfig.header.title")}
           </h3>
           <p className="text-[10px] text-gray-500 mt-0.5">
-            Record defects for inspection.
+            {t("fincheckInspectionDefectConfig.header.description")}
             {determinedBuyer && determinedBuyer !== "Unknown" && (
               <span className="ml-1 text-indigo-500 font-medium">
                 Buyer: {determinedBuyer}
@@ -2073,7 +2134,7 @@ const YPivotQAInspectionDefectConfig = ({
             }`}
           >
             <FilePenLine className="w-3 h-3" />
-            Manual
+            {t("fincheckInspectionDefectConfig.tabs.manual")}
           </button>
           <button
             onClick={() => setActiveTab("list")}
@@ -2083,7 +2144,7 @@ const YPivotQAInspectionDefectConfig = ({
                 : "text-gray-500"
             }`}
           >
-            Select
+            {t("fincheckInspectionDefectConfig.tabs.select")}
           </button>
           <button
             onClick={() => setActiveTab("results")}
@@ -2093,7 +2154,7 @@ const YPivotQAInspectionDefectConfig = ({
                 : "text-gray-500"
             }`}
           >
-            Results
+            {t("fincheckInspectionDefectConfig.tabs.results")}
             {savedDefects.length > 0 && (
               <span className="bg-indigo-500 text-white text-[8px] px-1 rounded-full">
                 {savedDefects.length}
@@ -2109,7 +2170,7 @@ const YPivotQAInspectionDefectConfig = ({
             }`}
           >
             <BarChart3 className="w-3 h-3" />
-            Summary
+            {t("fincheckInspectionDefectConfig.tabs.summary")}
           </button>
         </div>
       </div>
@@ -2154,7 +2215,7 @@ const YPivotQAInspectionDefectConfig = ({
                   <Trash2 className="w-8 h-8 text-red-600 dark:text-red-500" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                  Confirm Deletion
+                  {t("fincheckInspectionDefectConfig.delete.title")}
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
                   {deleteConfirm.message}
@@ -2167,13 +2228,14 @@ const YPivotQAInspectionDefectConfig = ({
                     }
                     className="flex-1 py-2.5 px-4 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold rounded-xl transition-colors text-sm"
                   >
-                    Cancel
+                    {t("fincheckInspectionDefectConfig.delete.cancel")}
                   </button>
                   <button
                     onClick={confirmDeleteAction}
                     className="flex-1 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-500/30 transition-all text-sm flex items-center justify-center gap-2"
                   >
-                    <Trash2 className="w-4 h-4" /> Delete
+                    <Trash2 className="w-4 h-4" />{" "}
+                    {t("fincheckInspectionDefectConfig.delete.confirm")}
                   </button>
                 </div>
               </div>

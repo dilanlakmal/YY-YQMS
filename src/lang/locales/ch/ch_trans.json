@@ -805,6 +805,106 @@
       "title": "测量汇总"
     }
   },
+  "fincheckInspectionDefectConfig": {
+    "warnings": {
+      "noContext": "无活动检验上下文",
+      "noContextDesc": "请转到<strong>{{infoTab}}</strong>标签页，并点击<strong>{{startBtn}}</strong>以添加缺陷。",
+      "infoTab": "信息",
+      "startBtn": "开始"
+    },
+    "session": {
+      "active": "进行中：",
+      "line": "生产线",
+      "table": "工作台"
+    },
+    "search": {
+      "placeholder": "搜索缺陷..."
+    },
+    "selection": {
+      "selected": "已选",
+      "defect": "个缺陷",
+      "defects": "个缺陷"
+    },
+    "actions": {
+      "clear": "清除",
+      "addSelected": "添加已选",
+      "addDefects": "添加",
+      "updateDefect": "更新缺陷",
+      "addDefectsWithCount": "添加缺陷 ({{count}})",
+      "addDefectsBtn": "添加缺陷"
+    },
+    "summary": {
+      "activeSession": "当前会话缺陷"
+    },
+    "status": {
+      "critical": "极严重",
+      "major": "严重",
+      "minor": "轻微",
+      "active": "进行中",
+      "locked": "已锁定"
+    },
+    "location": {
+      "noLocation": "无位置",
+      "withLocation": "有位置"
+    },
+    "view": {
+      "front": "正面",
+      "back": "背面"
+    },
+    "card": {
+      "entry": "条目 #",
+      "qty": "数量：",
+      "imagesAttached": "张图片已附",
+      "entry_singular": "条",
+      "entry_plural": "条"
+    },
+    "empty": {
+      "title": "暂无记录的缺陷。",
+      "description": "从列表中选择缺陷以添加。"
+    },
+    "modal": {
+      "title": "配置缺陷",
+      "buyer": "买家：",
+      "totalQty": "总数量",
+      "noLocationRequired": "无需位置",
+      "totalPieces": "总件数",
+      "qcInspector": "质检员 / 检验员",
+      "additionalRemark": "额外备注",
+      "remarkPlaceholder": "添加备注...",
+      "locationsPieces": "位置与件数",
+      "location_singular": "个位置",
+      "location_plural": "个位置",
+      "locationSelected": "已选",
+      "ready": "就绪"
+    },
+    "validation": {
+      "qtyGreaterThanZero": "请设置大于 0 的数量",
+      "selectLocation": "请至少选择一个位置",
+      "imagesMissing": "缺少必需图片："
+    },
+    "delete": {
+      "title": "确认删除",
+      "singleMessage": "确定要删除此缺陷条目吗？",
+      "aggregatedMessage": "删除「{{name}}」的全部 {{count}} 条记录{{type}}？",
+      "typeNoLocation": "（无位置）",
+      "typeWithLocation": "（有位置）",
+      "cancel": "取消",
+      "confirm": "删除"
+    },
+    "header": {
+      "title": "缺陷录入",
+      "description": "记录检验缺陷。"
+    },
+    "tabs": {
+      "manual": "手动",
+      "select": "选择",
+      "results": "结果",
+      "summary": "汇总"
+    },
+    "units": {
+      "pcs": "件"
+    }
+  },
   "fincheckProductLocation": {
     "title": "产品位置管理",
     "totalConfig": "总配置数",

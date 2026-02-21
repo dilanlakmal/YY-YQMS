@@ -806,6 +806,106 @@
       "title": "Measurement Summary"
     }
   },
+  "fincheckInspectionDefectConfig": {
+    "warnings": {
+      "noContext": "No Active Inspection Context",
+      "noContextDesc": "Go to <strong>{{infoTab}}</strong> tab and click \"<strong>{{startBtn}}</strong>\" to add defects.",
+      "infoTab": "Info",
+      "startBtn": "Start"
+    },
+    "session": {
+      "active": "Active:",
+      "line": "Line",
+      "table": "Table"
+    },
+    "search": {
+      "placeholder": "Search defects..."
+    },
+    "selection": {
+      "selected": "selected",
+      "defect": "defect",
+      "defects": "defects"
+    },
+    "actions": {
+      "clear": "Clear",
+      "addSelected": "Add Selected",
+      "addDefects": "Add",
+      "updateDefect": "Update Defect",
+      "addDefectsWithCount": "Add Defects ({{count}})",
+      "addDefectsBtn": "Add Defects"
+    },
+    "summary": {
+      "activeSession": "Active Session Defects"
+    },
+    "status": {
+      "critical": "Critical",
+      "major": "Major",
+      "minor": "Minor",
+      "active": "Active",
+      "locked": "Locked"
+    },
+    "location": {
+      "noLocation": "No Location",
+      "withLocation": "With Location"
+    },
+    "view": {
+      "front": "Front",
+      "back": "Back"
+    },
+    "card": {
+      "entry": "Entry #",
+      "qty": "Qty:",
+      "imagesAttached": "Image(s) Attached",
+      "entry_singular": "entry",
+      "entry_plural": "entries"
+    },
+    "empty": {
+      "title": "No defects recorded yet.",
+      "description": "Select defects from the list to add."
+    },
+    "modal": {
+      "title": "Configure Defects",
+      "buyer": "Buyer:",
+      "totalQty": "Total Qty",
+      "noLocationRequired": "No Location Required",
+      "totalPieces": "Total Pieces",
+      "qcInspector": "QC / Inspector",
+      "additionalRemark": "Additional Remark",
+      "remarkPlaceholder": "Add remark...",
+      "locationsPieces": "Locations & Pieces",
+      "location_singular": "location",
+      "location_plural": "locations",
+      "locationSelected": "selected",
+      "ready": "ready"
+    },
+    "validation": {
+      "qtyGreaterThanZero": "Please set quantity greater than 0",
+      "selectLocation": "Please select at least one location",
+      "imagesMissing": "Required images missing:"
+    },
+    "delete": {
+      "title": "Confirm Deletion",
+      "singleMessage": "Are you sure you want to delete this specific defect entry?",
+      "aggregatedMessage": "Delete all {{count}} entries for \"{{name}}\" {{type}}?",
+      "typeNoLocation": "(No Location)",
+      "typeWithLocation": "(With Locations)",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
+    "header": {
+      "title": "Defect Entry",
+      "description": "Record defects for inspection."
+    },
+    "tabs": {
+      "manual": "Manual",
+      "select": "Select",
+      "results": "Results",
+      "summary": "Summary"
+    },
+    "units": {
+      "pcs": "Pcs"
+    }
+  },
   "fincheckProductLocation": {
     "title": "Product Location Management",
     "totalConfig": "Total Configurations",
